@@ -21,7 +21,7 @@ before_script:
   - ls $R_LIBS_DIR
   - echo '.libPaths("'${R_LIBS_USER}'")' > .Rprofile
   - apt-get update
-  - apt-get install -y qpdf pandoc libfreetype6-dev pkg-config
+  - apt-get install -y qpdf pandoc
 
 stages:
 - deps
@@ -31,27 +31,21 @@ stages:
 deps:
   stage: deps
   script:
-  - R -e 'devtools::install_deps(dependencies = T)'
-  only:
-    - master
-    - schedules
+  - R -e 'remotes::install_deps(dependencies = T)'
 
 check:
   stage: check
   script:
-  - R -e 'devtools::check(check_dir = Sys.getenv("CHECK_DIR"), error_on = "error")'
+  - R -e 'devtools::check(check_dir = Sys.getenv("CHECK_DIR"), error_on = "warning")'
   - R -e 'devtools::install()'
-  only:
-    - master
-    - schedules
 
 pages:
   stage: deploy
   script:
-  - R -e 'devtools::install_github("r-lib/pkgdown")'
+  - R -e 'remotes::install_github("r-lib/pkgdown")'
   - R -e 'devtools::document()'
   - R -e 'pkgdown::build_site()'
-  - grep gitlab docs/reference/PROSPECT.html
+  - grep gitlab docs/reference/PREPROCS2.html
   - mv docs public
   artifacts:
     paths:

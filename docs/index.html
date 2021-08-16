@@ -44,19 +44,10 @@
   </a>
 </li>
 <li>
-  <a href="reference/index.html">Reference</a>
+  <a href="articles/preprocS2.html">Get started</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/preprocS21.html">1. Preprocessing S2 images with level-2A</a>
-    </li>
-  </ul>
+  <a href="reference/index.html">Reference</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
@@ -79,29 +70,30 @@
       </header><div class="row">
   <div class="contents col-md-9">
 
-<hr>
-<div id="output-github_document" class="section level2">
-<h2 class="hasAnchor">
-<a href="#output-github_document" class="anchor"></a>output: github_document</h2>
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-<p><code>{r, include = FALSE} knitr::opts_chunk$set(   collapse = TRUE,   comment = "#&gt;",   fig.path = "man/figures/README-",   out.width = "100%" )</code></p>
+<div id="preprocs2-" class="section level1">
+<div class="page-header"><h1 class="hasAnchor">
+<a href="#preprocs2-" class="anchor"></a><strong>preprocS2</strong> <img src="reference/figures/Sentinel-2.gif" align="right" alt="" width="200">
+</h1></div>
+</div>
+<div id="a-r-package-dedicated-to-basic-preprocessing-of-sentinel-2-level-2a-reflectance-images" class="section level1">
+<h1 class="hasAnchor">
+<a href="#a-r-package-dedicated-to-basic-preprocessing-of-sentinel-2-level-2a-reflectance-images" class="anchor"></a>A R package dedicated to basic preprocessing of Sentinel-2 Level-2A reflectance images</h1>
+
 </div>
 <div id="preprocs2" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#preprocs2" class="anchor"></a>preprocS2</h1></div>
-<!-- badges: start -->
-<!-- badges: end -->
-<p>The goal of preprocS2 is to …</p>
+<h1 class="hasAnchor">
+<a href="#preprocs2" class="anchor"></a>preprocS2</h1>
+<p>The goal of preprocS2 is to provide a common framework for teh preprocessing of Level-2A Sentinel-2 images. Sentinel-2 L2A images can be produced or obtained from various data hubs or atmospheric correction methods. preprocS2 provides a unique function to read, crop, resample the original image directory, and write it as a raster stack.</p>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
-<p>You can install the released version of preprocS2 from <a href="https://CRAN.R-project.org">CRAN</a> with:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"preprocS2"</span><span class="op">)</span></code></pre></div>
+<p>After installing package <code>devtools</code>, you need to install the package <code>preprocS2</code> with the following command line in R session:</p>
+<pre><code><a href="https://devtools.r-lib.org//reference/remote-reexports.html">devtools::install_gitlab('jbferet/preprocS2')</a></code></pre>
 </div>
 <div id="example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#example" class="anchor"></a>Example</h2>
+<p>A tutorial vignette is available <a href="https://jbferet.gitlab.io/preprocS2/articles/preprocS21.html">here</a>.</p>
 <p>This is a basic example which shows you how to solve a common problem:</p>
 <p><code>{r example} library(preprocS2) ## basic example code</code></p>
 <p>What is special about using <code>README.Rmd</code> instead of just <code>README.md</code>? You can include R chunks like so:</p>
@@ -139,7 +131,14 @@
 </ul>
 </div>
 
-  </div>
+  <div class="dev-status">
+<h2>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://www.r-project.org/Licenses/GPL-3"><img src="https://img.shields.io/badge/Licence-GPL--3-blue.svg" alt="licence"></a></li>
+<li><a href="https://gitlab.com/jbferet/preprocS2/pipelines/latest"><img src="https://gitlab.com/jbferet/preprocS2/badges/master/pipeline.svg" alt="Build Status"></a></li>
+</ul>
+</div>
+</div>
 </div>
 
 
