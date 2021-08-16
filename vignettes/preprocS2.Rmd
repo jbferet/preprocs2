@@ -1,0 +1,134 @@
+---
+title: "1. Preprocessing S2 images with level-2A"
+author: "Jean-Baptiste Féret"
+date: "`r Sys.Date()`"
+output:
+  html_vignette:
+    number_sections: true
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+    toc_depth: 2
+vignette: >
+  \usepackage[utf8]{inputenc}
+  %\VignetteIndexEntry{1. Preprocessing S2 images with level-2A}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+  
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval=FALSE
+)
+```
+
+This tutorial aims at illustrating how to access and preprocess Sentinel-2 images acquired at Level-2A with the R package `preprocS2`. 
+
+
+# Identifying and downloading Sentinel-2 images
+
+In the present situation, we are interested in downloading a unique Sentinel-2 image with no cloud cover for an illustration of the package. 
+We selected the Barrax area in Spain, as it is a well-known study area for application using remote sensing for crop monitoring. 
+
+First, we used [Sentinel-hub](https://apps.sentinel-hub.com/eo-browser/?zoom=11&lat=39.09836&lng=-2.01462&themeId=DEFAULT-THEME&visualizationUrl=https%3A%2F%2Fservices.sentinel-hub.com%2Fogc%2Fwms%2Fbd86bcc0-f318-402b-a145-015f85b9427e&datasetId=S2L2A&fromTime=2021-05-13T00%3A00%3A00.000Z&toTime=2021-05-13T23%3A59%3A59.999Z&layerId=1_TRUE_COLOR) in order to identify an acquisition corresponding to our requirement. 
+
+Once the S2 tile and the date of acquisition were identified, we could proceed to the image download. 
+We first defined a polygon corresponding to our study area, named 'Study_area_Barrax.shp' and saved on our computer. 
+
+We then used the R package [`sen2r`](https://sen2r.ranghetti.info/) in order to identify S2 product available for a specific date of acquisition, and download the corresponding Sentinel-2 SAFE archive. Here, level-2A images (atmospherically corrected with Sen2Cor) can be downloaded directly from [SciHub](https://scihub.copernicus.eu) with sen2r.
+
+
+```{r download_S2_image}
+library(sen2r)
+# define date of S2 acquisition
+dateAcq <- '2021-05-13'
+time_window <- as.Date(c(dateAcq, dateAcq))
+# define path for study area
+path_vector <- '../DATA/Study_area_Barrax.shp'
+# get product name corresponding to Barrax 
+list_safe <- s2_list(spatial_extent = sf::st_read(dsn = path_vector), time_interval = time_window)
+# define output directory where SAFE zipfile is stored
+DirWrite <- '../DATA/S2_Images'
+s2_download(list_safe, outdir=DirWrite)
+
+```
+
+# Preprocess S2 image
+
+Once the SAFE S2 image is downloaded, the R package [`preprocS2`](https://jbferet.gitlab.io/preprocS2/index.html) is used to stack individual bands, crop to required extent defined by the vector file, produce a binary cloud mask and save in the desired raster format.
+
+The function `extract_from_S2_L2A` performs cropping and resampling to 10m if needed, and provides a stars object as output, along with location for metadata and image full name.
+
+```{r preprocess_S2}
+library(preprocS2)
+##____________________________________________________________________##
+##        Define where data is stored and where to write results      ##
+##--------------------------------------------------------------------##
+# define raster path
+Path_S2 <- file.path(DirWrite,list.files(DirWrite,pattern = '.SAFE'))
+# Result directory
+result_path <- '../RESULTS'
+dir.create(path = result_path,showWarnings = FALSE,recursive = TRUE)
+
+##____________________________________________________________________##
+##                  Extract, resample & stack data                    ##
+##--------------------------------------------------------------------##
+# define resolution
+resolution <- 10
+# define source of data
+S2source <- 'SAFE'
+S2obj <- preprocS2::extract_from_S2_L2A(Path_dir_S2 = Path_S2,
+                                        path_vector = path_vector,
+                                        S2source = S2source,
+                                        resolution = resolution)
+
+# update shapefile if needed (reprojection)
+path_vector <- S2obj$path_vector
+
+```
+
+# Write reflectance, cloud mask and metadata
+
+Once the image is read, it can be written as stacked raster file, and stored with the binary cloud mask and the metadata file. 
+
+```{r write_raster}
+# create specific result directory corresponding to granule name
+results_site_path <- file.path(result_path,basename(S2obj$S2_Bands$GRANULE))
+dir.create(path = results_site_path,showWarnings = FALSE,recursive = TRUE)
+##____________________________________________________________________##
+##                        Write CLOUD MASK                            ##
+##--------------------------------------------------------------------##
+# directory for cloud mask
+Cloud_path <- file.path(results_site_path,'CloudMask')
+dir.create(path = Cloud_path,showWarnings = FALSE,recursive = TRUE)
+# Filename for cloud mask
+cloudmasks <- preprocS2::save_cloud_s2(S2_stars = S2obj$S2_Stack,
+                                       Cloud_path = Cloud_path,
+                                       S2source = S2source, SaveRaw = T)
+##____________________________________________________________________##
+##                        Write REFLECTANCE                           ##
+##--------------------------------------------------------------------##
+# directory for Reflectance
+Refl_dir <- file.path(results_site_path,'Reflectance')
+dir.create(path = Refl_dir,showWarnings = FALSE,recursive = TRUE)
+# filename for Reflectance
+Refl_path <- file.path(Refl_dir,paste(basename(S2obj$S2_Bands$GRANULE),'_Refl',sep = ''))
+
+# Save Reflectance file as ENVI image with BIL interleaves
+tileS2 <- substring(strsplit(basename(S2obj$S2_Bands$GRANULE),'_')[[1]][2],2)
+dateAcqS2 <- as.Date(substring(strsplit(basename(S2obj$S2_Bands$GRANULE),'_')[[1]][4],1,8),format="%Y%m%d")
+preprocS2::save_reflectance_s2(S2_stars = S2obj$S2_Stack, Refl_path = Refl_path,
+                               S2Sat = NULL, tile_S2 = tile_S2, dateAcq_S2 = dateAcq_S2,
+                               Format = 'ENVI_BIL', datatype = 'INT2S', MTD = S2obj$S2_Bands$metadata)
+```
+
+
+# Computation of spectral indices and biophysical variables
+
+Once reflectance data is written as a raster file, the R package `prosail` can be used for the computation of various spectral indices and biophysical variables direcrtlty from a raster stack corresponding to Level-2A reflectance. 
+
+

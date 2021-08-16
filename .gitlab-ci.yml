@@ -1,0 +1,62 @@
+image: thomaschln/r-devtools
+
+# gitlab-ci file inspired from https://www.r-bloggers.com/developing-r-packages-with-usethis-and-gitlab-ci-part-iii/
+
+variables:
+  R_LIBS_DIR: "$CI_PROJECT_DIR/ci/lib"
+  CHECK_DIR: "$CI_PROJECT_DIR/ci/logs"
+  BUILD_LOGS_DIR: "$CI_PROJECT_DIR/ci/logs/$CI_PROJECT_NAME.Rcheck"
+
+cache:
+  paths:
+  - $R_LIBS_DIR
+
+before_script:
+  - export R_LIBS_USER=$R_LIBS_DIR/$(R --version | sed -n 1p| sed -r 's/.*([0-9]\.[0-9]\.[0-9]).*/\1/')
+  - echo $R_LIBS_USER
+  - mkdir -p $R_LIBS_USER $BUILD_LOGS_DIR
+  - ls $R_LIBS_DIR
+  # remove previous R version libs
+  - find $R_LIBS_DIR/* -maxdepth 0 ! -name $(basename $R_LIBS_USER) -type d -exec rm -r {} +
+  - ls $R_LIBS_DIR
+  - echo '.libPaths("'${R_LIBS_USER}'")' > .Rprofile
+  - apt-get update
+  - apt-get install -y qpdf pandoc libfreetype6-dev pkg-config
+
+stages:
+- deps
+- check
+- deploy
+
+deps:
+  stage: deps
+  script:
+  - R -e 'devtools::install_deps(dependencies = T)'
+  only:
+    - master
+    - schedules
+
+check:
+  stage: check
+  script:
+  - R -e 'devtools::check(check_dir = Sys.getenv("CHECK_DIR"), error_on = "error")'
+  - R -e 'devtools::install()'
+  only:
+    - master
+    - schedules
+
+pages:
+  stage: deploy
+  script:
+  - R -e 'devtools::install_github("r-lib/pkgdown")'
+  - R -e 'devtools::document()'
+  - R -e 'pkgdown::build_site()'
+  - grep gitlab docs/reference/PROSPECT.html
+  - mv docs public
+  artifacts:
+    paths:
+    - public
+
+  only:
+  - master
+
