@@ -21,12 +21,12 @@ before_script:
   - ls $R_LIBS_DIR
   - echo '.libPaths("'${R_LIBS_USER}'")' > .Rprofile
   - apt-get update
-  - apt-get install -y qpdf pandoc
+  - apt-get install -y qpdf pandoc git libcurl4-openssl-dev libgit2-dev libudunits2-dev libnetcdf-dev libproj-dev libgeos-dev libgdal-dev netcdf-bin
 
 stages:
-- deps
-- check
-- deploy
+  - deps
+  - check
+  - deploy
 
 deps:
   stage: deps
@@ -42,10 +42,10 @@ check:
 pages:
   stage: deploy
   script:
-  - R -e 'remotes::install_github("r-lib/pkgdown")'
+  - R -e 'devtools::install_github("r-lib/pkgdown", upgrade="never")' # GITHUB_PAT necessary
   - R -e 'devtools::document()'
   - R -e 'pkgdown::build_site()'
-  - grep gitlab docs/reference/PREPROCS2.html
+  # - grep gitlab docs/reference/PREPROCS2.html
   - mv docs public
   artifacts:
     paths:
