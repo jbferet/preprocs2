@@ -21,7 +21,7 @@ devtools::install_gitlab('jbferet/preprocS2')
 
 ## Example
 
-A tutorial vignette is available [here](https://jbferet.gitlab.io/preprocS2/articles/preprocS2.html).
+A tutorial vignette is available [here](https://jbferet.gitlab.io/preprocs2/articles/preprocS2.html).
 
 Sentinel-2 data can be accessed via various hubs including: 
 
