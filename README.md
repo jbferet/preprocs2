@@ -21,27 +21,12 @@ devtools::install_gitlab('jbferet/preprocS2')
 
 ## Example
 
-A tutorial vignette is available [here](https://jbferet.gitlab.io/preprocS2/articles/preprocS21.html).
+A tutorial vignette is available [here](https://jbferet.gitlab.io/preprocS2/articles/preprocS2.html).
 
-This is a basic example which shows you how to solve a common problem:
+Sentinel-2 data can be accessed via various hubs including: 
 
-```{r example}
-library(preprocS2)
-## basic example code
-```
+[Copernicus Open Access Hub](https://scihub.copernicus.eu/), which provides complete, free and open access to Sentinel-2 data
+[PEPS](https://peps.cnes.fr/rocket/#/home), la 'Plateforme d'Exploitation de Produits Sentinel' 
+[THEIA](https://theia.cnes.fr/atdistrib/rocket/#/search?collection=SENTINEL2)
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
-```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/master/examples>.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+`preprocS2` does not aim at performing atmospheric corrections, and it expects [Level 2A Sentinel-2 products](https://sentinels.copernicus.eu/web/sentinel/user-guides/sentinel-2-msi/product-types/level-2a) delivered by an atmospheric correction algorithm, such as [Sen2Cor](http://step.esa.int/main/snap-supported-plugins/sen2cor/), [MAJA](https://www.theia-land.fr/en/product/sentinel-2-surface-reflectance/) or [LaSRC](https://www.sciencedirect.com/science/article/pii/S0034425718304139).
