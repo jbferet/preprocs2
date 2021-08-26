@@ -635,6 +635,27 @@ split_line <- function(x, separator, trim.blank = TRUE) {
   return(value)
 }
 
+#' save raster footprint as vector file
+#'
+#' @param path_raster character. path for a raster file
+#' @param path_vector character. path for a vector file
+#' @param driver character. driver for vector
+#'
+#' @return None
+#' @importFrom raster raster extent
+#' @importFrom sf st_as_sf st_write
+#' @export
+vectorize_raster_extent <- function(path_raster, path_vector, driver="ESRI Shapefile") {
+  rast <- raster(path_raster)
+  e <- extent(rast)
+  # coerce to a SpatialPolygons object
+  p <- as(e, 'SpatialPolygons')
+  projection(p) <- projection(rast)
+  p <- sf::st_as_sf(p)
+  sf::st_write(obj = p, path_vector, driver=driver)  # create to a shapefile
+  return(invisible())
+}
+
 #' writes ENVI hdr file
 #'
 #' @param HDR content to be written
