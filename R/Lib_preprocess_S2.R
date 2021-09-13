@@ -257,7 +257,7 @@ get_S2_bands_from_Sen2Cor <- function(Path_dir_S2, resolution=10){
     B20m <- c('B05','B06','B07','B8A','B11','B12')
   } else {
     B10m <- c()
-    B20m <- c('B02','B03','B04','B05','B06','B07','B8A','B11','B12')
+    B20m <- c('B02','B03','B04','B05','B06','B07','B08','B8A','B11','B12')
   }
   # get granule directory & path for corresponding metadata XML file
   granule <- list.dirs(list.dirs(Path_dir_S2,recursive = FALSE)[grep(pattern = 'GRANULE',x = list.dirs(Path_dir_S2,recursive = FALSE))],recursive = FALSE)
