@@ -257,7 +257,7 @@ get_S2_bands_from_Sen2Cor <- function(Path_dir_S2, resolution=10){
     B20m <- c('B05','B06','B07','B8A','B11','B12')
   } else {
     B10m <- c()
-    B20m <- c('B02','B03','B04','B05','B06','B07','B8A','B11','B12')
+    B20m <- c('B02','B03','B04','B05','B06','B07','B08','B8A','B11','B12')
   }
   # get granule directory & path for corresponding metadata XML file
   granule <- list.dirs(list.dirs(Path_dir_S2,recursive = FALSE)[grep(pattern = 'GRANULE',x = list.dirs(Path_dir_S2,recursive = FALSE))],recursive = FALSE)
@@ -277,10 +277,6 @@ get_S2_bands_from_Sen2Cor <- function(Path_dir_S2, resolution=10){
   Cloud <- 'MSK_CLDPRB_20m'
   Cloud_20m_dir <- file.path(granule,'QI_DATA')
   S2Bands_20m[['Cloud']] <- file.path(Cloud_20m_dir,list.files(Cloud_20m_dir,pattern = Cloud))
-  # get metadata file
-  granule <- list.dirs(list.dirs(Path_dir_S2,recursive = FALSE)[grep(pattern = 'GRANULE',x = list.dirs(Path_dir_S2,recursive = FALSE))],recursive = FALSE)
-
-
   ListBands <- list('S2Bands_10m'=S2Bands_10m,'S2Bands_20m'=S2Bands_20m,'GRANULE'=granule,'metadata'=MTDfile)
   return(ListBands)
 }
@@ -493,8 +489,14 @@ read_raster <- function(path_raster, path_vector = NULL, BBpix = NULL){
 reproject_shp = function(path_vector_init,newprojection,path_vector_reproj){
 
   dir_vector_init <- dirname(path_vector_init)
-  name_vector_init <- file_path_sans_ext(basename(path_vector_init))
-  vector_init_OGR <- rgdal::readOGR(dir_vector_init,name_vector_init,verbose = FALSE)
+  # shapefile extension
+  fileext <- file_ext(basename(path_vector_init))
+  if (fileext=='shp'){
+    name_vector_init <- file_path_sans_ext(basename(path_vector_init))
+    vector_init_OGR <- rgdal::readOGR(dir_vector_init,name_vector_init,verbose = FALSE)
+  } else if (fileext=='kml'){
+    vector_init_OGR <- rgdal::readOGR(path_vector_init,verbose = FALSE)
+  }
   vector_init_proj <- raster::projection(vector_init_OGR)
 
   if (!vector_init_proj==newprojection){
