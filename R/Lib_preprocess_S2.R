@@ -51,6 +51,7 @@ check_S2mission <- function(S2Sat, tile_S2, dateAcq_S2){
 #' @param S2source character. type of directory format (depends on atmospheric correction: SAFE produced from Sen2Cor)
 #' @param resolution numeric. buffer applied to vector file (in meters)
 #' @param interpolation character. method for resampling. default = 'bilinear'
+#' @param fre_sre character. SRE or FRE products from THEIA
 #'
 #' @return ListOut list.
 #' - image stack
@@ -60,11 +61,12 @@ check_S2mission <- function(S2Sat, tile_S2, dateAcq_S2){
 #' @importFrom raster raster
 #' @importFrom tools file_path_sans_ext file_ext
 #' @export
-extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE', resolution=10, interpolation='bilinear'){
+extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE', resolution=10, interpolation='bilinear', fre_sre = 'FRE'){
   # Get list of paths corresponding to S2 bands and depending on S2 directory
   S2_Bands <- get_S2_bands(Path_dir_S2 = Path_dir_S2,
                            S2source = S2source,
-                           resolution = resolution)
+                           resolution = resolution,
+                           fre_sre = fre_sre)
 
   if (length(S2_Bands$S2Bands_10m)>0){
     rastmp <- raster::raster(S2_Bands$S2Bands_10m[[1]])
@@ -220,15 +222,16 @@ get_HDR_name <- function(ImPath) {
 #' @param Path_dir_S2 character. Path for the directory containing S2 data. either L2A .SAFE S2 file or THEIA directory
 #' @param S2source character. defines if data comes from SciHub as SAFE directory, from THEIA or from LaSRC
 #' @param resolution numeric. spatial resolution of the final image: 10m or 20m
+#' @param fre_sre character. SRE or FRE products from THEIA
 #'
 #' @return ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution
 #' @export
-get_S2_bands <- function(Path_dir_S2, S2source = 'SAFE', resolution = 10){
+get_S2_bands <- function(Path_dir_S2, S2source = 'SAFE', resolution = 10, fre_sre = 'FRE'){
 
   if (S2source=='SAFE' | S2source=='Sen2Cor'){
     ListBands <- get_S2_bands_from_Sen2Cor(Path_dir_S2 = Path_dir_S2,resolution = resolution)
   } else if (S2source=='THEIA'){
-    ListBands <- get_S2_bands_from_THEIA(Path_dir_S2 = Path_dir_S2,resolution = resolution)
+    ListBands <- get_S2_bands_from_THEIA(Path_dir_S2 = Path_dir_S2,resolution = resolution, fre_sre = fre_sre)
   } else if (S2source=='LaSRC'){
     ListBands <- get_S2_bands_from_LaSRC(Path_dir_S2 = Path_dir_S2,resolution = resolution)
   } else {
@@ -317,13 +320,11 @@ get_S2_bands_from_LaSRC <- function(Path_dir_S2, resolution=10){
 #'
 #' @param Path_dir_S2 character. Path for the SAFE directory containing S2 data
 #' @param resolution numeric. spatial resolution of the final image: 10m or 20m
+#' @param fre_sre character. SRE or FRE products from THEIA
 #'
 #' @return ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution, as well name of as granule
 #' @export
-get_S2_bands_from_THEIA <- function(Path_dir_S2, resolution=10){
-
-  # param to deal with SRE or FRE products from THEIA
-  fre_sre='FRE'
+get_S2_bands_from_THEIA <- function(Path_dir_S2, resolution=10, fre_sre='FRE'){
 
   # build path for all bands
   if (resolution == 10){
