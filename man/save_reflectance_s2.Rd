@@ -8,7 +8,7 @@ save_reflectance_s2(
   S2_stars,
   Refl_path,
   Format = "ENVI_BIL",
-  datatype = "INT2S",
+  datatype = "Int16",
   S2Sat = NULL,
   tile_S2 = NULL,
   dateAcq_S2 = NULL,

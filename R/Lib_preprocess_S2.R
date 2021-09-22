@@ -44,6 +44,26 @@ check_S2mission <- function(S2Sat, tile_S2, dateAcq_S2){
   return(s2mission)
 }
 
+#' this function aims at computing directory size
+#' @param path character. path for directory
+#' @param recursive boolean . set T if recursive
+#'
+#' @return size_files numeric. size in bytes
+#' - image stack
+#' - path for individual band files corresponding to the stack
+#' - path for vector (reprojected if needed)
+#'
+#' @importFrom raster raster
+#' @importFrom tools file_path_sans_ext file_ext
+#' @export
+dir_size <- function(path, recursive = TRUE) {
+  stopifnot(is.character(path))
+  files <- list.files(path, full.names = T, recursive = recursive)
+  vect_size <- sapply(files, function(x) file.size(x))
+  size_files <- sum(vect_size)
+  return(size_files)
+}
+
 #' This function reads S2 data from L2A directories downloaded from
 #' various data hubs including THEIA, PEPS & SCIHUB (SAFE format & LaSRC)
 #' @param Path_dir_S2 character. path for S2 directory
@@ -96,17 +116,33 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE', 
                               resampling = resampling, interpolation = interpolation)
   }
   # get full stack including 10m and 20m spatial resolution
-  if (length(S2_Bands$S2Bands_10m)>0){
+  if (length(S2_Bands$S2Bands_10m)>0 & length(S2_Bands$S2Bands_20m)>0 ){
+    S2_Stack <- c(Stack_10m,Stack_20m,along='band')
+    # reorder bands with increasing wavelength
+    S2Bands <- c("B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12", "Cloud")
+    NameBands <- c(names(S2_Bands$S2Bands_10m),names(S2_Bands$S2Bands_20m))
+    reorder_bands <- match(S2Bands,NameBands)
+    S2_Stack <- S2_Stack[,,,reorder_bands]
+    NameBands <- NameBands[reorder_bands]
+  } else if (length(S2_Bands$S2Bands_10m)>0){
     S2_Stack <- Stack_10m
-    if (length(S2_Bands$S2Bands_20m)>0){
-      for (band20 in names(S2_Bands$S2Bands_20m)){
-        S2_Stack[[band20]] <- Stack_20m[[band20]]
-      }
-    }
-  } else {
+    NameBands <- names(S2_Bands$S2Bands_10m)
+  } else if (length(S2_Bands$S2Bands_20m)>0){
     S2_Stack <- Stack_20m
+    NameBands <- names(S2_Bands$S2Bands_20m)
   }
-  ListOut <- list('S2_Stack'=S2_Stack,'S2_Bands'=S2_Bands,'path_vector'=path_vector)
+  #
+  # if (length(S2_Bands$S2Bands_10m)>0){
+  #   S2_Stack <- Stack_10m
+  #   if (length(S2_Bands$S2Bands_20m)>0){
+  #     for (band20 in names(S2_Bands$S2Bands_20m)){
+  #       S2_Stack[[band20]] <- Stack_20m[[band20]]
+  #     }
+  #   }
+  # } else {
+  #   S2_Stack <- Stack_20m
+  # }
+  ListOut <- list('S2_Stack'=S2_Stack,'S2_Bands'=S2_Bands, 'path_vector'=path_vector, 'NameBands' = NameBands)
   return(ListOut)
 }
 
@@ -368,6 +404,137 @@ get_S2_bands_from_THEIA <- function(Path_dir_S2, resolution=10, fre_sre='FRE'){
   return(ListBands)
 }
 
+#' This function check S2 data level:
+#' - L2A: already atmospherically corrected
+#' - L1C: requires atmospheric corrections with sen2cor
+#'
+#' @param prodName character. original name for the S2 image
+#'
+#' @return S2Level character. S2 level: L1C or L2A
+#' @export
+get_S2_level <- function(prodName){
+  prodName <- basename(prodName)
+  if (length(grep(pattern = 'L1C_',x = prodName))==1){
+    S2Level <- 'L1C'
+  } else if (length(grep(pattern = 'L2A_',x = prodName))==1){
+    S2Level <- 'L2A'
+  }
+  return(S2Level)
+}
+
+#' download S2 L1C data from Copernicus hub or Google Cloud
+#'
+#' @param list_safe safe object. produced with sen2r::s2_list
+#' @param l1c_path character. path for storage of L1C image
+#' @param path_vector path for a vector file
+#' @param time_interval dates. time interval for S2 query
+#' @param GoogleCloud boolean. set to TRUE if google cloud SDK is installed and
+#' @param ForceGoogle boolean. set to TRUE if only google requested
+#' sen2r configured as an alternative hub for S2 download
+#'
+#' @return prodName character. S2 Product name
+#' @importFrom sen2r safe_is_online s2_list s2_download s2_order check_gcloud
+#' @export
+get_S2_L1C_Image <- function(list_safe,l1c_path,path_vector,time_interval,
+                             GoogleCloud=FALSE, ForceGoogle=FALSE){
+  # Check if available from Copernicus hub first
+  Copernicus_Avail <- sen2r::safe_is_online(list_safe)
+  # if available: download
+  prodName <- attr(list_safe,which = "name")
+  if (file.exists(file.path(l1c_path,prodName))){
+    message('L1C file already downloaded')
+    message(file.path(l1c_path,prodName))
+  } else {
+    if (Copernicus_Avail==TRUE & ForceGoogle==FALSE) {
+      sen2r::s2_download(list_safe, outdir=l1c_path)
+    } else if (Copernicus_Avail==FALSE | ForceGoogle==TRUE){
+      # if not available and GoogleCloud==TRUE
+      if (GoogleCloud==TRUE){
+        # check if google cloud SDK available from this computer
+        ggc <- sen2r::check_gcloud()
+        if (ggc==TRUE){
+          message('downloading from Google Cloud')
+          list_safe_ggc <- sen2r::s2_list(spatial_extent = sf::st_read(dsn = path_vector),
+                                          time_interval = time_interval,
+                                          server = "gcloud")
+          prodName <- attr(list_safe_ggc,which = "name")
+          if (file.exists(file.path(l1c_path,prodName))){
+            message('L1C file already downloaded')
+            message(file.path(l1c_path,prodName))
+          } else {
+            sen2r::s2_download(list_safe_ggc, outdir=l1c_path)
+            # check if QI_DATA exists in DATASTRIP, and create it if not the case
+            DATASTRIP_Path <- file.path(l1c_path,prodName,'DATASTRIP')
+            dsdir <- list.dirs(DATASTRIP_Path,recursive = F)
+            if (length(match(list.dirs(dsdir,recursive = F,full.names = F),'QI_DATA'))==0){
+              dir.create(file.path(dsdir,'QI_DATA'))
+            }
+          }
+        } else if (ggc==FALSE){
+          message('GoogleCloud set to TRUE but missing')
+          message('Please install Google Cloud SDK')
+          message('https://cloud.google.com/sdk/docs/install')
+          message('and/or set configuration of sen2r following instructions')
+          message('https://www.r-bloggers.com/2021/06/downloading-sentinel-2-archives-from-google-cloud-with-sen2r/')
+        }
+      }
+    }
+    if (Copernicus_Avail==FALSE & GoogleCloud==FALSE){
+      message('S2 image in Long Term Archive (LTA)')
+      message('Ordering image from  LTA')
+      message('This may take 1 day, please run your script later')
+      orderS2 <- sen2r::s2_order(list_safe)
+      message('An alternative is possible with Google Cloud SDK')
+      message('https://cloud.google.com/sdk/docs/install')
+      message('and/or set configuration of sen2r following instructions')
+      message('https://www.r-bloggers.com/2021/06/downloading-sentinel-2-archives-from-google-cloud-with-sen2r/')
+    }
+  }
+  return(prodName)
+}
+
+#' download S2 L2A data from Copernicus hub or convert L1C to L2A
+#'
+#' @param l2a_path character. path for storage of L2A image
+#' @param spatial_extent path for a vector file
+#' @param dateAcq character. date of acquisition
+#' @param l1c_path character. path for storage of L1C image
+#' @param GoogleCloud boolean. set to TRUE if google cloud SDK is installed and
+#' sen2r configured as an alternative hub for S2 download
+#'
+#' @return PathL2A character. Path for L2A image
+#' @importFrom sen2r s2_list s2_download
+#' @export
+get_S2_L2A_Image <- function(l2a_path, spatial_extent, dateAcq,
+                             l1c_path = NULL, GoogleCloud=FALSE){
+  # define time interval
+  time_interval <- as.Date(c(dateAcq, dateAcq))
+  # get product name corresponding to study area and date of interest using sen2r package
+  list_safe <- sen2r::s2_list(spatial_extent = sf::st_read(dsn = spatial_extent), time_interval = time_interval)
+  # get product name !! assuming only one product is ordered
+  prodName <- attr(list_safe,which = "name")
+  S2Level <- get_S2_level(prodName)
+
+  datePattern <- gsub(pattern = '-',replacement = '',x = dateAcq)
+  # if L2A
+  if (S2Level=='L2A'){
+    # Directly download S2A file
+    s2_download(list_safe, outdir=l2a_path)
+    PathL2A <- list.files(path = l2a_path,pattern = datePattern,full.names = TRUE)
+  } else if (S2Level=='L1C'){
+    # define/create L1C directory if not defined
+    if (is.null(l1c_path)){
+      l1c_path <- file.path(l2a_path,'L1C')
+    }
+    dir.create(path = l1c_path,showWarnings = FALSE,recursive = TRUE)
+    # download S2 L1C data from copernicus hub or Google Cloud
+    prodName <- get_S2_L1C_Image(list_safe,l1c_path,spatial_extent,time_interval,GoogleCloud=GoogleCloud)
+    PathL2A <- S2_from_L1C_to_L2A(prodName = prodName, l1c_path =l1c_path, l2a_path = l2a_path,
+                                  datePattern = datePattern, tmp_path=NULL)
+  }
+  return(PathL2A)
+}
+
 #' convert image coordinates from index to X-Y
 #'
 #' @param Raster image raster object
@@ -466,12 +633,12 @@ read_S2bands <- function(S2_Bands, path_vector = NULL,
   if (resampling==1){
     interpolation = 'nearest_neighbour'
   }
-  Stack_S2 <- stars::read_stars(S2_Bands,
+  Stack_S2 <- stars::read_stars(S2_Bands, along = 'band',
                                 RasterIO = list(nXOff = nXOff, nYOff = nYOff,
                                                 nXSize = nXSize, nYSize = nYSize,
                                                 nBufXSize = nBufXSize, nBufYSize = nBufYSize,
                                                 resample=interpolation),proxy = FALSE)
-  names(Stack_S2) <- names(S2_Bands)
+  # names(Stack_S2) <- names(S2_Bands)
 
   # adjust size to initial vector footprint without buffer
   # --> buffer is needed in order to ensure that extraction following
@@ -508,7 +675,7 @@ read_raster <- function(path_raster, path_vector = NULL, BBpix = NULL){
   nYSize <- BB_XYcoords$LR$row-BB_XYcoords$UR$row+1
   nBufXSize <- nXSize
   nBufYSize <- nYSize
-  starsobj <- stars::read_stars(path_raster,
+  starsobj <- stars::read_stars(path_raster, along = 'band',
                                 RasterIO = list(nXOff = nXOff, nYOff = nYOff,
                                                 nXSize = nXSize, nYSize = nYSize,
                                                 nBufXSize = nBufXSize, nBufYSize = nBufYSize),
@@ -555,6 +722,87 @@ reproject_shp = function(path_vector_init,newprojection,path_vector_reproj){
   return(path_vector)
 }
 
+
+#' perform atmospheric corrections to convert L1C to L2A data with Sen2cor
+#'
+#' @param prodName character. produced with sen2r::s2_list
+#' @param l1c_path character. path of directory where L1C image is stored
+#' @param l2a_path character. path of directory where L2A image is stored
+#' @param datePattern character. pattern corresponding to date of acquisition to identify L2A directory
+#' @param tmp_path character. path of temporary directory where L2A image is stored
+#' sen2r configured as an alternative hub for S2 download
+#'
+#' @return PathL2A character. S2 Product name
+#' @importFrom sen2r safe_is_online s2_list s2_download s2_order
+#' @importFrom R.utils getAbsolutePath
+#'
+#' @export
+S2_from_L1C_to_L2A <- function(prodName, l1c_path, l2a_path, datePattern, tmp_path=NULL){
+
+  # define path for tmp directory
+  if (is.null(tmp_path)){
+    tmp_path <- tempdir(check = T)
+  }
+  tmp_prodlist <-prodName
+  # perform Sen2Cor atmospheric corrections
+  binPath <- sen2r::load_binpaths()
+  # 2- open a command prompt and directly run sen2cor with following command line
+  cmd <- paste(binPath$sen2cor,
+               '--output_dir', R.utils::getAbsolutePath(l2a_path),
+               R.utils::getAbsolutePath(file.path(l1c_path,prodName)),sep = ' ')
+  system(cmd)
+  PathL2A <- list.files(path = l2a_path,pattern = datePattern,full.names = TRUE)
+
+  # # Ready when parameterization of sen2cor with sen2r will be ok
+  # PathL2A <- tryCatch(
+  #   # first attempt: run sen2cor directly from sen2r
+  #   {
+  #     l2aFile <- sen2r::sen2cor(l1c_prodlist = prodName,
+  #                               l1c_dir = l1c_path, outdir = l2a_path ,
+  #                               proc_dir = tmp_path, tmpdir = tmp_path,
+  #                               rmtmp = TRUE, gipp = NA,
+  #                               use_dem = TRUE, #allows topographic correction
+  #                               tiles = NA, parallel = TRUE, #goes faster,
+  #                               kill_errored = FALSE, overwrite = TRUE,
+  #                               .log_message = NA, .log_output = NA)
+  #   },
+  #   # if fails then try system command
+  #   error=function(cond) {
+  #     message("error while calling sen2cor from sen2r:")
+  #     message(cond)
+  #     message("running sen2cor directly with system command using default parameters")
+  #     # 1- identify where sen2cor is located
+  #     binPath <- sen2r::load_binpaths()
+  #     # 2- open a command prompt and directly run sen2cor with following command line
+  #     cmd <- paste(binPath$sen2cor,
+  #                  '--output_dir', R.utils::getAbsolutePath(l2a_path),
+  #                  R.utils::getAbsolutePath(file.path(l1c_path,prodName)),sep = ' ')
+  #     system(cmd)
+  #     PathL2A <- list.files(path = l2a_path,pattern = datePattern,full.names = TRUE)
+  #     return(PathL2A)
+  #   },
+  #   # if small size for final image, possible problem with sen2r::sen2cor, then re-run
+  #   finally = {
+  #     if (dir_size(l2aFile)/dir_size(file.path(l1c_path,prodName)) < 0.5){
+  #       # delete L2A file showing very small size
+  #       unlink(x = l2aFile,recursive = TRUE)
+  #       message("L2A file seems unabnormally small, process must have failed")
+  #       message("running sen2cor directly with system command using default parameters")
+  #       # 1- identify where sen2cor is located
+  #       binPath <- sen2r::load_binpaths()
+  #       # 2- open a command prompt and directly run sen2cor with following command line
+  #       cmd <- paste(binPath$sen2cor,
+  #                    '--output_dir', R.utils::getAbsolutePath(l2a_path),
+  #                    R.utils::getAbsolutePath(file.path(l1c_path,prodName)),sep = ' ')
+  #       system(cmd)
+  #       PathL2A <- list.files(path = l2a_path,pattern = datePattern,full.names = TRUE)
+  #     }
+  #   return(PathL2A)
+  #   }
+  # )
+  return(PathL2A)
+}
+
 #' This function saves cloud masks.
 #' 'CloudMask_Binary' is default binary mask with 0 where clouds are detected and 1 for clean pixels
 #' 'CloudMask_RAW' is the original cloud layer produced by atmospheric correction algorithm
@@ -570,30 +818,31 @@ reproject_shp = function(path_vector_init,newprojection,path_vector_reproj){
 #' @export
 save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',SaveRaw = FALSE){
 
+  WhichCloud <- which(attributes(S2_stars)$dimensions$band$values=="Cloud")
   # Save cloud mask
   if (SaveRaw==TRUE){
     Cloudraw <- file.path(Cloud_path,'CloudMask_RAW')
-    WhichCloud <- which(names(S2_stars)=="Cloud")
-    stars::write_stars(S2_stars, dsn=Cloudraw,layer=WhichCloud, driver =  "ENVI",type='Byte')
+    stars::write_stars(S2_stars[,,,WhichCloud], dsn=Cloudraw, driver =  "ENVI",type='Byte')
+    # WhichCloud <- which(names(S2_stars)=="Cloud")
+    # stars::write_stars(S2_stars, dsn=Cloudraw,layer=WhichCloud, driver =  "ENVI",type='Byte')
   } else {
     Cloudraw <- NULL
   }
   # Save cloud mask as in biodivMapR (0 = clouds, 1 = pixel ok)
-  cloudmask <- S2_stars[['Cloud']]
+  cloudmask <- S2_stars[,,,WhichCloud]
+  attributes(cloudmask)$dimensions$band$values <- 'Cloud_v2'
   if (S2source=='SAFE' | S2source=='THEIA'){
-    Cloudy <- which(cloudmask>0)
-    Sunny <- which(cloudmask==0)
+    Cloudy <- which(cloudmask[[1]]>0)
+    Sunny <- which(cloudmask[[1]]==0)
   } else if (S2source=='LaSRC'){
-    Cloudy <- which(is.na(cloudmask))
-    Sunny <- which(cloudmask==1)
+    Cloudy <- which(is.na(cloudmask[[1]]))
+    Sunny <- which(cloudmask[[1]]==1)
   }
-  cloudmask[Cloudy] <- 0
-  cloudmask[Sunny] <- 1
-  S2_stars[['Cloud']] <- cloudmask
+  cloudmask[[1]][Cloudy] <- 0
+  cloudmask[[1]][Sunny] <- 1
   Cloudbin <- file.path(Cloud_path,'CloudMask_Binary')
-  stars::write_stars(S2_stars, dsn=Cloudbin,layer=WhichCloud, driver =  "ENVI",type='Byte',overwrite = TRUE)
+  stars::write_stars(cloudmask, dsn=Cloudbin, driver =  "ENVI",type='Byte',overwrite = TRUE)
   CloudMasks <- list('BinaryMask' = Cloudbin, 'RawMask' = Cloudraw)
-
   return(CloudMasks)
 }
 
@@ -611,7 +860,7 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',SaveRaw = FALS
 #' @return None
 #' @importFrom stars write_stars
 #' @export
-save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI_BIL',datatype='INT2S',
+save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI_BIL',datatype='Int16',
                                 S2Sat = NULL, tile_S2 = NULL, dateAcq_S2 = NULL, MTD = NULL){
   # identify if S2A or S2B, if possible
   s2mission <- check_S2mission(S2Sat = S2Sat, tile_S2 = tile_S2, dateAcq_S2 = dateAcq_S2)
@@ -632,7 +881,8 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI_BIL',datatype=
   }
   # identify where spectral bands are in the stars object
   Stars_Spectral <- list()
-  Stars_Spectral$bandname <- names(S2_stars)[which(!names(S2_stars)=='Cloud')]
+  starsnames <- attributes(S2_stars)$dimensions$band$values
+  Stars_Spectral$bandname <- starsnames[which(!starsnames=='Cloud')]
   Stars_Spectral$wavelength <- WL_s2[Stars_Spectral$bandname]
 
   SortedWL <- names(WL_s2)
@@ -641,7 +891,7 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI_BIL',datatype=
   if (length(Elim)>0){
     Reorder <- Reorder[-Elim]
   }
-  S2_stars <- S2_stars[Reorder]
+  S2_stars <- S2_stars[,,,Reorder]
   Stars_Spectral$bandname <- Stars_Spectral$bandname[Reorder]
   Stars_Spectral$wavelength <- Stars_Spectral$wavelength[Reorder]
   write_Stack_S2(Stars_S2 = S2_stars, Stars_Spectral = Stars_Spectral, Refl_path = Refl_path,
@@ -688,7 +938,7 @@ split_line <- function(x, separator, trim.blank = TRUE) {
 #' @param driver character. driver for vector
 #'
 #' @return None
-#' @importFrom raster raster extent
+#' @importFrom raster raster extent projection
 #' @importFrom sf st_as_sf st_write
 #' @export
 vectorize_raster_extent <- function(path_raster, path_vector, driver="ESRI Shapefile") {
@@ -769,26 +1019,83 @@ write_rasterStack_ENVI <- function(StackObj,StackPath,Bands,datatype='INT2S',sen
   return(invisible())
 }
 
+#' This function writes a stars Stack object into a ENVI raster file
+#'
+#' @param StarsObj list. stars stack (read with along = 'band')
+#' @param dsn character. path where to store the stack
+#' @param Bands list. should include 'bandname', and if possible 'wavelength'
+#' @param datatype character. should be Int16 or Float64 for example
+#' @param sensor character. Name of the sensor used to acquire the image
+#'
+#' @return None
+#' @importFrom utils read.table
+#' @importFrom raster hdr raster
+#' @export
+write_starsStack_ENVI <- function(StarsObj,dsn,datatype='Int16',Bands,sensor='Unknown'){
+
+  write_stars(StarsObj, dsn=dsn,driver =  "EHdr",type=datatype)
+  # r <- raster::writeRaster(x = StarsObj, filename = StackPath, format = "EHdr", overwrite = TRUE, datatype = datatype)
+  raster::hdr(raster(dsn), format = "ENVI")
+  # Edit HDR file to add metadata
+  HDR <- read_ENVI_header(get_HDR_name(dsn))
+  HDR$`band names` <- Bands$bandname
+  if (length(Bands$wavelength)==length(Bands$bandname)){
+    HDR$wavelength <- Bands$wavelength
+  } else {
+    HDR$wavelength <- NULL
+  }
+  HDR$`default stretch` <- '0.000000 1000.000000 linear'
+  HDR$`z plot range` <- NULL
+  HDR$`data ignore value` <- '-Inf'
+  HDR$`sensor type` <- sensor
+
+  HDR$`coordinate system string` <- read.table(paste(dsn, ".prj", sep = ""))
+  # proj <- strsplit(x=strsplit(x =projection(raster(dsn)),split = ' ' )[[1]][1],split = '=')[[1]][2]
+  # zone <- strsplit(x=strsplit(x =projection(raster(dsn)),split = ' ' )[[1]][2],split = '=')[[1]][2]
+  # datum <- strsplit(x=strsplit(x =projection(raster(dsn)),split = ' ' )[[1]][3],split = '=')[[1]][2]
+  # oldProj <- HDR$`map info`
+  # NewProj <- gsub(pattern = 'projection',replacement = proj,x = oldProj)
+  # NewProj <- paste(NewProj,zone,datum,sep = ', ')
+  # HDR$`map info` <- NewProj
+  write_ENVI_header(HDR = HDR,HDRpath = get_HDR_name(dsn))
+
+  # remove unnecessary files
+  File2Remove <- paste(dsn, ".aux.xml", sep = "")
+  file.remove(File2Remove)
+  File2Remove <- paste(dsn, ".prj", sep = "")
+  file.remove(File2Remove)
+  File2Remove <- paste(dsn, ".stx", sep = "")
+  file.remove(File2Remove)
+  return(invisible())
+}
+
 #' This function writes a stars object into a raster file
 #'
 #' @param Stars_S2 list. stars object containing raster data. Can be produced with function Crop_n_resample_S2
 #' @param Stars_Spectral list. band name to be saved in the stack and spectral bands corresponding to the image
 #' @param Refl_path character. path where to store the image
 #' @param Format character. default = ENVI BIL. otheerwise use gdal drivers
-#' @param datatype character. should be INT2S or FLT4S for example
+#' @param datatype character. should be Int16 or Float64 for example
 #' @param sensor character. Name of the sensor used to acquire the image
 #'
 #' @return None
 #' @export
-write_Stack_S2 <- function(Stars_S2, Stars_Spectral, Refl_path, Format='ENVI_BIL',datatype='INT2S',sensor='Unknown'){
+write_Stack_S2 <- function(Stars_S2, Stars_Spectral, Refl_path, Format='ENVI_BIL',datatype='Int16',sensor='Unknown'){
 
-  Stars_S2 <- as(object = Stars_S2,Class = 'Raster')
-  names(Stars_S2) <- Stars_Spectral$bandname
   if (Format == 'ENVI_BIL'){
-    write_rasterStack_ENVI(StackObj=Stars_S2,StackPath = Refl_path,Bands=Stars_Spectral,datatype=datatype,sensor=sensor)
+    write_starsStack_ENVI(StarsObj = Stars_S2, dsn=Refl_path, datatype=datatype, Bands = Stars_Spectral, sensor=sensor)
+    # write_rasterStack_ENVI(StackObj=Stars_S2,StackPath = Refl_path,Bands=Stars_Spectral,datatype=datatype,sensor=sensor)
   } else {
-    r <- raster::writeRaster(x = Stars_S2, filename = Refl_path, format = Format, overwrite = TRUE)
+    r <- write_stars(Stars_S2, dsn=Refl_path, driver =  Format, type=datatype)
   }
+
+  # Stars_S2 <- as(object = Stars_S2,Class = 'Raster')
+  # names(Stars_S2) <- Stars_Spectral$bandname
+  # if (Format == 'ENVI_BIL'){
+  #   write_rasterStack_ENVI(StackObj=Stars_S2,StackPath = Refl_path,Bands=Stars_Spectral,datatype=datatype,sensor=sensor)
+  # } else {
+  #   r <- raster::writeRaster(x = Stars_S2, filename = Refl_path, format = Format, overwrite = TRUE)
+  # }
   return(invisible())
 }
 

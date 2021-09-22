@@ -123,7 +123,7 @@ tile_S2 <- substring(strsplit(basename(S2obj$S2_Bands$GRANULE),'_')[[1]][2],2)
 dateAcq_S2 <- as.Date(substring(strsplit(basename(S2obj$S2_Bands$GRANULE),'_')[[1]][4],1,8),format="%Y%m%d")
 preprocS2::save_reflectance_s2(S2_stars = S2obj$S2_Stack, Refl_path = Refl_path,
                                S2Sat = NULL, tile_S2 = tile_S2, dateAcq_S2 = dateAcq_S2,
-                               Format = 'ENVI_BIL', datatype = 'INT2S', MTD = S2obj$S2_Bands$metadata)
+                               Format = 'ENVI_BIL', datatype = 'Int16', MTD = S2obj$S2_Bands$metadata)
 ```
 
 
