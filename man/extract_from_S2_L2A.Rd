@@ -10,7 +10,8 @@ extract_from_S2_L2A(
   path_vector = NULL,
   S2source = "SAFE",
   resolution = 10,
-  interpolation = "bilinear"
+  interpolation = "bilinear",
+  fre_sre = "FRE"
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ extract_from_S2_L2A(
 \item{resolution}{numeric. buffer applied to vector file (in meters)}
 
 \item{interpolation}{character. method for resampling. default = 'bilinear'}
+
+\item{fre_sre}{character. SRE or FRE products from THEIA}
 }
 \value{
 ListOut list.

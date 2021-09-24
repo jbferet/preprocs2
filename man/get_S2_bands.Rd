@@ -4,7 +4,7 @@
 \alias{get_S2_bands}
 \title{This function returns path for the spectral bands to be used}
 \usage{
-get_S2_bands(Path_dir_S2, S2source = "SAFE", resolution = 10)
+get_S2_bands(Path_dir_S2, S2source = "SAFE", resolution = 10, fre_sre = "FRE")
 }
 \arguments{
 \item{Path_dir_S2}{character. Path for the directory containing S2 data. either L2A .SAFE S2 file or THEIA directory}
@@ -12,6 +12,8 @@ get_S2_bands(Path_dir_S2, S2source = "SAFE", resolution = 10)
 \item{S2source}{character. defines if data comes from SciHub as SAFE directory, from THEIA or from LaSRC}
 
 \item{resolution}{numeric. spatial resolution of the final image: 10m or 20m}
+
+\item{fre_sre}{character. SRE or FRE products from THEIA}
 }
 \value{
 ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution

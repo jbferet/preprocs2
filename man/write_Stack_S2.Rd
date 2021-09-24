@@ -9,7 +9,7 @@ write_Stack_S2(
   Stars_Spectral,
   Refl_path,
   Format = "ENVI_BIL",
-  datatype = "INT2S",
+  datatype = "Int16",
   sensor = "Unknown"
 )
 }
@@ -22,7 +22,7 @@ write_Stack_S2(
 
 \item{Format}{character. default = ENVI BIL. otheerwise use gdal drivers}
 
-\item{datatype}{character. should be INT2S or FLT4S for example}
+\item{datatype}{character. should be Int16 or Float64 for example}
 
 \item{sensor}{character. Name of the sensor used to acquire the image}
 }

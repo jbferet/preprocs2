@@ -4,12 +4,14 @@
 \alias{get_S2_bands_from_THEIA}
 \title{This function returns path for the spectral bands in THEIA directory}
 \usage{
-get_S2_bands_from_THEIA(Path_dir_S2, resolution = 10)
+get_S2_bands_from_THEIA(Path_dir_S2, resolution = 10, fre_sre = "FRE")
 }
 \arguments{
 \item{Path_dir_S2}{character. Path for the SAFE directory containing S2 data}
 
 \item{resolution}{numeric. spatial resolution of the final image: 10m or 20m}
+
+\item{fre_sre}{character. SRE or FRE products from THEIA}
 }
 \value{
 ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution, as well name of as granule
