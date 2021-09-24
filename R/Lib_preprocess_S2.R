@@ -1061,11 +1061,11 @@ write_starsStack_ENVI <- function(StarsObj,dsn,datatype='Int16',Bands,sensor='Un
 
   # remove unnecessary files
   File2Remove <- paste(dsn, ".aux.xml", sep = "")
-  file.remove(File2Remove)
+  if (file.exists(File2Remove)) file.remove(File2Remove)
   File2Remove <- paste(dsn, ".prj", sep = "")
-  file.remove(File2Remove)
+  if (file.exists(File2Remove)) file.remove(File2Remove)
   File2Remove <- paste(dsn, ".stx", sep = "")
-  file.remove(File2Remove)
+  if (file.exists(File2Remove)) file.remove(File2Remove)
   return(invisible())
 }
 
