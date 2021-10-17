@@ -8,7 +8,8 @@ get_S2_L2A_Image(
   l2a_path,
   spatial_extent,
   dateAcq,
-  l1c_path = NULL,
+  DeleteL1C = FALSE,
+  Sen2Cor = TRUE,
   GoogleCloud = FALSE
 )
 }
@@ -19,7 +20,9 @@ get_S2_L2A_Image(
 
 \item{dateAcq}{character. date of acquisition}
 
-\item{l1c_path}{character. path for storage of L1C image}
+\item{DeleteL1C}{Boolean. set TRUE to delete L1C images}
+
+\item{Sen2Cor}{Boolean. set TRUE to automatically perform atmospheric corrections using sen2Cor}
 
 \item{GoogleCloud}{boolean. set to TRUE if google cloud SDK is installed and
 sen2r configured as an alternative hub for S2 download}

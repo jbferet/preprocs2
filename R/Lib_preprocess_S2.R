@@ -81,7 +81,8 @@ dir_size <- function(path, recursive = TRUE) {
 #' @importFrom raster raster
 #' @importFrom tools file_path_sans_ext file_ext
 #' @export
-extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE', resolution=10, interpolation='bilinear', fre_sre = 'FRE'){
+extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE',
+                                resolution=10, interpolation='bilinear', fre_sre = 'FRE'){
   # Get list of paths corresponding to S2 bands and depending on S2 directory
   S2_Bands <- get_S2_bands(Path_dir_S2 = Path_dir_S2,
                            S2source = S2source,
@@ -96,7 +97,7 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE', 
   # check if vector and raster share the same projection. if not, re-project vector
   if (!is.null(path_vector)){
     raster_proj <- raster::projection(rastmp)
-    path_vector_reproj <- paste(file_path_sans_ext(path_vector),'_reprojected.',file_ext(path_vector),sep = '')
+    path_vector_reproj <- paste(file_path_sans_ext(path_vector),'_reprojected.shp',sep = '')
     path_vector <- reproject_shp(path_vector_init = path_vector,
                                  newprojection = raster_proj,
                                  path_vector_reproj = path_vector_reproj)
@@ -117,6 +118,40 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE', 
   }
   # get full stack including 10m and 20m spatial resolution
   if (length(S2_Bands$S2Bands_10m)>0 & length(S2_Bands$S2Bands_20m)>0 ){
+    DiffXstart <- attributes(Stack_10m)$dimensions[[1]]$from - attributes(Stack_20m)$dimensions[[1]]$from
+    DiffXstop <- attributes(Stack_10m)$dimensions[[1]]$to - attributes(Stack_20m)$dimensions[[1]]$to
+    DiffYstart <- attributes(Stack_10m)$dimensions[[2]]$from - attributes(Stack_20m)$dimensions[[2]]$from
+    DiffYstop <- attributes(Stack_10m)$dimensions[[2]]$to - attributes(Stack_20m)$dimensions[[2]]$to
+    if (!DiffXstart==0){
+      # size of 20m > size of 10m --> reduce 20m
+      # size of 10m > size of 20m --> reduce 10m
+      if(DiffXstop>0){
+        Stack_10m <- Stack_10m[,1:(dim(Stack_10m)[1]-DiffXstop),,]
+      } else if(DiffXstop<0){
+        Stack_20m <- Stack_20m[,1:(dim(Stack_20m)[1]+DiffXstop),,]
+      }
+    }
+    if (!DiffYstop==0){
+      if(DiffYstop>0){
+        Stack_10m <- Stack_10m[,,1:(dim(Stack_10m)[2]-DiffYstop),]
+      } else if(DiffYstop<0){
+        Stack_20m <- Stack_20m[,,1:(dim(Stack_20m)[2]+DiffYstop),]
+      }
+    }
+    if (!DiffXstart==0){
+      if(DiffXstart>0){
+        Stack_20m <- Stack_20m[,(1+DiffXstart):dim(Stack_20m)[1],,]
+      } else if(DiffXstart<0){
+        Stack_10m <- Stack_10m[,(1-DiffXstart):dim(Stack_10m)[1],,]
+      }
+    }
+    if (!DiffYstart==0){
+      if(DiffYstart>0){
+        Stack_20m <- Stack_20m[,,(1+DiffYstart):dim(Stack_20m)[2],]
+      } else if(DiffYstart<0){
+        Stack_10m <- Stack_10m[,,(1-DiffYstart):dim(Stack_10m)[2],]
+      }
+    }
     S2_Stack <- c(Stack_10m,Stack_20m,along='band')
     # reorder bands with increasing wavelength
     S2Bands <- c("B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12", "Cloud")
@@ -142,7 +177,8 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE', 
   # } else {
   #   S2_Stack <- Stack_20m
   # }
-  ListOut <- list('S2_Stack'=S2_Stack,'S2_Bands'=S2_Bands, 'path_vector'=path_vector, 'NameBands' = NameBands)
+  ListOut <- list('S2_Stack'=S2_Stack,'S2_Bands'=S2_Bands, 'path_vector'=path_vector,
+                  'NameBands' = NameBands)
   return(ListOut)
 }
 
@@ -192,9 +228,9 @@ get_BB_from_fullImage <- function(path_raster){
 #' @param Buffer numeric. buffer applied to vector file (in meters)
 #'
 #' @return BB_XYcoords list. Coordinates (in pixels) of the upper/lower right/left corners of bounding box
-#' @importFrom sf st_read
-#' @importFrom rgeos gBuffer
-#' @importFrom sp SpatialPoints
+#' @importFrom sf st_read st_bbox st_crop
+#' @importFrom rgeos gBuffer bbox2SP
+#' @importFrom sp SpatialPoints bbox
 #' @importFrom raster projection extract extent raster
 #' @importFrom methods as
 #' @export
@@ -203,8 +239,13 @@ get_BB_from_Vector <- function(path_raster,path_vector,Buffer = 0){
   Raster <- raster::raster(path_raster)
   # xmin <- xmax <- ymin <- ymax <- c()
   # extract BB coordinates from vector
-  BB <- rgeos::gBuffer(spgeom = as(st_read(dsn = path_vector,quiet = T), "Spatial"),width=Buffer,byid = TRUE)
-  BBext <- raster::extent(BB)
+  BB_vector <- rgeos::gBuffer(spgeom = as(st_read(dsn = path_vector,quiet = T), "Spatial"),
+                              width=Buffer,byid = TRUE)
+  # extract BB coordinates from raster
+  BB_raster <- rgeos::bbox2SP(bbox = bbox(Raster))
+  # compute intersection
+  Intersect <- rgeos::gIntersection(BB_vector, BB_raster)
+  BBext <- raster::extent(Intersect)
   xmin <- BBext[1]
   xmax <- BBext[2]
   ymin <- BBext[3]
@@ -216,7 +257,8 @@ get_BB_from_Vector <- function(path_raster,path_vector,Buffer = 0){
   Corners[['UL']] <- sp::SpatialPoints(coords = cbind(xmin, ymax))
   Corners[['LL']] <- sp::SpatialPoints(coords = cbind(xmin, ymin))
   raster::projection(Corners[['UL']]) <- raster::projection(Corners[['UR']]) <-
-    raster::projection(Corners[['LL']]) <- raster::projection(Corners[['LR']]) <- raster::projection(st_read(dsn = path_vector,quiet = T))
+    raster::projection(Corners[['LL']]) <- raster::projection(Corners[['LR']]) <-
+    raster::projection(st_read(dsn = path_vector,quiet = T))
   # get coordinates for corners of bounding box
   BB_XYcoords <- list()
   for (corner in names(Corners)){
@@ -267,7 +309,8 @@ get_S2_bands <- function(Path_dir_S2, S2source = 'SAFE', resolution = 10, fre_sr
   if (S2source=='SAFE' | S2source=='Sen2Cor'){
     ListBands <- get_S2_bands_from_Sen2Cor(Path_dir_S2 = Path_dir_S2,resolution = resolution)
   } else if (S2source=='THEIA'){
-    ListBands <- get_S2_bands_from_THEIA(Path_dir_S2 = Path_dir_S2,resolution = resolution, fre_sre = fre_sre)
+    ListBands <- get_S2_bands_from_THEIA(Path_dir_S2 = Path_dir_S2,resolution = resolution,
+                                         fre_sre = fre_sre)
   } else if (S2source=='LaSRC'){
     ListBands <- get_S2_bands_from_LaSRC(Path_dir_S2 = Path_dir_S2,resolution = resolution)
   } else {
@@ -277,7 +320,8 @@ get_S2_bands <- function(Path_dir_S2, S2source = 'SAFE', resolution = 10, fre_sr
     message('- THEIA (atmospheric correction: MAJA)')
     message('- SAFE (atmospheric correction: Sen2Cor)')
     S2Bands_10m <- S2Bands_20m <- granule <- MTDfile <- NULL
-    ListBands <- list('S2Bands_10m'=S2Bands_10m,'S2Bands_20m'=S2Bands_20m,'GRANULE'=granule,'metadata'=MTDfile)
+    ListBands <- list('S2Bands_10m'=S2Bands_10m,'S2Bands_20m'=S2Bands_20m,'GRANULE'=granule,
+                      'metadata'=MTDfile)
   }
   return(ListBands)
 }
@@ -299,7 +343,8 @@ get_S2_bands_from_Sen2Cor <- function(Path_dir_S2, resolution=10){
     B20m <- c('B02','B03','B04','B05','B06','B07','B08','B8A','B11','B12')
   }
   # get granule directory & path for corresponding metadata XML file
-  granule <- list.dirs(list.dirs(Path_dir_S2,recursive = FALSE)[grep(pattern = 'GRANULE',x = list.dirs(Path_dir_S2,recursive = FALSE))],recursive = FALSE)
+  granule <- list.dirs(list.dirs(Path_dir_S2,recursive = FALSE)[grep(pattern = 'GRANULE',
+                                                                     x = list.dirs(Path_dir_S2,recursive = FALSE))],recursive = FALSE)
   MTDfile <- file.path(granule,'MTD_TL.xml')
 
   # Define path for bands
@@ -316,7 +361,8 @@ get_S2_bands_from_Sen2Cor <- function(Path_dir_S2, resolution=10){
   Cloud <- 'MSK_CLDPRB_20m'
   Cloud_20m_dir <- file.path(granule,'QI_DATA')
   S2Bands_20m[['Cloud']] <- file.path(Cloud_20m_dir,list.files(Cloud_20m_dir,pattern = Cloud))
-  ListBands <- list('S2Bands_10m'=S2Bands_10m,'S2Bands_20m'=S2Bands_20m,'GRANULE'=granule,'metadata'=MTDfile)
+  ListBands <- list('S2Bands_10m'=S2Bands_10m,'S2Bands_20m'=S2Bands_20m,'GRANULE'=granule,
+                    'metadata'=MTDfile)
   return(ListBands)
 }
 
@@ -339,7 +385,9 @@ get_S2_bands_from_LaSRC <- function(Path_dir_S2, resolution=10){
   # Define path for bands
   S2Bands_10m <- S2Bands_20m <- list()
   for (i in 1:length(B10m)){
-    S2Bands_10m[[B10m_Standard[i]]] <- file.path(Path_dir_S2,list.files(Path_dir_S2,pattern = paste(B10m[i],'.tif',sep = '')))
+    S2Bands_10m[[B10m_Standard[i]]] <- file.path(Path_dir_S2,
+                                                 list.files(Path_dir_S2,
+                                                            pattern = paste(B10m[i],'.tif',sep = '')))
   }
   # get cloud mask
   Cloud <- 'CLM'
@@ -378,12 +426,14 @@ get_S2_bands_from_THEIA <- function(Path_dir_S2, resolution=10, fre_sre='FRE'){
   for (band in B20m){
     band_20m_pattern <- paste0(gsub("0", "", band), '.tif') # for THEAI band 2 is 'B2' ('B02' for SAFE)
     list_files_20m <- list.files(S2Bands_20m_dir, pattern = band_20m_pattern)
-    S2Bands_20m[[band]] <- file.path(S2Bands_20m_dir, list_files_20m)[grep(pattern = fre_sre, x = file.path(S2Bands_20m_dir, list_files_20m))]
+    S2Bands_20m[[band]] <- file.path(S2Bands_20m_dir, list_files_20m)[grep(pattern = fre_sre,
+                                                                           x = file.path(S2Bands_20m_dir, list_files_20m))]
   }
   for (band in B10m){
     band_10m_pattern <- paste0(gsub("0", "", band), '.tif') # for THEAI band 2 is 'B2' ('B02' for SAFE)
     list_files_10m <- list.files(S2Bands_10m_dir, pattern = band_10m_pattern)
-    S2Bands_10m[[band]] <- file.path(S2Bands_10m_dir, list_files_10m)[grep(pattern = fre_sre, x = file.path(S2Bands_10m_dir, list_files_10m))]
+    S2Bands_10m[[band]] <- file.path(S2Bands_10m_dir, list_files_10m)[grep(pattern = fre_sre,
+                                                                           x = file.path(S2Bands_10m_dir, list_files_10m))]
   }
 
   # get cloud mask 10m
@@ -420,6 +470,30 @@ get_S2_level <- function(prodName){
     S2Level <- 'L2A'
   }
   return(S2Level)
+}
+
+#' This function gets tile from S2 image
+#'
+#' @param prodName character. original name for the S2 image
+#'
+#' @return TileName character
+#' @export
+get_tile <- function(prodName){
+  prodName <- basename(prodName)
+  TileName <- gsub("_.*", "", gsub(".*_T", "", prodName))
+  return(TileName)
+}
+
+#' This function gets acquisition date from S2 image
+#'
+#' @param prodName character. original name for the S2 image
+#'
+#' @return DateAcq character
+#' @export
+get_date <- function(prodName){
+  prodName <- basename(prodName)
+  DateAcq <- gsub("T.*", "", gsub(".*L1C_", "", gsub(".*L2A_", "", prodName)))
+  return(DateAcq)
 }
 
 #' download S2 L1C data from Copernicus hub or Google Cloud
@@ -498,41 +572,131 @@ get_S2_L1C_Image <- function(list_safe,l1c_path,path_vector,time_interval,
 #' @param l2a_path character. path for storage of L2A image
 #' @param spatial_extent path for a vector file
 #' @param dateAcq character. date of acquisition
-#' @param l1c_path character. path for storage of L1C image
+#' @param DeleteL1C Boolean. set TRUE to delete L1C images
+#' @param Sen2Cor Boolean. set TRUE to automatically perform atmospheric corrections using sen2Cor
 #' @param GoogleCloud boolean. set to TRUE if google cloud SDK is installed and
 #' sen2r configured as an alternative hub for S2 download
 #'
 #' @return PathL2A character. Path for L2A image
 #' @importFrom sen2r s2_list s2_download
+#' @importFrom R.utils getAbsolutePath
+
 #' @export
 get_S2_L2A_Image <- function(l2a_path, spatial_extent, dateAcq,
-                             l1c_path = NULL, GoogleCloud=FALSE){
+                             DeleteL1C = FALSE, Sen2Cor = TRUE,
+                             GoogleCloud=FALSE){
+
+  # Needs to be updated: define path for L1c data
+  l1c_path <- l2a_path
   # define time interval
   time_interval <- as.Date(c(dateAcq, dateAcq))
-  # get product name corresponding to study area and date of interest using sen2r package
-  list_safe <- sen2r::s2_list(spatial_extent = sf::st_read(dsn = spatial_extent), time_interval = time_interval)
-  # get product name !! assuming only one product is ordered
-  prodName <- attr(list_safe,which = "name")
-  S2Level <- get_S2_level(prodName)
-
-  datePattern <- gsub(pattern = '-',replacement = '',x = dateAcq)
-  # if L2A
-  if (S2Level=='L2A'){
-    # Directly download S2A file
-    s2_download(list_safe, outdir=l2a_path)
-    PathL2A <- list.files(path = l2a_path,pattern = datePattern,full.names = TRUE)
-  } else if (S2Level=='L1C'){
-    # define/create L1C directory if not defined
-    if (is.null(l1c_path)){
-      l1c_path <- file.path(l2a_path,'L1C')
-    }
-    dir.create(path = l1c_path,showWarnings = FALSE,recursive = TRUE)
-    # download S2 L1C data from copernicus hub or Google Cloud
-    prodName <- get_S2_L1C_Image(list_safe,l1c_path,spatial_extent,time_interval,GoogleCloud=GoogleCloud)
-    PathL2A <- S2_from_L1C_to_L2A(prodName = prodName, l1c_path =l1c_path, l2a_path = l2a_path,
-                                  datePattern = datePattern, tmp_path=NULL)
+  # get list S2 products corresponding to study area and date of interest using sen2r package
+  if (GoogleCloud==TRUE){
+    server = c("scihub","gcloud")
+  } else if (GoogleCloud==FALSE){
+    server = "scihub"
   }
-  return(PathL2A)
+  list_safe <- sen2r::s2_list(spatial_extent = sf::st_read(dsn = spatial_extent),
+                              time_interval = time_interval,
+                              server = server,availability = 'check')
+  # download products
+  sen2r::s2_download(list_safe, outdir=l2a_path)
+  # name all products
+  prodName <- attr(list_safe,which = "name")
+  ProdFullPath <- file.path(l2a_path,prodName)
+  if (Sen2Cor == TRUE){
+    for (imgname in prodName){
+      S2Level <- get_S2_level(imgname)
+      if (S2Level=='L1C'){
+        # prodName <- get_S2_L1C_Image(list_safe[WhichImg],l1c_path,spatial_extent,time_interval,GoogleCloud=GoogleCloud)
+        datePattern <- gsub(pattern = '-',replacement = '',x = dateAcq)
+        PathL2A <- S2_from_L1C_to_L2A(prodName = imgname, l1c_path =l2a_path, l2a_path = l2a_path,
+                                      datePattern = datePattern, tmp_path=NULL)
+        if (DeleteL1C==TRUE){
+          unlink(x = R.utils::getAbsolutePath(file.path(l1c_path,prodName)),
+                 recursive = T,force = T)
+          # delete from full path and add atmospherically corrected
+          WhichImg <- grep(x = ProdFullPath, pattern =imgname)
+          DateAcq <- get_date(imgname)
+          TileName <- get_tile(imgname)
+          PathL2A <- list.files(path = l2a_path,pattern = TileName,full.names = TRUE)
+          PathL2A <- PathL2A[grep(x = PathL2A, pattern =DateAcq)]
+          PathL2A <- PathL2A[grep(x = basename(PathL2A), pattern ='L2A')]
+          ProdFullPath[WhichImg] <- PathL2A
+        }
+      }
+    }
+  }
+
+  # # Check if atmospheric corrections needed
+  # # get product name
+  # prodName <- attr(list_safe,which = "name")
+  # for (imgname in prodName){
+  #   S2Level <- get_S2_level(imgname)
+  #   if (S2Level=='L1C'){
+  #     # define/create L1C directory if not defined
+  #     if (is.null(l1c_path)){
+  #       l1c_path <- l2a_path
+  #     }
+  #     dir.create(path = l1c_path,showWarnings = FALSE,recursive = TRUE)
+  #     # download S2 L1C data from copernicus hub or Google Cloud
+  #     WhichImg <- grep(x = list_safe, pattern =imgname)
+  #     # prodName <- get_S2_L1C_Image(list_safe[WhichImg],l1c_path,spatial_extent,time_interval,GoogleCloud=GoogleCloud)
+  #     datePattern <- gsub(pattern = '-',replacement = '',x = dateAcq)
+  #     PathL2A <- S2_from_L1C_to_L2A(prodName = imgname, l1c_path =l1c_path, l2a_path = l2a_path,
+  #                                   datePattern = datePattern, tmp_path=NULL)
+  #   }
+  # }
+  # PathL2A <- list.files(path = l2a_path,pattern = datePattern,full.names = TRUE)
+
+  # for (imgname in prodName){
+  #   ii <- ii + 1
+  #   if (S2Level[ii]=='L2A'){
+  #     # Directly download S2A file
+  #     if (GoogleCloud==TRUE){
+  #       list_safe_ggc <- sen2r::s2_list(spatial_extent = sf::st_read(dsn = spatial_extent),
+  #                                       time_interval = time_interval,
+  #                                       server = "gcloud")
+  #       # imgname <- attr(list_safe_ggc,which = "name")
+  #       message(file.path(l2a_path,imgname))
+  #       sen2r::s2_download(list_safe_ggc, outdir=l2a_path)
+  #     } else if (GoogleCloud==FALSE){
+  #       sen2r::s2_download(list_safe, outdir=l2a_path)
+  #     }
+  #     PathL2A <- list.files(path = l2a_path,pattern = datePattern,full.names = TRUE)
+  #
+  #
+  #
+  # ii <- 0
+  # for (imgname in prodName){
+  #   ii <- ii + 1
+  #   if (S2Level[ii]=='L2A'){
+  #     # Directly download S2A file
+  #     if (GoogleCloud==TRUE){
+  #       list_safe_ggc <- sen2r::s2_list(spatial_extent = sf::st_read(dsn = spatial_extent),
+  #                                       time_interval = time_interval,
+  #                                       server = "gcloud")
+  #       # imgname <- attr(list_safe_ggc,which = "name")
+  #       message(file.path(l2a_path,imgname))
+  #       sen2r::s2_download(list_safe_ggc, outdir=l2a_path)
+  #     } else if (GoogleCloud==FALSE){
+  #       sen2r::s2_download(list_safe, outdir=l2a_path)
+  #     }
+  #     PathL2A <- list.files(path = l2a_path,pattern = datePattern,full.names = TRUE)
+  #
+  #   } else if (S2Level=='L1C'){
+  #     # define/create L1C directory if not defined
+  #     if (is.null(l1c_path)){
+  #       l1c_path <- file.path(l2a_path,'L1C')
+  #     }
+  #     dir.create(path = l1c_path,showWarnings = FALSE,recursive = TRUE)
+  #     # download S2 L1C data from copernicus hub or Google Cloud
+  #     prodName <- get_S2_L1C_Image(list_safe,l1c_path,spatial_extent,time_interval,GoogleCloud=GoogleCloud)
+  #     PathL2A <- S2_from_L1C_to_L2A(prodName = prodName, l1c_path =l1c_path, l2a_path = l2a_path,
+  #                                   datePattern = datePattern, tmp_path=NULL)
+  #   }
+  # }
+  return(ProdFullPath)
 }
 
 #' convert image coordinates from index to X-Y
@@ -714,7 +878,8 @@ reproject_shp = function(path_vector_init,newprojection,path_vector_reproj){
     dir_vector_reproj <- dirname(path_vector_reproj)
     name_vector_reproj <- file_path_sans_ext(basename(path_vector_reproj))
     vector_reproj <- sp::spTransform(vector_init_OGR, newprojection)
-    rgdal::writeOGR(obj = vector_reproj, dsn = dir_vector_reproj,layer = name_vector_reproj, driver="ESRI Shapefile",overwrite_layer = TRUE)
+    rgdal::writeOGR(obj = vector_reproj, dsn = dir_vector_reproj,layer = name_vector_reproj,
+                    driver="ESRI Shapefile",overwrite_layer = TRUE)
     path_vector <- path_vector_reproj
   } else {
     path_vector <- path_vector_init
