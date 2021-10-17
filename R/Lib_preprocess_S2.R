@@ -710,6 +710,37 @@ ind2sub <- function(Raster, Image_Index) {
   return(my_list)
 }
 
+#' mosaicing a set of rasters
+#'
+#' @param list_rasters character. list of paths corresponding to rasters to mosaic
+#' @param dst_mosaic character. path and name of mosaic produced
+#'
+#' @return None
+#' @importFrom gdalUtils mosaic_rasters
+#' @importFrom raster hdr raster
+#' @export
+mosaic_rasters <- function(list_rasters,dst_mosaic){
+
+  # produce mosaic
+  gdalUtils::mosaic_rasters(gdalfile = list_rasters, dst_dataset = dst_mosaic,
+                            separate = FALSE, of="EHdr", verbose=TRUE)
+
+  # convert HDR to ENVI format
+  raster::hdr(raster(dst_mosaic), format = "ENVI")
+  # add info to hdr based on initial rasters
+  HDR_init <- read_ENVI_header(get_HDR_name(list_rasters[1]))
+  HDR <- read_ENVI_header(get_HDR_name(dst_mosaic))
+  HDR$`band names` <- HDR_init$`band names`
+  HDR$wavelength <- HDR_init$wavelength
+  HDR$`default stretch` <- '0.000000 1000.000000 linear'
+  HDR$`z plot range` <- NULL
+  HDR$`data ignore value` <- '-Inf'
+  HDR$`sensor type` <- HDR_init$`sensor type`
+  HDR$`coordinate system string` <- read.table(paste(file_path_sans_ext(dst_mosaic), ".prj", sep = ""))
+  write_ENVI_header(HDR = HDR,HDRpath = get_HDR_name(dst_mosaic))
+  return(invisible())
+}
+
 #' Reads ENVI hdr file
 #'
 #' @param HDRpath Path of the hdr file
