@@ -17,7 +17,7 @@
 #' @param dateAcq_S2 double. date of acquisition
 #'
 #' @return s2mission character. name of the S2 mission (2A or 2B)
-#' @importFrom sen2r safe_getMetadata
+#' @importFrom sen2r safe_getMetadata check_scihub_connection s2_list
 #' @export
 check_S2mission <- function(S2Sat, tile_S2, dateAcq_S2){
 
@@ -29,9 +29,15 @@ check_S2mission <- function(S2Sat, tile_S2, dateAcq_S2){
       s2mission <- '2B'
     }
   } else if (!is.null(tile_S2) & !is.null(dateAcq_S2)){
-    tileOK <- sen2r::s2_list(tile = tile_S2,time_interval = as.Date(dateAcq_S2))
-    s2mission <- sen2r::safe_getMetadata(tileOK,"mission")[[1]]
-    if (is.null(s2mission)){
+    if (sen2r::check_scihub_connection()==T){
+      tileOK <- sen2r::s2_list(tile = tile_S2,time_interval = as.Date(dateAcq_S2))
+      s2mission <- sen2r::safe_getMetadata(tileOK,"mission")[[1]]
+      if (is.null(s2mission)){
+        message('Could not identify if image from Sentinel-2A or -2B')
+        message('Defining central wavelength of spectral bands based on S2A')
+        s2mission <- '2A'
+      }
+    } else {
       message('Could not identify if image from Sentinel-2A or -2B')
       message('Defining central wavelength of spectral bands based on S2A')
       s2mission <- '2A'
