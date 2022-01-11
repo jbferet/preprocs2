@@ -7,7 +7,13 @@
 'CloudMask_RAW' is the original cloud layer produced by atmospheric correction algorithm
 --> may be useful to refine cloud mask}
 \usage{
-save_cloud_s2(S2_stars, Cloud_path, S2source = "SAFE", SaveRaw = FALSE)
+save_cloud_s2(
+  S2_stars,
+  Cloud_path,
+  S2source = "SAFE",
+  footprint = NULL,
+  SaveRaw = FALSE
+)
 }
 \arguments{
 \item{S2_stars}{list. stars object containing raster data. Can be produced with function extract_from_S2_L2A}
@@ -15,6 +21,8 @@ save_cloud_s2(S2_stars, Cloud_path, S2source = "SAFE", SaveRaw = FALSE)
 \item{Cloud_path}{character.}
 
 \item{S2source}{character.}
+
+\item{footprint}{character. path for vector file defining footprint of interest in the image}
 
 \item{SaveRaw}{boolean. should the original cloud mask layer be saved?}
 }

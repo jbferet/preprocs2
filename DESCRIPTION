@@ -30,7 +30,8 @@ Imports:
     utils,
     rgdal,
     R.utils,
-    gdalUtils
+    gdalUtils,
+    fasterize
 VignetteBuilder: knitr
 URL: https://gitlab.com/jbferet/preprocS2
 BugReports: https://gitlab.com/jbferet/preprocS2/issues

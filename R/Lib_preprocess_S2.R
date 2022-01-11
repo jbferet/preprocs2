@@ -27,6 +27,10 @@ check_S2mission <- function(S2Sat, tile_S2, dateAcq_S2){
       s2mission <- '2A'
     } else if (S2Sat=='2B'){
       s2mission <- '2B'
+    } else {
+      message('Could not identify if image from Sentinel-2A or -2B')
+      message('Defining central wavelength of spectral bands based on S2A')
+      s2mission <- '2A'
     }
   } else if (!is.null(tile_S2) & !is.null(dateAcq_S2)){
     if (sen2r::check_scihub_connection()==T){
@@ -1013,12 +1017,17 @@ S2_from_L1C_to_L2A <- function(prodName, l1c_path, l2a_path, datePattern, tmp_pa
 #' @param S2_stars list. stars object containing raster data. Can be produced with function extract_from_S2_L2A
 #' @param Cloud_path character.
 #' @param S2source character.
+#' @param footprint character. path for vector file defining footprint of interest in the image
 #' @param SaveRaw boolean. should the original cloud mask layer be saved?
 #'
 #' @return list of CloudMasks (binary mask, and raw mask if required)
-#' @importFrom stars write_stars
+#' @importFrom sf st_read
+#' @importFrom stars write_stars st_as_stars
+#' @importFrom raster raster
+#' @importFrom fasterize fasterize
 #' @export
-save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',SaveRaw = FALSE){
+save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
+                          footprint = NULL, SaveRaw = FALSE){
 
   WhichCloud <- which(attributes(S2_stars)$dimensions$band$values=="Cloud")
   # Save cloud mask
@@ -1042,6 +1051,12 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',SaveRaw = FALS
   }
   cloudmask[[1]][Cloudy] <- 0
   cloudmask[[1]][Sunny] <- 1
+  if (!is.null(footprint) & file.exists(footprint)){
+    rasterobj <- raster(as(object = cloudmask,Class = 'Raster'))
+    nc <- sf::st_read(footprint)
+    cloudmask2 <- fasterize::fasterize(sf = nc, raster = rasterobj)
+    cloudmask <- stars::st_as_stars(cloudmask2)*cloudmask
+  }
   Cloudbin <- file.path(Cloud_path,'CloudMask_Binary')
   stars::write_stars(cloudmask, dsn=Cloudbin, driver =  "ENVI",type='Byte',overwrite = TRUE)
   CloudMasks <- list('BinaryMask' = Cloudbin, 'RawMask' = Cloudraw)
