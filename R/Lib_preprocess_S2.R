@@ -107,7 +107,7 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE',
   # check if vector and raster share the same projection. if not, re-project vector
   if (!is.null(path_vector)){
     raster_proj <- raster::projection(rastmp)
-    path_vector_reproj <- paste(file_path_sans_ext(path_vector),'_reprojected.shp',sep = '')
+    path_vector_reproj <- paste(tools::file_path_sans_ext(path_vector),'_reprojected.shp',sep = '')
     path_vector <- reproject_shp(path_vector_init = path_vector,
                                  newprojection = raster_proj,
                                  path_vector_reproj = path_vector_reproj)
@@ -132,7 +132,7 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE',
     DiffXstop <- attributes(Stack_10m)$dimensions[[1]]$to - attributes(Stack_20m)$dimensions[[1]]$to
     DiffYstart <- attributes(Stack_10m)$dimensions[[2]]$from - attributes(Stack_20m)$dimensions[[2]]$from
     DiffYstop <- attributes(Stack_10m)$dimensions[[2]]$to - attributes(Stack_20m)$dimensions[[2]]$to
-    if (!DiffXstart==0){
+    if (!DiffXstop==0){
       # size of 20m > size of 10m --> reduce 20m
       # size of 10m > size of 20m --> reduce 10m
       if(DiffXstop>0){
