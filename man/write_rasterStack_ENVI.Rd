@@ -9,7 +9,8 @@ write_rasterStack_ENVI(
   StackPath,
   Bands,
   datatype = "INT2S",
-  sensor = "Unknown"
+  sensor = "Unknown",
+  Stretch = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ write_rasterStack_ENVI(
 \item{datatype}{character. should be INT2S or FLT4S for example}
 
 \item{sensor}{character. Name of the sensor used to acquire the image}
+
+\item{Stretch}{boolean. Set TRUE to get 10\% stretching at display for reflectance, mentioned in hdr only}
 }
 \value{
 None

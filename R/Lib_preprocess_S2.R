@@ -724,12 +724,13 @@ ind2sub <- function(Raster, Image_Index) {
 #'
 #' @param list_rasters character. list of paths corresponding to rasters to mosaic
 #' @param dst_mosaic character. path and name of mosaic produced
+#' @param Stretch boolean. Set TRUE to get 10% stretching at display for reflectance, mentioned in hdr only
 #'
 #' @return None
 #' @importFrom gdalUtils mosaic_rasters
 #' @importFrom raster hdr raster
 #' @export
-mosaic_rasters <- function(list_rasters,dst_mosaic){
+mosaic_rasters <- function(list_rasters,dst_mosaic, Stretch = FALSE){
 
   # produce mosaic
   gdalUtils::mosaic_rasters(gdalfile = list_rasters, dst_dataset = dst_mosaic,
@@ -742,7 +743,9 @@ mosaic_rasters <- function(list_rasters,dst_mosaic){
   HDR <- read_ENVI_header(get_HDR_name(dst_mosaic))
   HDR$`band names` <- HDR_init$`band names`
   HDR$wavelength <- HDR_init$wavelength
-  HDR$`default stretch` <- '0.000000 1000.000000 linear'
+  if (Stretch==TRUE){
+    HDR$`default stretch` <- '0.000000 1000.000000 linear'
+  }
   HDR$`z plot range` <- NULL
   HDR$`data ignore value` <- '-Inf'
   HDR$`sensor type` <- HDR_init$`sensor type`
@@ -1196,11 +1199,13 @@ write_ENVI_header <- function(HDR, HDRpath) {
 #' @param Bands list. should include 'bandname', and if possible 'wavelength'
 #' @param datatype character. should be INT2S or FLT4S for example
 #' @param sensor character. Name of the sensor used to acquire the image
+#' @param Stretch boolean. Set TRUE to get 10% stretching at display for reflectance, mentioned in hdr only
 #'
 #' @return None
 #' @importFrom utils read.table
 #' @export
-write_rasterStack_ENVI <- function(StackObj,StackPath,Bands,datatype='INT2S',sensor='Unknown'){
+write_rasterStack_ENVI <- function(StackObj,StackPath,Bands,datatype='INT2S',
+                                   sensor='Unknown', Stretch = FALSE){
 
   r <- raster::writeRaster(x = StackObj, filename = StackPath, format = "EHdr", overwrite = TRUE, datatype = datatype)
   raster::hdr(r, format = "ENVI")
@@ -1212,7 +1217,9 @@ write_rasterStack_ENVI <- function(StackObj,StackPath,Bands,datatype='INT2S',sen
   } else {
     HDR$wavelength <- NULL
   }
-  HDR$`default stretch` <- '0.000000 1000.000000 linear'
+  if (Stretch == TRUE){
+    HDR$`default stretch` <- '0.000000 1000.000000 linear'
+  }
   HDR$`z plot range` <- NULL
   HDR$`data ignore value` <- '-Inf'
   HDR$`coordinate system string` <- read.table(paste(StackPath, ".prj", sep = ""))
@@ -1243,12 +1250,14 @@ write_rasterStack_ENVI <- function(StackObj,StackPath,Bands,datatype='INT2S',sen
 #' @param Bands list. should include 'bandname', and if possible 'wavelength'
 #' @param datatype character. should be Int16 or Float64 for example
 #' @param sensor character. Name of the sensor used to acquire the image
+#' @param Stretch boolean. Set TRUE to get 10% stretching at display for reflectance, mentioned in hdr only
 #'
 #' @return None
 #' @importFrom utils read.table
 #' @importFrom raster hdr raster
 #' @export
-write_starsStack_ENVI <- function(StarsObj,dsn,datatype='Int16',Bands,sensor='Unknown'){
+write_starsStack_ENVI <- function(StarsObj,dsn,datatype='Int16',Bands,
+                                  sensor = 'Unknown', Stretch = FALSE){
 
   write_stars(StarsObj, dsn=dsn,driver =  "EHdr",type=datatype)
   # r <- raster::writeRaster(x = StarsObj, filename = StackPath, format = "EHdr", overwrite = TRUE, datatype = datatype)
@@ -1261,7 +1270,9 @@ write_starsStack_ENVI <- function(StarsObj,dsn,datatype='Int16',Bands,sensor='Un
   } else {
     HDR$wavelength <- NULL
   }
-  HDR$`default stretch` <- '0.000000 1000.000000 linear'
+  if (Stretch==TRUE){
+    HDR$`default stretch` <- '0.000000 1000.000000 linear'
+  }
   HDR$`z plot range` <- NULL
   HDR$`data ignore value` <- '-Inf'
   HDR$`sensor type` <- sensor

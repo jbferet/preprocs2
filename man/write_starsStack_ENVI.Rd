@@ -9,7 +9,8 @@ write_starsStack_ENVI(
   dsn,
   datatype = "Int16",
   Bands,
-  sensor = "Unknown"
+  sensor = "Unknown",
+  Stretch = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ write_starsStack_ENVI(
 \item{Bands}{list. should include 'bandname', and if possible 'wavelength'}
 
 \item{sensor}{character. Name of the sensor used to acquire the image}
+
+\item{Stretch}{boolean. Set TRUE to get 10\% stretching at display for reflectance, mentioned in hdr only}
 }
 \value{
 None

@@ -4,12 +4,14 @@
 \alias{mosaic_rasters}
 \title{mosaicing a set of rasters}
 \usage{
-mosaic_rasters(list_rasters, dst_mosaic)
+mosaic_rasters(list_rasters, dst_mosaic, Stretch = FALSE)
 }
 \arguments{
 \item{list_rasters}{character. list of paths corresponding to rasters to mosaic}
 
 \item{dst_mosaic}{character. path and name of mosaic produced}
+
+\item{Stretch}{boolean. Set TRUE to get 10\% stretching at display for reflectance, mentioned in hdr only}
 }
 \value{
 None
