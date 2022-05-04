@@ -1189,7 +1189,7 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int
   }
   # delete temporary files
   # delete temporary file
-  for (pathtemp in S2_stars2){
+  for (pathtemp in pathR){
     file.remove(pathtemp)
     if (file.exists(paste(pathtemp,'.hdr',sep=''))) file.remove(paste(pathtemp,'.hdr',sep=''))
   }
