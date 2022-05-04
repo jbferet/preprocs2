@@ -8,9 +8,10 @@ write_Stack_S2(
   Stars_S2,
   Stars_Spectral,
   Refl_path,
-  Format = "ENVI_BIL",
+  Format = "ENVI",
   datatype = "Int16",
-  sensor = "Unknown"
+  sensor = "Unknown",
+  MaxChunk = 256
 )
 }
 \arguments{
@@ -20,11 +21,13 @@ write_Stack_S2(
 
 \item{Refl_path}{character. path where to store the image}
 
-\item{Format}{character. default = ENVI BIL. otheerwise use gdal drivers}
+\item{Format}{character. default = ENVI BSQ. otherwise use gdal drivers}
 
 \item{datatype}{character. should be Int16 or Float64 for example}
 
 \item{sensor}{character. Name of the sensor used to acquire the image}
+
+\item{MaxChunk}{numeric. Size of individual chunks to be written (in Mb)}
 }
 \value{
 None

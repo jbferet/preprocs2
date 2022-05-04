@@ -12,7 +12,8 @@ save_cloud_s2(
   Cloud_path,
   S2source = "SAFE",
   footprint = NULL,
-  SaveRaw = FALSE
+  SaveRaw = FALSE,
+  MaxChunk = 256
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ save_cloud_s2(
 \item{footprint}{character. path for vector file defining footprint of interest in the image}
 
 \item{SaveRaw}{boolean. should the original cloud mask layer be saved?}
+
+\item{MaxChunk}{numeric. Size of individual chunks to be written (in Mb)}
 }
 \value{
 list of CloudMasks (binary mask, and raw mask if required)

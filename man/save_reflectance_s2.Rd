@@ -7,12 +7,13 @@
 save_reflectance_s2(
   S2_stars,
   Refl_path,
-  Format = "ENVI_BIL",
+  Format = "ENVI",
   datatype = "Int16",
   S2Sat = NULL,
   tile_S2 = NULL,
   dateAcq_S2 = NULL,
-  MTD = NULL
+  MTD = NULL,
+  MaxChunk = 256
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ save_reflectance_s2(
 \item{dateAcq_S2}{double. date of acquisition}
 
 \item{MTD}{character. path for metadata file}
+
+\item{MaxChunk}{numeric. Size of individual chunks to be written (in Mb)}
 }
 \value{
 None

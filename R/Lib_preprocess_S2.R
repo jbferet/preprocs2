@@ -162,13 +162,35 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE',
         Stack_10m <- Stack_10m[,,(1-DiffYstart):dim(Stack_10m)[2],]
       }
     }
-    S2_Stack <- c(Stack_10m,Stack_20m,along='band')
     # reorder bands with increasing wavelength
     S2Bands <- c("B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12", "Cloud")
     NameBands <- c(names(S2_Bands$S2Bands_10m),names(S2_Bands$S2Bands_20m))
     reorder_bands <- match(S2Bands,NameBands)
-    S2_Stack <- S2_Stack[,,,reorder_bands]
     NameBands <- NameBands[reorder_bands]
+    ListFiles <- c(Stack_10m$attr,Stack_20m$attr)[reorder_bands]
+
+    # adjust size to initial vector footprint without buffer
+    # --> buffer is needed in order to ensure that extraction following
+    # footprint of vector matches for images of different spatial resolution
+    # get bounding box corresponding to footprint of image or image subset
+    BB_XYcoords <- get_BB(path_raster = ListFiles[1],
+                          path_vector = path_vector, Buffer = 0)
+
+    # prepare reading data for extent defined by bounding box
+    nXOff <- BB_XYcoords$UL$col
+    nYOff <- BB_XYcoords$UL$row
+    nXSize <- BB_XYcoords$UR$col-BB_XYcoords$UL$col+1
+    nYSize <- BB_XYcoords$LR$row-BB_XYcoords$UR$row+1
+    nBufXSize <- nXSize
+    nBufYSize <- nYSize
+    S2_Stack <- stars::read_stars(ListFiles, along = 'band',
+                                  RasterIO = list(nXOff = nXOff, nYOff = nYOff,
+                                                  nXSize = nXSize, nYSize = nYSize,
+                                                  nBufXSize = nBufXSize, nBufYSize = nBufYSize,
+                                                  resample='nearest_neighbour'),proxy = TRUE)
+    names(S2_Stack$attr) <- NameBands
+    # S2_Stack <- c(Stack_10m,Stack_20m,along='band')
+    # S2_Stack <- S2_Stack[,,,reorder_bands]
   } else if (length(S2_Bands$S2Bands_10m)>0){
     S2_Stack <- Stack_10m
     NameBands <- names(S2_Bands$S2Bands_10m)
@@ -839,22 +861,47 @@ read_S2bands <- function(S2_Bands, path_vector = NULL,
   nBufXSize <- resampling*nXSize
   nBufYSize <- resampling*nYSize
   if (resampling==1){
-    interpolation = 'nearest_neighbour'
+    interpolation <- 'nearest_neighbour'
   }
-  Stack_S2 <- stars::read_stars(S2_Bands, along = 'band',
-                                RasterIO = list(nXOff = nXOff, nYOff = nYOff,
-                                                nXSize = nXSize, nYSize = nYSize,
-                                                nBufXSize = nBufXSize, nBufYSize = nBufYSize,
-                                                resample=interpolation),proxy = FALSE)
-  # names(Stack_S2) <- names(S2_Bands)
+  # write interpolated individual bands in temp directory
+  tmpDir <- tempdir()
+  tmpfile <- list()
+  for (band in names(S2_Bands)){
+    Stack_S2_tmp <- stars::read_stars(S2_Bands[[band]], along = 'band',
+                                      RasterIO = list(nXOff = nXOff, nYOff = nYOff,
+                                                      nXSize = nXSize, nYSize = nYSize,
+                                                      nBufXSize = nBufXSize, nBufYSize = nBufYSize,
+                                                      resample=interpolation),proxy = FALSE)
+    if (!is.null(path_vector)){
+      Stack_S2_tmp <- sf::st_crop(x = Stack_S2_tmp, y = st_bbox(st_read(dsn = path_vector,quiet = T)))
+      # Stack_S2 <- stars::st_crop(x = Stack_S2, y = st_bbox(st_read(dsn = path_vector,quiet = T)),crop = TRUE)
+    }
+    tmpfile[[band]] <- file.path(tmpDir,tools::file_path_sans_ext(basename(S2_Bands[[band]])))
+    if (band=='Cloud'){
+      stars::write_stars(obj = Stack_S2_tmp, dsn=tmpfile[[band]],
+                         driver =  "ENVI",type='Byte',overwrite = TRUE)
+    } else {
+      stars::write_stars(obj = Stack_S2_tmp, dsn=tmpfile[[band]],
+                         driver =  "ENVI",type='Int16',overwrite = TRUE)
+    }
+    gc()
+  }
 
-  # adjust size to initial vector footprint without buffer
-  # --> buffer is needed in order to ensure that extraction following
-  # footprint of vector matches for images of different spatial resolution
-  if (!is.null(path_vector)){
-    Stack_S2 <- sf::st_crop(x = Stack_S2, y = st_bbox(st_read(dsn = path_vector,quiet = T)))
-    # Stack_S2 <- stars::st_crop(x = Stack_S2, y = st_bbox(st_read(dsn = path_vector,quiet = T)),crop = TRUE)
-  }
+  # # adjust size to initial vector footprint without buffer
+  # # --> buffer is needed in order to ensure that extraction following
+  # # footprint of vector matches for images of different spatial resolution
+  # # get bounding box corresponding to footprint of image or image subset
+  # BB_XYcoords <- get_BB(path_raster = tmpfile[[1]],
+  #                       path_vector = path_vector, Buffer = 0)
+  #
+  # # prepare reading data for extent defined by bounding box
+  # nXOff <- BB_XYcoords$UL$col
+  # nYOff <- BB_XYcoords$UL$row
+  # nXSize <- BB_XYcoords$UR$col-BB_XYcoords$UL$col+1
+  # nYSize <- BB_XYcoords$LR$row-BB_XYcoords$UR$row+1
+  # nBufXSize <- resampling*nXSize
+  # nBufYSize <- resampling*nYSize
+  Stack_S2 <- stars::read_stars(tmpfile, along = 'band',proxy = TRUE)
   return(Stack_S2)
 }
 
@@ -1022,6 +1069,7 @@ S2_from_L1C_to_L2A <- function(prodName, l1c_path, l2a_path, datePattern, tmp_pa
 #' @param S2source character.
 #' @param footprint character. path for vector file defining footprint of interest in the image
 #' @param SaveRaw boolean. should the original cloud mask layer be saved?
+#' @param MaxChunk numeric. Size of individual chunks to be written (in Mb)
 #'
 #' @return list of CloudMasks (binary mask, and raw mask if required)
 #' @importFrom sf st_read
@@ -1030,21 +1078,28 @@ S2_from_L1C_to_L2A <- function(prodName, l1c_path, l2a_path, datePattern, tmp_pa
 #' @importFrom fasterize fasterize
 #' @export
 save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
-                          footprint = NULL, SaveRaw = FALSE){
+                          footprint = NULL, SaveRaw = FALSE,MaxChunk = 256){
 
-  WhichCloud <- which(attributes(S2_stars)$dimensions$band$values=="Cloud")
+  WhichCloud <- which(names(S2_stars$attr)=="Cloud")
   # Save cloud mask
   if (SaveRaw==TRUE){
     Cloudraw <- file.path(Cloud_path,'CloudMask_RAW')
-    stars::write_stars(S2_stars[,,,WhichCloud], dsn=Cloudraw, driver =  "ENVI",type='Byte')
+    obj <- stars::read_stars(S2_stars$attr[WhichCloud],proxy = TRUE)
+    SizeObj <- dim(obj)[1]*dim(obj)[2]/(1024**2)
+    nbChunks <- ceiling(SizeObj/MaxChunk)
+    stars::write_stars(obj,
+                       dsn=Cloudraw,
+                       driver =  "ENVI",
+                       type='Byte',
+                       chunk_size = c(dim(obj)[1], dim(obj)[2]/nbChunks),
+                       progress = TRUE)
     # WhichCloud <- which(names(S2_stars)=="Cloud")
     # stars::write_stars(S2_stars, dsn=Cloudraw,layer=WhichCloud, driver =  "ENVI",type='Byte')
   } else {
     Cloudraw <- NULL
   }
   # Save cloud mask as in biodivMapR (0 = clouds, 1 = pixel ok)
-  cloudmask <- S2_stars[,,,WhichCloud]
-  attributes(cloudmask)$dimensions$band$values <- 'Cloud_v2'
+  cloudmask <- stars::read_stars(S2_stars$attr[WhichCloud],proxy = FALSE)
   if (S2source=='SAFE' | S2source=='THEIA'){
     Cloudy <- which(cloudmask[[1]]>0)
     Sunny <- which(cloudmask[[1]]==0)
@@ -1054,15 +1109,21 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
   }
   cloudmask[[1]][Cloudy] <- 0
   cloudmask[[1]][Sunny] <- 1
-  if (!is.null(footprint) & file.exists(footprint)){
-    rasterobj <- raster(as(object = cloudmask,Class = 'Raster'))
-    nc <- sf::st_read(footprint)
-    cloudmask2 <- fasterize::fasterize(sf = nc, raster = rasterobj)
-    cloudmask <- stars::st_as_stars(cloudmask2)*cloudmask
+  if (!is.null(footprint)){
+    if (file.exists(footprint)){
+      rasterobj <- raster(as(object = cloudmask,Class = 'Raster'))
+      nc <- sf::st_read(footprint)
+      cloudmask2 <- fasterize::fasterize(sf = nc, raster = rasterobj)
+      cloudmask <- stars::st_as_stars(cloudmask2)*cloudmask
+    }
   }
   Cloudbin <- file.path(Cloud_path,'CloudMask_Binary')
   stars::write_stars(cloudmask, dsn=Cloudbin, driver =  "ENVI",type='Byte',overwrite = TRUE)
   CloudMasks <- list('BinaryMask' = Cloudbin, 'RawMask' = Cloudraw)
+  # delete temporary file
+  file.remove(S2_stars$attr[WhichCloud])
+  if (file.exists(paste(S2_stars$attr[WhichCloud],'.hdr',sep=''))) file.remove(paste(S2_stars$attr[WhichCloud],'.hdr',sep=''))
+  gc()
   return(CloudMasks)
 }
 
@@ -1076,12 +1137,14 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
 #' @param tile_S2 character. S2 tile name (2 numbers + 3 letters)
 #' @param dateAcq_S2 double. date of acquisition
 #' @param MTD character. path for metadata file
+#' @param MaxChunk numeric. Size of individual chunks to be written (in Mb)
 #'
 #' @return None
 #' @importFrom stars write_stars
 #' @export
-save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI_BIL',datatype='Int16',
-                                S2Sat = NULL, tile_S2 = NULL, dateAcq_S2 = NULL, MTD = NULL){
+save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int16',
+                                S2Sat = NULL, tile_S2 = NULL, dateAcq_S2 = NULL, MTD = NULL,
+                                MaxChunk = 256){
   # identify if S2A or S2B, if possible
   s2mission <- check_S2mission(S2Sat = S2Sat, tile_S2 = tile_S2, dateAcq_S2 = dateAcq_S2)
   # define central wavelength corresponding to each spectral band
@@ -1101,7 +1164,7 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI_BIL',datatype=
   }
   # identify where spectral bands are in the stars object
   Stars_Spectral <- list()
-  starsnames <- attributes(S2_stars)$dimensions$band$values
+  starsnames <- names(S2_stars$attr)
   Stars_Spectral$bandname <- starsnames[which(!starsnames=='Cloud')]
   Stars_Spectral$wavelength <- WL_s2[Stars_Spectral$bandname]
 
@@ -1111,17 +1174,26 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI_BIL',datatype=
   if (length(Elim)>0){
     Reorder <- Reorder[-Elim]
   }
-  S2_stars <- S2_stars[,,,Reorder]
+  pathR <- S2_stars$attr[Reorder]
+  names(pathR) <- NULL
+  S2_stars2 <- stars::read_stars(pathR,along='band',proxy=TRUE)
   Stars_Spectral$bandname <- Stars_Spectral$bandname[Reorder]
   Stars_Spectral$wavelength <- Stars_Spectral$wavelength[Reorder]
-  write_Stack_S2(Stars_S2 = S2_stars, Stars_Spectral = Stars_Spectral, Refl_path = Refl_path,
-                 Format = Format, datatype = datatype,sensor=sensor)
+  write_Stack_S2(Stars_S2 = S2_stars2, Stars_Spectral = Stars_Spectral, Refl_path = Refl_path,
+                 Format = Format, datatype = datatype, sensor=sensor,MaxChunk = MaxChunk)
   # save metadata file as well if available
   if (!is.null(MTD)){
     if (file.exists(MTD)){
       file.copy(from = MTD, to = file.path(dirname(Refl_path), basename(MTD)), overwrite = TRUE)
     }
   }
+  # delete temporary files
+  # delete temporary file
+  for (pathtemp in S2_stars2){
+    file.remove(pathtemp)
+    if (file.exists(paste(pathtemp,'.hdr',sep=''))) file.remove(paste(pathtemp,'.hdr',sep=''))
+  }
+  gc()
   return(invisible())
 }
 
@@ -1243,12 +1315,10 @@ write_rasterStack_ENVI <- function(StackObj,StackPath,Bands,datatype='INT2S',
   return(invisible())
 }
 
-#' This function writes a stars Stack object into a ENVI raster file
+#' This function adjusts information from ENVI header
 #'
-#' @param StarsObj list. stars stack (read with along = 'band')
 #' @param dsn character. path where to store the stack
 #' @param Bands list. should include 'bandname', and if possible 'wavelength'
-#' @param datatype character. should be Int16 or Float64 for example
 #' @param sensor character. Name of the sensor used to acquire the image
 #' @param Stretch boolean. Set TRUE to get 10% stretching at display for reflectance, mentioned in hdr only
 #'
@@ -1256,12 +1326,8 @@ write_rasterStack_ENVI <- function(StackObj,StackPath,Bands,datatype='INT2S',
 #' @importFrom utils read.table
 #' @importFrom raster hdr raster
 #' @export
-write_starsStack_ENVI <- function(StarsObj,dsn,datatype='Int16',Bands,
-                                  sensor = 'Unknown', Stretch = FALSE){
+adjust_ENVI_hdr <- function(dsn, Bands, sensor = 'Unknown', Stretch = FALSE){
 
-  write_stars(StarsObj, dsn=dsn,driver =  "EHdr",type=datatype)
-  # r <- raster::writeRaster(x = StarsObj, filename = StackPath, format = "EHdr", overwrite = TRUE, datatype = datatype)
-  raster::hdr(raster(dsn), format = "ENVI")
   # Edit HDR file to add metadata
   HDR <- read_ENVI_header(get_HDR_name(dsn))
   HDR$`band names` <- Bands$bandname
@@ -1276,15 +1342,6 @@ write_starsStack_ENVI <- function(StarsObj,dsn,datatype='Int16',Bands,
   HDR$`z plot range` <- NULL
   HDR$`data ignore value` <- '-Inf'
   HDR$`sensor type` <- sensor
-
-  HDR$`coordinate system string` <- read.table(paste(dsn, ".prj", sep = ""))
-  # proj <- strsplit(x=strsplit(x =projection(raster(dsn)),split = ' ' )[[1]][1],split = '=')[[1]][2]
-  # zone <- strsplit(x=strsplit(x =projection(raster(dsn)),split = ' ' )[[1]][2],split = '=')[[1]][2]
-  # datum <- strsplit(x=strsplit(x =projection(raster(dsn)),split = ' ' )[[1]][3],split = '=')[[1]][2]
-  # oldProj <- HDR$`map info`
-  # NewProj <- gsub(pattern = 'projection',replacement = proj,x = oldProj)
-  # NewProj <- paste(NewProj,zone,datum,sep = ', ')
-  # HDR$`map info` <- NewProj
   write_ENVI_header(HDR = HDR,HDRpath = get_HDR_name(dsn))
 
   # remove unnecessary files
@@ -1302,28 +1359,30 @@ write_starsStack_ENVI <- function(StarsObj,dsn,datatype='Int16',Bands,
 #' @param Stars_S2 list. stars object containing raster data. Can be produced with function Crop_n_resample_S2
 #' @param Stars_Spectral list. band name to be saved in the stack and spectral bands corresponding to the image
 #' @param Refl_path character. path where to store the image
-#' @param Format character. default = ENVI BIL. otheerwise use gdal drivers
+#' @param Format character. default = ENVI BSQ. otherwise use gdal drivers
 #' @param datatype character. should be Int16 or Float64 for example
 #' @param sensor character. Name of the sensor used to acquire the image
+#' @param MaxChunk numeric. Size of individual chunks to be written (in Mb)
 #'
 #' @return None
 #' @export
-write_Stack_S2 <- function(Stars_S2, Stars_Spectral, Refl_path, Format='ENVI_BIL',datatype='Int16',sensor='Unknown'){
+write_Stack_S2 <- function(Stars_S2, Stars_Spectral, Refl_path, Format='ENVI',
+                           datatype='Int16',sensor='Unknown', MaxChunk = 256){
 
-  if (Format == 'ENVI_BIL'){
-    write_starsStack_ENVI(StarsObj = Stars_S2, dsn=Refl_path, datatype=datatype, Bands = Stars_Spectral, sensor=sensor)
-    # write_rasterStack_ENVI(StackObj=Stars_S2,StackPath = Refl_path,Bands=Stars_Spectral,datatype=datatype,sensor=sensor)
-  } else {
-    r <- write_stars(Stars_S2, dsn=Refl_path, driver =  Format, type=datatype)
+  # write raster file from proxy using chunks
+  SizeObj <- 2*dim(Stars_S2)[1]*dim(Stars_S2)[2]*dim(Stars_S2)[3]/(1024**2)
+  nbChunks <- ceiling(SizeObj/MaxChunk)
+  stars::write_stars(obj = Stars_S2,
+                     dsn=Refl_path,
+                     driver =  Format,
+                     type=datatype,
+                     chunk_size = c(dim(Stars_S2)[1], ceiling(dim(Stars_S2)[2]/nbChunks)),
+                     progress = TRUE)
+
+  if (Format == 'ENVI'){
+    adjust_ENVI_hdr(dsn=Refl_path, Bands = Stars_Spectral,
+                    sensor=sensor, Stretch = TRUE)
   }
-
-  # Stars_S2 <- as(object = Stars_S2,Class = 'Raster')
-  # names(Stars_S2) <- Stars_Spectral$bandname
-  # if (Format == 'ENVI_BIL'){
-  #   write_rasterStack_ENVI(StackObj=Stars_S2,StackPath = Refl_path,Bands=Stars_Spectral,datatype=datatype,sensor=sensor)
-  # } else {
-  #   r <- raster::writeRaster(x = Stars_S2, filename = Refl_path, format = Format, overwrite = TRUE)
-  # }
   return(invisible())
 }
 
