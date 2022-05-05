@@ -13,6 +13,7 @@ save_reflectance_s2(
   tile_S2 = NULL,
   dateAcq_S2 = NULL,
   MTD = NULL,
+  MTD_MSI = NULL,
   MaxChunk = 256
 )
 }
@@ -32,6 +33,8 @@ save_reflectance_s2(
 \item{dateAcq_S2}{double. date of acquisition}
 
 \item{MTD}{character. path for metadata file}
+
+\item{MTD_MSI}{character. path for metadata MSI file}
 
 \item{MaxChunk}{numeric. Size of individual chunks to be written (in Mb)}
 }

@@ -10,6 +10,45 @@
 # different data hubs, such as THEIA, PEPS or SCIHUB
 # == == == == == == == == == == == == == == == == == == == == == == == == == == ==
 
+#' This function adjusts information from ENVI header
+#'
+#' @param dsn character. path where to store the stack
+#' @param Bands list. should include 'bandname', and if possible 'wavelength'
+#' @param sensor character. Name of the sensor used to acquire the image
+#' @param Stretch boolean. Set TRUE to get 10% stretching at display for reflectance, mentioned in hdr only
+#'
+#' @return None
+#' @importFrom utils read.table
+#' @importFrom raster hdr raster
+#' @export
+adjust_ENVI_hdr <- function(dsn, Bands, sensor = 'Unknown', Stretch = FALSE){
+
+  # Edit HDR file to add metadata
+  HDR <- read_ENVI_header(get_HDR_name(dsn))
+  HDR$`band names` <- Bands$bandname
+  if (length(Bands$wavelength)==length(Bands$bandname)){
+    HDR$wavelength <- Bands$wavelength
+  } else {
+    HDR$wavelength <- NULL
+  }
+  if (Stretch==TRUE){
+    HDR$`default stretch` <- '0.000000 1000.000000 linear'
+  }
+  HDR$`z plot range` <- NULL
+  HDR$`data ignore value` <- '-Inf'
+  HDR$`sensor type` <- sensor
+  write_ENVI_header(HDR = HDR,HDRpath = get_HDR_name(dsn))
+
+  # remove unnecessary files
+  File2Remove <- paste(dsn, ".aux.xml", sep = "")
+  if (file.exists(File2Remove)) file.remove(File2Remove)
+  File2Remove <- paste(dsn, ".prj", sep = "")
+  if (file.exists(File2Remove)) file.remove(File2Remove)
+  File2Remove <- paste(dsn, ".stx", sep = "")
+  if (file.exists(File2Remove)) file.remove(File2Remove)
+  return(invisible())
+}
+
 #' This function saves reflectance files
 #'
 #' @param S2Sat character. Sentinel-2 mission ('2A' or '2B')
@@ -351,9 +390,9 @@ get_S2_bands <- function(Path_dir_S2, S2source = 'SAFE', resolution = 10, fre_sr
     message('- LaSRC (atmospheric correction: LaSRC)')
     message('- THEIA (atmospheric correction: MAJA)')
     message('- SAFE (atmospheric correction: Sen2Cor)')
-    S2Bands_10m <- S2Bands_20m <- granule <- MTDfile <- NULL
+    S2Bands_10m <- S2Bands_20m <- granule <- MTDfile <- metadata_MSI <- NULL
     ListBands <- list('S2Bands_10m'=S2Bands_10m,'S2Bands_20m'=S2Bands_20m,'GRANULE'=granule,
-                      'metadata'=MTDfile)
+                      'metadata'=MTDfile,'metadata'=metadata_MSI)
   }
   return(ListBands)
 }
@@ -378,6 +417,11 @@ get_S2_bands_from_Sen2Cor <- function(Path_dir_S2, resolution=10){
   granule <- list.dirs(list.dirs(Path_dir_S2,recursive = FALSE)[grep(pattern = 'GRANULE',
                                                                      x = list.dirs(Path_dir_S2,recursive = FALSE))],recursive = FALSE)
   MTDfile <- file.path(granule,'MTD_TL.xml')
+  if (file.exists(file.path(Path_dir_S2,'MTD_MSIL2A.xml'))){
+    MTD_MSI_file <- file.path(Path_dir_S2,'MTD_MSIL2A.xml')
+  } else {
+    MTD_MSI_file <- NULL
+  }
 
   # Define path for bands
   S2Bands_20m_dir <- file.path(granule,'IMG_DATA','R20m')
@@ -394,7 +438,7 @@ get_S2_bands_from_Sen2Cor <- function(Path_dir_S2, resolution=10){
   Cloud_20m_dir <- file.path(granule,'QI_DATA')
   S2Bands_20m[['Cloud']] <- file.path(Cloud_20m_dir,list.files(Cloud_20m_dir,pattern = Cloud))
   ListBands <- list('S2Bands_10m'=S2Bands_10m,'S2Bands_20m'=S2Bands_20m,'GRANULE'=granule,
-                    'metadata'=MTDfile)
+                    'metadata'=MTDfile,'metadata_MSI'=MTD_MSI_file)
   return(ListBands)
 }
 
@@ -874,7 +918,6 @@ read_S2bands <- function(S2_Bands, path_vector = NULL,
                                                       resample=interpolation),proxy = FALSE)
     if (!is.null(path_vector)){
       Stack_S2_tmp <- sf::st_crop(x = Stack_S2_tmp, y = st_bbox(st_read(dsn = path_vector,quiet = T)))
-      # Stack_S2 <- stars::st_crop(x = Stack_S2, y = st_bbox(st_read(dsn = path_vector,quiet = T)),crop = TRUE)
     }
     tmpfile[[band]] <- file.path(tmpDir,tools::file_path_sans_ext(basename(S2_Bands[[band]])))
     if (band=='Cloud'){
@@ -1073,9 +1116,8 @@ S2_from_L1C_to_L2A <- function(prodName, l1c_path, l2a_path, datePattern, tmp_pa
 #'
 #' @return list of CloudMasks (binary mask, and raw mask if required)
 #' @importFrom sf st_read
-#' @importFrom stars write_stars st_as_stars
+#' @importFrom stars write_stars
 #' @importFrom raster raster
-#' @importFrom fasterize fasterize
 #' @export
 save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
                           footprint = NULL, SaveRaw = FALSE,MaxChunk = 256){
@@ -1093,8 +1135,6 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
                        type='Byte',
                        chunk_size = c(dim(obj)[1], dim(obj)[2]/nbChunks),
                        progress = TRUE)
-    # WhichCloud <- which(names(S2_stars)=="Cloud")
-    # stars::write_stars(S2_stars, dsn=Cloudraw,layer=WhichCloud, driver =  "ENVI",type='Byte')
   } else {
     Cloudraw <- NULL
   }
@@ -1109,14 +1149,6 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
   }
   cloudmask[[1]][Cloudy] <- 0
   cloudmask[[1]][Sunny] <- 1
-  if (!is.null(footprint)){
-    if (file.exists(footprint)){
-      rasterobj <- raster(as(object = cloudmask,Class = 'Raster'))
-      nc <- sf::st_read(footprint)
-      cloudmask2 <- fasterize::fasterize(sf = nc, raster = rasterobj)
-      cloudmask <- stars::st_as_stars(cloudmask2)*cloudmask
-    }
-  }
   Cloudbin <- file.path(Cloud_path,'CloudMask_Binary')
   stars::write_stars(cloudmask, dsn=Cloudbin, driver =  "ENVI",type='Byte',overwrite = TRUE)
   CloudMasks <- list('BinaryMask' = Cloudbin, 'RawMask' = Cloudraw)
@@ -1137,16 +1169,19 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
 #' @param tile_S2 character. S2 tile name (2 numbers + 3 letters)
 #' @param dateAcq_S2 double. date of acquisition
 #' @param MTD character. path for metadata file
+#' @param MTD_MSI character. path for metadata MSI file
 #' @param MaxChunk numeric. Size of individual chunks to be written (in Mb)
 #'
 #' @return None
-#' @importFrom stars write_stars
+#' @importFrom stars write_stars st_apply
+#' @importFrom XML xml
 #' @export
 save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int16',
-                                S2Sat = NULL, tile_S2 = NULL, dateAcq_S2 = NULL, MTD = NULL,
-                                MaxChunk = 256){
+                                S2Sat = NULL, tile_S2 = NULL, dateAcq_S2 = NULL,
+                                MTD = NULL, MTD_MSI = NULL, MaxChunk = 256){
   # identify if S2A or S2B, if possible
   s2mission <- check_S2mission(S2Sat = S2Sat, tile_S2 = tile_S2, dateAcq_S2 = dateAcq_S2)
+
   # define central wavelength corresponding to each spectral band
   if (s2mission=='2A'){
     WL_s2 <- list("B02"=496.6, "B03"=560.0, "B04"=664.5,
@@ -1162,6 +1197,37 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int
   } else if (s2mission=='2B'){
     sensor <- 'Sentinel_2B'
   }
+
+  # apply offset when necessary
+  listBands_bis <-     c("B2", "B3", "B4", "B5", "B6", "B7", "B8", "B8A", "B11", "B12")
+  if (!is.null(MTD_MSI)){
+    # read XML file containing info about geometry of acquisition
+    # s2xml <- XML::xml(MTD)
+    s2xml <- XML::xmlToList(MTD_MSI)
+    XML_Offset <- s2xml$General_Info$Product_Image_Characteristics$BOA_ADD_OFFSET_VALUES_LIST
+    Bands <- lapply(s2xml$General_Info$Product_Image_Characteristics$Spectral_Information_List,'[[',4)
+    if (!is.null(XML_Offset) && !is.null(Bands)){
+      BandID  <- lapply(Bands,'[[',1)
+      BandName  <- lapply(Bands,'[[',2)
+      Offset <- data.frame('BandName' = unlist(BandName),
+                           'BandID' = unlist(BandID),
+                           'Offset' =unlist(lapply(XML_Offset,'[[',1)))
+      selBands <- match(listBands_bis,Offset$BandName)
+      Offset <- Offset[selBands,]
+      BOA_QuantVal <- as.numeric(s2xml$General_Info$Product_Image_Characteristics$QUANTIFICATION_VALUES_LIST$BOA_QUANTIFICATION_VALUE[1])
+    } else {
+      Offset <- data.frame('BandName' = listBands_bis,
+                           'BandID' = c(1,2,3,4,5,6,7,8,11,12),
+                           'Offset' =0)
+      BOA_QuantVal <- 10000
+    }
+  } else {
+    Offset <- data.frame('BandName' = listBands_bis,
+                         'BandID' = c(1,2,3,4,5,6,7,8,11,12),
+                         'Offset' =0)
+    BOA_QuantVal <- 10000
+  }
+
   # identify where spectral bands are in the stars object
   Stars_Spectral <- list()
   starsnames <- names(S2_stars$attr)
@@ -1175,10 +1241,23 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int
     Reorder <- Reorder[-Elim]
   }
   pathR <- S2_stars$attr[Reorder]
+
   names(pathR) <- NULL
   S2_stars2 <- stars::read_stars(pathR,along='band',proxy=TRUE)
   Stars_Spectral$bandname <- Stars_Spectral$bandname[Reorder]
   Stars_Spectral$wavelength <- Stars_Spectral$wavelength[Reorder]
+
+  UniqueOffset <- as.numeric(unique(Offset$Offset))
+  if (length(UniqueOffset)>1){
+    message('Warning: BOA offset differs between bands.')
+    message('Offset will not be applied to the final S2 reflectance raster')
+    message('check metadata file to identify the offset applied on each band')
+    print(MTD_MSI)
+  } else {
+    message('applying offset to reflectance data')
+    offsetS2 = function(x) (round(x + UniqueOffset)*(10000/BOA_QuantVal))
+    S2_stars2 <- stars::st_apply(X = S2_stars2,MARGIN = 'band',FUN = offsetS2)
+  }
   write_Stack_S2(Stars_S2 = S2_stars2, Stars_Spectral = Stars_Spectral, Refl_path = Refl_path,
                  Format = Format, datatype = datatype, sensor=sensor,MaxChunk = MaxChunk)
   # save metadata file as well if available
@@ -1187,7 +1266,12 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int
       file.copy(from = MTD, to = file.path(dirname(Refl_path), basename(MTD)), overwrite = TRUE)
     }
   }
-  # delete temporary files
+  # save metadata file as well if available
+  if (!is.null(MTD_MSI)){
+    if (file.exists(MTD_MSI)){
+      file.copy(from = MTD_MSI, to = file.path(dirname(Refl_path), basename(MTD_MSI)), overwrite = TRUE)
+    }
+  }
   # delete temporary file
   for (pathtemp in pathR){
     file.remove(pathtemp)
@@ -1315,44 +1399,6 @@ write_rasterStack_ENVI <- function(StackObj,StackPath,Bands,datatype='INT2S',
   return(invisible())
 }
 
-#' This function adjusts information from ENVI header
-#'
-#' @param dsn character. path where to store the stack
-#' @param Bands list. should include 'bandname', and if possible 'wavelength'
-#' @param sensor character. Name of the sensor used to acquire the image
-#' @param Stretch boolean. Set TRUE to get 10% stretching at display for reflectance, mentioned in hdr only
-#'
-#' @return None
-#' @importFrom utils read.table
-#' @importFrom raster hdr raster
-#' @export
-adjust_ENVI_hdr <- function(dsn, Bands, sensor = 'Unknown', Stretch = FALSE){
-
-  # Edit HDR file to add metadata
-  HDR <- read_ENVI_header(get_HDR_name(dsn))
-  HDR$`band names` <- Bands$bandname
-  if (length(Bands$wavelength)==length(Bands$bandname)){
-    HDR$wavelength <- Bands$wavelength
-  } else {
-    HDR$wavelength <- NULL
-  }
-  if (Stretch==TRUE){
-    HDR$`default stretch` <- '0.000000 1000.000000 linear'
-  }
-  HDR$`z plot range` <- NULL
-  HDR$`data ignore value` <- '-Inf'
-  HDR$`sensor type` <- sensor
-  write_ENVI_header(HDR = HDR,HDRpath = get_HDR_name(dsn))
-
-  # remove unnecessary files
-  File2Remove <- paste(dsn, ".aux.xml", sep = "")
-  if (file.exists(File2Remove)) file.remove(File2Remove)
-  File2Remove <- paste(dsn, ".prj", sep = "")
-  if (file.exists(File2Remove)) file.remove(File2Remove)
-  File2Remove <- paste(dsn, ".stx", sep = "")
-  if (file.exists(File2Remove)) file.remove(File2Remove)
-  return(invisible())
-}
 
 #' This function writes a stars object into a raster file
 #'
