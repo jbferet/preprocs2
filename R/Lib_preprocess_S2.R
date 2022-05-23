@@ -233,9 +233,11 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE',
   } else if (length(S2_Bands$S2Bands_10m)>0){
     S2_Stack <- Stack_10m
     NameBands <- names(S2_Bands$S2Bands_10m)
+    names(S2_Stack$attr) <- NameBands
   } else if (length(S2_Bands$S2Bands_20m)>0){
     S2_Stack <- Stack_20m
     NameBands <- names(S2_Bands$S2Bands_20m)
+    names(S2_Stack$attr) <- NameBands
   }
   #
   # if (length(S2_Bands$S2Bands_10m)>0){
@@ -392,7 +394,7 @@ get_S2_bands <- function(Path_dir_S2, S2source = 'SAFE', resolution = 10, fre_sr
     message('- SAFE (atmospheric correction: Sen2Cor)')
     S2Bands_10m <- S2Bands_20m <- granule <- MTDfile <- metadata_MSI <- NULL
     ListBands <- list('S2Bands_10m'=S2Bands_10m,'S2Bands_20m'=S2Bands_20m,'GRANULE'=granule,
-                      'metadata'=MTDfile,'metadata'=metadata_MSI)
+                      'metadata'=MTDfile,'metadata_MSI'=metadata_MSI)
   }
   return(ListBands)
 }
@@ -454,6 +456,11 @@ get_S2_bands_from_LaSRC <- function(Path_dir_S2, resolution=10){
   # get granule directory & path for corresponding metadata XML file
   granule <- Path_dir_S2
   MTDfile <- file.path(granule,'MTD_TL.xml')
+  if (file.exists(file.path(Path_dir_S2,'MTD_MSIL1C.xml'))){
+    MTD_MSI_file <- file.path(Path_dir_S2,'MTD_MSIL1C.xml')
+  } else {
+    MTD_MSI_file <- NULL
+  }
 
   # build path for all bands
   B10m <- c('band2','band3','band4','band5','band6','band7','band8','band8a','band11','band12')
@@ -468,7 +475,8 @@ get_S2_bands_from_LaSRC <- function(Path_dir_S2, resolution=10){
   # get cloud mask
   Cloud <- 'CLM'
   S2Bands_10m[['Cloud']] <- file.path(Path_dir_S2,list.files(Path_dir_S2,pattern = Cloud))
-  ListBands <- list('S2Bands_10m'=S2Bands_10m,'S2Bands_20m'=S2Bands_20m,'GRANULE'=granule,'metadata'=MTDfile)
+  ListBands <- list('S2Bands_10m'=S2Bands_10m, 'S2Bands_20m'=S2Bands_20m,
+                    'GRANULE'=granule, 'metadata'=MTDfile, 'metadata_MSI'=MTD_MSI_file)
   return(ListBands)
 }
 
