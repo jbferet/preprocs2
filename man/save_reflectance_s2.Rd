@@ -14,6 +14,7 @@ save_reflectance_s2(
   dateAcq_S2 = NULL,
   MTD = NULL,
   MTD_MSI = NULL,
+  MTD_LaSRC = NULL,
   MaxChunk = 256
 )
 }
@@ -35,6 +36,8 @@ save_reflectance_s2(
 \item{MTD}{character. path for metadata file}
 
 \item{MTD_MSI}{character. path for metadata MSI file}
+
+\item{MTD_LaSRC}{character. path for metadata LaSRC file}
 
 \item{MaxChunk}{numeric. Size of individual chunks to be written (in Mb)}
 }

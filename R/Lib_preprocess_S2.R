@@ -392,9 +392,10 @@ get_S2_bands <- function(Path_dir_S2, S2source = 'SAFE', resolution = 10, fre_sr
     message('- LaSRC (atmospheric correction: LaSRC)')
     message('- THEIA (atmospheric correction: MAJA)')
     message('- SAFE (atmospheric correction: Sen2Cor)')
-    S2Bands_10m <- S2Bands_20m <- granule <- MTDfile <- metadata_MSI <- NULL
-    ListBands <- list('S2Bands_10m'=S2Bands_10m,'S2Bands_20m'=S2Bands_20m,'GRANULE'=granule,
-                      'metadata'=MTDfile,'metadata_MSI'=metadata_MSI)
+    S2Bands_10m <- S2Bands_20m <- granule <- MTDfile <- metadata_MSI <- metadata_LaSRC <- NULL
+    ListBands <- list('S2Bands_10m' = S2Bands_10m,'S2Bands_20m' = S2Bands_20m,'GRANULE' = granule,
+                      'metadata'= MTDfile,'metadata_MSI' = metadata_MSI,
+                      'metadata_LaSRC'= metadata_LaSRC)
   }
   return(ListBands)
 }
@@ -439,8 +440,12 @@ get_S2_bands_from_Sen2Cor <- function(Path_dir_S2, resolution=10){
   Cloud <- 'MSK_CLDPRB_20m'
   Cloud_20m_dir <- file.path(granule,'QI_DATA')
   S2Bands_20m[['Cloud']] <- file.path(Cloud_20m_dir,list.files(Cloud_20m_dir,pattern = Cloud))
-  ListBands <- list('S2Bands_10m'=S2Bands_10m,'S2Bands_20m'=S2Bands_20m,'GRANULE'=granule,
-                    'metadata'=MTDfile,'metadata_MSI'=MTD_MSI_file)
+  ListBands <- list('S2Bands_10m' = S2Bands_10m,
+                    'S2Bands_20m' = S2Bands_20m,
+                    'GRANULE' = granule,
+                    'metadata' = MTDfile,
+                    'metadata_MSI' = MTD_MSI_file,
+                    'metadata_LaSRC' = NULL)
   return(ListBands)
 }
 
@@ -450,6 +455,7 @@ get_S2_bands_from_Sen2Cor <- function(Path_dir_S2, resolution=10){
 #' @param resolution numeric. spatial resolution of the final image: 10m or 20m
 #'
 #' @return ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution, as well name of as granule
+#' @importFrom stringr str_subset
 #' @export
 get_S2_bands_from_LaSRC <- function(Path_dir_S2, resolution=10){
 
@@ -472,11 +478,23 @@ get_S2_bands_from_LaSRC <- function(Path_dir_S2, resolution=10){
                                                  list.files(Path_dir_S2,
                                                             pattern = paste(B10m[i],'.tif',sep = '')))
   }
+
+  # get metadata file containing offset
+  MTD_LaSRC <- str_subset(list.files(Path_dir_S2,pattern = 'S2A'), ".xml$")
+  if (file.exists(file.path(Path_dir_S2,MTD_LaSRC))){
+    metadata_LaSRC <- file.path(Path_dir_S2,MTD_LaSRC)
+  } else {
+    metadata_LaSRC <- NULL
+  }
   # get cloud mask
   Cloud <- 'CLM'
   S2Bands_10m[['Cloud']] <- file.path(Path_dir_S2,list.files(Path_dir_S2,pattern = Cloud))
-  ListBands <- list('S2Bands_10m'=S2Bands_10m, 'S2Bands_20m'=S2Bands_20m,
-                    'GRANULE'=granule, 'metadata'=MTDfile, 'metadata_MSI'=MTD_MSI_file)
+  ListBands <- list('S2Bands_10m' = S2Bands_10m,
+                    'S2Bands_20m' = S2Bands_20m,
+                    'GRANULE' = granule,
+                    'metadata' = MTDfile,
+                    'metadata_MSI' = MTD_MSI_file,
+                    'metadata_LaSRC' = metadata_LaSRC)
   return(ListBands)
 }
 
@@ -576,7 +594,8 @@ get_tile <- function(prodName){
 #' @export
 get_date <- function(prodName){
   prodName <- basename(prodName)
-  DateAcq <- gsub("T.*", "", gsub(".*L1C_", "", gsub(".*L2A_", "", prodName)))
+  # DateAcq <- gsub("T.*", "", gsub(".*L1C_", "", gsub(".*L2A_", "", prodName)))
+  DateAcq <- as.Date(gsub("T.*", "", gsub(".*_20", "20", prodName)),format = "%Y%m%d")
   return(DateAcq)
 }
 
@@ -1178,6 +1197,7 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
 #' @param dateAcq_S2 double. date of acquisition
 #' @param MTD character. path for metadata file
 #' @param MTD_MSI character. path for metadata MSI file
+#' @param MTD_LaSRC character. path for metadata LaSRC file
 #' @param MaxChunk numeric. Size of individual chunks to be written (in Mb)
 #'
 #' @return None
@@ -1186,7 +1206,8 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
 #' @export
 save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int16',
                                 S2Sat = NULL, tile_S2 = NULL, dateAcq_S2 = NULL,
-                                MTD = NULL, MTD_MSI = NULL, MaxChunk = 256){
+                                MTD = NULL, MTD_MSI = NULL, MTD_LaSRC = NULL,
+                                MaxChunk = 256){
   # identify if S2A or S2B, if possible
   s2mission <- check_S2mission(S2Sat = S2Sat, tile_S2 = tile_S2, dateAcq_S2 = dateAcq_S2)
 
@@ -1208,7 +1229,7 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int
 
   # apply offset when necessary
   listBands_bis <-     c("B2", "B3", "B4", "B5", "B6", "B7", "B8", "B8A", "B11", "B12")
-  if (!is.null(MTD_MSI)){
+  if (!is.null(MTD_MSI) & is.null(MTD_LaSRC)){
     # read XML file containing info about geometry of acquisition
     # s2xml <- XML::xml(MTD)
     s2xml <- XML::xmlToList(MTD_MSI)
@@ -1223,6 +1244,24 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int
       selBands <- match(listBands_bis,Offset$BandName)
       Offset <- Offset[selBands,]
       BOA_QuantVal <- as.numeric(s2xml$General_Info$Product_Image_Characteristics$QUANTIFICATION_VALUES_LIST$BOA_QUANTIFICATION_VALUE[1])
+    } else {
+      Offset <- data.frame('BandName' = listBands_bis,
+                           'BandID' = c(1,2,3,4,5,6,7,8,11,12),
+                           'Offset' =0)
+      BOA_QuantVal <- 10000
+    }
+  } else if (!is.null(MTD_LaSRC)){
+    # read XML file containing info about geometry of acquisition
+    # s2xml <- XML::xml(MTD)
+    s2xml <- XML::xmlToList(MTD_LaSRC)
+    attributes_LaSRC <- s2xml$bands[[14]]$.attrs
+    attributes_LaSRC_df <- data.frame(attributes_LaSRC)
+    if (match('add_offset',rownames(attributes_LaSRC_df))>0 & match('scale_factor',rownames(attributes_LaSRC_df))>0){
+      XML_Offset <- as.numeric(attributes_LaSRC[['add_offset']])
+      BOA_QuantVal <- 1/as.numeric(attributes_LaSRC[['scale_factor']])
+      Offset <- data.frame('BandName' = listBands_bis,
+                           'BandID' = c(1,2,3,4,5,6,7,8,11,12),
+                           'Offset' = XML_Offset)
     } else {
       Offset <- data.frame('BandName' = listBands_bis,
                            'BandID' = c(1,2,3,4,5,6,7,8,11,12),
@@ -1263,8 +1302,13 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int
     print(MTD_MSI)
   } else {
     message('applying offset to reflectance data')
-    offsetS2 = function(x) (round(x + UniqueOffset)*(10000/BOA_QuantVal))
-    S2_stars2 <- stars::st_apply(X = S2_stars2,MARGIN = 'band',FUN = offsetS2)
+    if (is.null(MTD_LaSRC) | UniqueOffset==0){
+      offsetS2 = function(x) (round(x + UniqueOffset)*(10000/BOA_QuantVal))
+      S2_stars2 <- stars::st_apply(X = S2_stars2,MARGIN = 'band',FUN = offsetS2)
+    } else {
+      offsetS2 = function(x) (round(10000*((x+UniqueOffset*BOA_QuantVal)/BOA_QuantVal)))
+      S2_stars2 <- stars::st_apply(X = S2_stars2,MARGIN = 'band',FUN = offsetS2)
+    }
   }
   write_Stack_S2(Stars_S2 = S2_stars2, Stars_Spectral = Stars_Spectral, Refl_path = Refl_path,
                  Format = Format, datatype = datatype, sensor=sensor,MaxChunk = MaxChunk)
@@ -1278,6 +1322,12 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int
   if (!is.null(MTD_MSI)){
     if (file.exists(MTD_MSI)){
       file.copy(from = MTD_MSI, to = file.path(dirname(Refl_path), basename(MTD_MSI)), overwrite = TRUE)
+    }
+  }
+  # save LaSRC metadata file as well if available
+  if (!is.null(MTD_LaSRC)){
+    if (file.exists(MTD_LaSRC)){
+      file.copy(from = MTD_LaSRC, to = file.path(dirname(Refl_path), basename(MTD_LaSRC)), overwrite = TRUE)
     }
   }
   # delete temporary file
