@@ -480,7 +480,7 @@ get_S2_bands_from_LaSRC <- function(Path_dir_S2, resolution=10){
   }
 
   # get metadata file containing offset
-  MTD_LaSRC <- str_subset(list.files(Path_dir_S2,pattern = 'S2A'), ".xml$")
+  MTD_LaSRC <- str_subset(list.files(Path_dir_S2,pattern = 'S2'), ".xml$")
   if (file.exists(file.path(Path_dir_S2,MTD_LaSRC))){
     metadata_LaSRC <- file.path(Path_dir_S2,MTD_LaSRC)
   } else {
@@ -579,10 +579,11 @@ get_S2_level <- function(prodName){
 #' @param prodName character. original name for the S2 image
 #'
 #' @return TileName character
+#' @importFrom tools file_path_sans_ext
 #' @export
 get_tile <- function(prodName){
   prodName <- basename(prodName)
-  TileName <- gsub("_.*", "", gsub(".*_T", "", prodName))
+  TileName <- tools::file_path_sans_ext(gsub("_.*", "", gsub(".*_T", "", prodName)))
   return(TileName)
 }
 
@@ -918,6 +919,7 @@ read_ENVI_header <- function(HDRpath) {
 #' @importFrom stars read_stars
 #' @importFrom sf st_bbox st_read st_crop
 #' @export
+
 read_S2bands <- function(S2_Bands, path_vector = NULL,
                          resampling = 1, interpolation = 'bilinear'){
   # get bounding box corresponding to footprint of image or image subset
