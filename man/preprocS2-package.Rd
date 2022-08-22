@@ -6,7 +6,7 @@
 \alias{preprocS2-package}
 \title{preprocS2: preprocessing of Sentinel-2 data downloaded from various data hubs / produced from various atmospheric correction methods}
 \description{
-The package preprocS2 allows production of raster stack from Sentinel-2 directories, as well as cropping, production of cloud mask....
+The package preprocS2 allows production of raster stack from Sentinel-2 directories, as well as cropping, production of cloud mask. It can download from various hubs: Scihub and google cloud using the package Sen2R, and image subsets via google earth engine using the package rgee.
 }
 \seealso{
 Useful links:
@@ -18,6 +18,11 @@ Useful links:
 }
 \author{
 \strong{Maintainer}: Jean-Baptiste Feret \email{jb.feret@teledetection.fr} (\href{https://orcid.org/0000-0002-0151-1334}{ORCID}) [copyright holder]
+
+Other contributors:
+\itemize{
+  \item Romain Dous \email{romain.dous@inrae.fr} [contributor]
+}
 
 }
 \keyword{internal}

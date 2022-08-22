@@ -19,7 +19,6 @@
 #'
 #' @return None
 #' @importFrom utils read.table
-#' @importFrom raster hdr raster
 #' @export
 adjust_ENVI_hdr <- function(dsn, Bands, sensor = 'Unknown', Stretch = FALSE){
 
@@ -102,9 +101,9 @@ check_S2mission <- function(S2Sat, tile_S2, dateAcq_S2){
 #' - path for individual band files corresponding to the stack
 #' - path for vector (reprojected if needed)
 #'
-#' @importFrom raster raster
 #' @importFrom tools file_path_sans_ext file_ext
 #' @export
+#'
 dir_size <- function(path, recursive = TRUE) {
   stopifnot(is.character(path))
   files <- list.files(path, full.names = T, recursive = recursive)
@@ -130,8 +129,9 @@ dir_size <- function(path, recursive = TRUE) {
 #' @importFrom raster raster
 #' @importFrom tools file_path_sans_ext file_ext
 #' @export
-extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE',
-                                resolution=10, interpolation='bilinear', fre_sre = 'FRE'){
+extract_from_S2_L2A <- function(Path_dir_S2, path_vector = NULL, S2source = 'SAFE',
+                                resolution=10, interpolation='bilinear',
+                                fre_sre = 'FRE'){
   # Get list of paths corresponding to S2 bands and depending on S2 directory
   S2_Bands <- get_S2_bands(Path_dir_S2 = Path_dir_S2,
                            S2source = S2source,
@@ -147,14 +147,14 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE',
   if (!is.null(path_vector)){
     raster_proj <- raster::projection(rastmp)
     path_vector_reproj <- paste(tools::file_path_sans_ext(path_vector),'_reprojected.shp',sep = '')
-    path_vector <- reproject_shp(path_vector_init = path_vector,
-                                 newprojection = raster_proj,
-                                 path_vector_reproj = path_vector_reproj)
+    path_vector <- suppressWarnings(reproject_shp(path_vector_init = path_vector,
+                                                  newprojection = raster_proj,
+                                                  path_vector_reproj = path_vector_reproj))
   }
   # Extract data corresponding to the vector footprint (if provided) & resample data if needed
   if (length(S2_Bands$S2Bands_10m)>0){
-    Stack_10m <- read_S2bands(S2_Bands = S2_Bands$S2Bands_10m, path_vector = path_vector,
-                              resampling = 1, interpolation = interpolation)
+    Stack_10m <- suppressWarnings(read_S2bands(S2_Bands = S2_Bands$S2Bands_10m, path_vector = path_vector,
+                                               resampling = 1, interpolation = interpolation))
   }
   if (length(S2_Bands$S2Bands_20m)>0){
     if (resolution==10 && S2source!='LaSRC'){
@@ -162,8 +162,10 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE',
     } else {
       resampling <- 1
     }
-    Stack_20m <- read_S2bands(S2_Bands = S2_Bands$S2Bands_20m, path_vector = path_vector,
-                              resampling = resampling, interpolation = interpolation)
+    Stack_20m <- suppressWarnings(read_S2bands(S2_Bands = S2_Bands$S2Bands_20m,
+                                               path_vector = path_vector,
+                                               resampling = resampling,
+                                               interpolation = interpolation))
   }
   # get full stack including 10m and 20m spatial resolution
   if (length(S2_Bands$S2Bands_10m)>0 & length(S2_Bands$S2Bands_20m)>0 ){
@@ -228,8 +230,6 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE',
                                                   nBufXSize = nBufXSize, nBufYSize = nBufYSize,
                                                   resample='nearest_neighbour'),proxy = TRUE)
     names(S2_Stack$attr) <- NameBands
-    # S2_Stack <- c(Stack_10m,Stack_20m,along='band')
-    # S2_Stack <- S2_Stack[,,,reorder_bands]
   } else if (length(S2_Bands$S2Bands_10m)>0){
     S2_Stack <- Stack_10m
     NameBands <- names(S2_Bands$S2Bands_10m)
@@ -250,8 +250,8 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector=NULL, S2source='SAFE',
   # } else {
   #   S2_Stack <- Stack_20m
   # }
-  ListOut <- list('S2_Stack'=S2_Stack,'S2_Bands'=S2_Bands, 'path_vector'=path_vector,
-                  'NameBands' = NameBands)
+  ListOut <- list('S2_Stack'=S2_Stack,'S2_Bands'=S2_Bands,
+                  'path_vector'=path_vector, 'NameBands' = NameBands)
   return(ListOut)
 }
 
@@ -342,6 +342,33 @@ get_BB_from_Vector <- function(path_raster,path_vector,Buffer = 0){
   return(BB_XYcoords)
 }
 
+#' Using the PRODUCT_ID, this function help to recreate correctly start, stop and generation date in the XML
+#' programmed by romain.dous@inrae.fr
+#' @param name_time character. The PRODUCT_ID (or other information if required)
+#' @param info_type character. start ; stop ; generation depending of the XML line
+#'
+#' @return date_product character. Correct date for the XML line
+#' @importFrom stringr str_extract_all str_extract
+#' @export
+#'
+get_datetime_from_S2prod <- function(name_time,info_type = "start"){
+
+  if(info_type %in% c("start","stop")){
+    hour_time <- stringr::str_extract_all(name_time,"(?<=T)\\d{6}")[[1]][1]
+    ending_strip <- ".024Z"
+  } else {
+    hour_time <- stringr::str_extract_all(name_time,"(?<=T)\\d{6}")[[1]][2]
+    ending_strip <- ".000000Z"
+  }
+  date_init <- stringr::str_extract(name_time,"\\d{8}")
+  hour_modif <- gsub("\\b(\\d{2})","\\1:\\2",hour_time)
+  hour_modif <- substring(hour_modif,1,nchar(hour_modif) - 1)
+  date_modif1 <- gsub("^(\\d{4})(.*)$","\\1-\\2",date_init)
+  date_modif2 <- gsub("^(.{7})(.*)$","\\1-\\2",date_modif1)
+  date_product <- paste0(date_modif2,"T",hour_modif,ending_strip)
+  return(date_product)
+}
+
 #' get hdr name from image file name, assuming it is BIL format
 #'
 #' @param ImPath path of the image
@@ -377,21 +404,24 @@ get_HDR_name <- function(ImPath) {
 #'
 #' @return ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution
 #' @export
+#'
 get_S2_bands <- function(Path_dir_S2, S2source = 'SAFE', resolution = 10, fre_sre = 'FRE'){
 
   if (S2source=='SAFE' | S2source=='Sen2Cor'){
     ListBands <- get_S2_bands_from_Sen2Cor(Path_dir_S2 = Path_dir_S2,resolution = resolution)
   } else if (S2source=='THEIA'){
-    ListBands <- get_S2_bands_from_THEIA(Path_dir_S2 = Path_dir_S2,resolution = resolution,
-                                         fre_sre = fre_sre)
+    ListBands <- get_S2_bands_from_THEIA(Path_dir_S2 = Path_dir_S2,resolution = resolution, fre_sre = fre_sre)
   } else if (S2source=='LaSRC'){
     ListBands <- get_S2_bands_from_LaSRC(Path_dir_S2 = Path_dir_S2,resolution = resolution)
+  } else if (S2source == 'GEE'){
+    ListBands <- get_S2_bands_from_RGEE(Path_dir_S2 = Path_dir_S2)
   } else {
     message('The data source (Atmospheric correction) for Sentinel-2 image is unknown')
     message('Please provide S2 images from one of the following data sources:')
     message('- LaSRC (atmospheric correction: LaSRC)')
     message('- THEIA (atmospheric correction: MAJA)')
     message('- SAFE (atmospheric correction: Sen2Cor)')
+    message('- GEE (atmospheric correction: Sen2Cor)')
     S2Bands_10m <- S2Bands_20m <- granule <- MTDfile <- metadata_MSI <- metadata_LaSRC <- NULL
     ListBands <- list('S2Bands_10m' = S2Bands_10m,'S2Bands_20m' = S2Bands_20m,'GRANULE' = granule,
                       'metadata'= MTDfile,'metadata_MSI' = metadata_MSI,
@@ -407,6 +437,7 @@ get_S2_bands <- function(Path_dir_S2, S2source = 'SAFE', resolution = 10, fre_sr
 #'
 #' @return ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution, as well name of as granule
 #' @export
+#'
 get_S2_bands_from_Sen2Cor <- function(Path_dir_S2, resolution=10){
   # build path for all bands
   if (resolution == 10){
@@ -457,6 +488,7 @@ get_S2_bands_from_Sen2Cor <- function(Path_dir_S2, resolution=10){
 #' @return ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution, as well name of as granule
 #' @importFrom stringr str_subset
 #' @export
+#'
 get_S2_bands_from_LaSRC <- function(Path_dir_S2, resolution=10){
 
   # get granule directory & path for corresponding metadata XML file
@@ -480,7 +512,7 @@ get_S2_bands_from_LaSRC <- function(Path_dir_S2, resolution=10){
   }
 
   # get metadata file containing offset
-  MTD_LaSRC <- str_subset(list.files(Path_dir_S2,pattern = 'S2'), ".xml$")
+  MTD_LaSRC <- stringr::str_subset(list.files(Path_dir_S2,pattern = 'S2'), ".xml$")
   if (file.exists(file.path(Path_dir_S2,MTD_LaSRC))){
     metadata_LaSRC <- file.path(Path_dir_S2,MTD_LaSRC)
   } else {
@@ -506,6 +538,7 @@ get_S2_bands_from_LaSRC <- function(Path_dir_S2, resolution=10){
 #'
 #' @return ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution, as well name of as granule
 #' @export
+#'
 get_S2_bands_from_THEIA <- function(Path_dir_S2, resolution=10, fre_sre='FRE'){
 
   # build path for all bands
@@ -553,6 +586,52 @@ get_S2_bands_from_THEIA <- function(Path_dir_S2, resolution=10, fre_sre='FRE'){
                     'S2Bands_20m' = S2Bands_20m,
                     'Path_tile_S2' = Path_tile_S2,
                     'metadata' = MTDfile)
+  return(ListBands)
+}
+
+#' This function returns path for the spectral bands in GEE directory
+#' programmed by romain.dous@inrae.fr
+#' @param Path_dir_S2 character. Path for the SAFE directory containing S2 data
+#'
+#' @return ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution, as well name of as granule
+#' @export
+#'
+get_S2_bands_from_RGEE <- function(Path_dir_S2){
+
+  # Define spectral bands collected from GEE
+  granule <- Path_dir_S2
+  B10m <- c('B02','B03','B04','B08')
+  B20m <- c('B05','B06','B07','B8A','B11','B12')
+  # Define path for bands
+  S2Bands_20m_dir <- file.path(granule,'R20m')
+  S2Bands_10m_dir <- file.path(granule,'R10m')
+  S2Bands_10m <- S2Bands_20m <- list()
+  for (band in B20m){
+    bandName <- file.path(S2Bands_20m_dir,list.files(S2Bands_20m_dir,pattern = band))
+    if (file.exists(bandName)){
+      S2Bands_20m[[band]] <- bandName
+    }
+  }
+  for (band in B10m){
+    bandName <- file.path(S2Bands_10m_dir,list.files(S2Bands_10m_dir,pattern = band))
+    if (file.exists(bandName)){
+      S2Bands_10m[[band]] <- bandName
+    }
+  }
+  # adding clouds
+  Cloud <- 'MSK_CLDPRB'
+  Cloud_20m_dir <- file.path(granule,'Cloud')
+  S2Bands_20m[['Cloud']] <- file.path(Cloud_20m_dir,list.files(Cloud_20m_dir,pattern = Cloud))
+  # getting metadata files paths
+  MTDfile <- file.path(granule,'MTD_TL.xml')
+  MTD_MSI_file <- file.path(Path_dir_S2,'MTD_MSIL2A.xml')
+  # list outputs
+  ListBands <- list('S2Bands_10m' = S2Bands_10m,
+                    'S2Bands_20m' = S2Bands_20m,
+                    'GRANULE' = granule,
+                    'metadata' = MTDfile,
+                    'metadata_MSI' = MTD_MSI_file,
+                    'metadata_LaSRC' = NULL)
   return(ListBands)
 }
 
@@ -803,6 +882,181 @@ get_S2_L2A_Image <- function(l2a_path, spatial_extent, dateAcq,
   return(ProdFullPath)
 }
 
+
+#' This function downloads S2 data from GEE based on a vector footprint
+#'
+#' @param l2a_path character. Storage option -> Path where download S2 datas
+#' @param path_vector character. Path for vector file
+#' @param dateAcq character. Only or starting acquisition date
+#' @param dateEnd character. Ending acquisition date for multiple acquisition
+#' @param email character. Personal mail with RGEE autorisations (datas will be download on the Google Drive of thie account)
+#' @param cloud_cover numeric. Percent of clouds tolerate on each acquisition.
+#' @param ImageCollection character. image data collection
+#' @param B10m character. vector containing the name of the 10m bands to be downloaded
+#' @param B20m character. vector containing the name of the 20m bands to be downloaded
+#' @param B_cloud character. vector containing the name of the Cloud band to be downloaded
+#'
+#' @return character. path corresponding to acquisitions
+#' @importFrom rgee ee ee_Initialize sf_as_ee ee_imagecollection_to_local ee_utils_future_value
+#' @importFrom sf st_read st_bbox st_as_sfc
+#' @importFrom filesstrings file.move
+#' @importFrom stringr str_extract str_detect
+#' @export
+
+get_S2_L2A_Image_from_GEE <- function(l2a_path, path_vector, dateAcq,
+                                      dateEnd = NULL, email, cloud_cover = 10,
+                                      ImageCollection = "COPERNICUS/S2_SR",
+                                      B10m = c('B2','B3','B4','B8'),
+                                      B20m = c('B5','B6','B7','B8A','B11','B12'),
+                                      B_cloud = c('MSK_CLDPRB')){
+
+  # make ending date with first date if we want only one date
+  if(is.null(dateEnd)){
+    dateEnd <- dateAcq
+  }
+  # initialisation of rgee for download and autorisation
+  rgee::ee_Initialize(user <- email,
+                      drive <- TRUE)
+  # define ROI readable from GEE
+  roi <- rgee::sf_as_ee(
+    sf::st_as_sfc(
+      sf::st_bbox(
+        sf::st_read(path_vector,quiet = T))))
+  # define image collection
+  s2 <- ee$ImageCollection(ImageCollection)
+  # define bands corresponding to 10m, 20m and Cloud resolution
+  ListBands <- c(B10m,B20m,B_cloud)
+  # define temporary directory to write images
+  tmpDir <- tempdir()
+  # download time series corresponding to each band
+  for(band in ListBands){
+    Band_standardName <- S2_band_StandardizeName(band)
+    tmpFile <- file.path(tmpDir,paste0(Band_standardName,"_" ))
+    s2_clean <- function(img) {
+      img_band_selected <- img$select(band)
+    }
+    s2_roi <- s2$
+      # spatial filtering
+      filterBounds(roi)$
+      # temporal filtering
+      filter(ee$Filter$date(dateAcq, dateEnd))$
+      # cloud cover filtering
+      filter(ee$Filter$lte("CLOUDY_PIXEL_PERCENTAGE", cloud_cover))$
+      map(s2_clean)
+    # download product
+    s2_ic_local <- rgee::ee_imagecollection_to_local(
+      ic = s2_roi,
+      scale = NULL,
+      region = roi,
+      via = 'drive',
+      lazy = TRUE,
+      dsn = tmpFile,
+      add_metadata = TRUE,
+      quiet = T)
+    # From Google Drive to client-side
+    stars_dsn <- lapply(X = s2_ic_local,FUN = ee_utils_future_value)
+  }
+
+  # access all metadata for collection
+  feature <- ee$Feature(s2_roi, list(rgee = "ee_print", data = TRUE))
+  feature_MTD <- feature$getInfo()
+  # reorder downloaded files in the correct folder
+  list_tif <- list.files(tmpDir, pattern = ".tif")
+  # list of acquisitions downoladed
+  IndividualAcq <- unique(stringr::str_extract(list_tif,pattern = "\\d{8}.*(?=.tif)"))
+  # write reflectance files, mask file and metadata for each acquisition
+  for(Acq in IndividualAcq){
+    # create arborescence where files corresponding to acquisition will be stored
+    AcqDir <- paste0(l2a_path,"/L2A_",Acq)
+    subDir <- c("R10m","R20m","Cloud")
+    FullPath_SubDir <- file.path(AcqDir,subDir)
+    sapply(FullPath_SubDir, function(x)
+      dir.create(path = x,showWarnings = FALSE,recursive = TRUE))
+
+    # get metadata corresponding to Acq
+    features_Acq <- identification_Acq_features(Acq = Acq, feat = feature_MTD$features)
+
+    # create xml files
+    if(!is.null(features_Acq)){
+      # write MTD_TL.xml
+      write_template_TL(features_Acq = features_Acq,
+                        AcqDir = AcqDir)
+      # write MTD_MSIL2A.xml
+      write_template_MSIL2A(features_Acq = features_Acq,
+                            AcqDir = AcqDir,
+                            Acq = Acq)
+    }
+
+    # list files corresponding to acquisition
+    if (!is.na(Acq)){
+      list_DC <- list.files(tmpDir, pattern = Acq, full.names = TRUE,include.dirs = F)
+    } else {
+      list_DC <- list.files(tmpDir, pattern = "_.tif", full.names = TRUE,include.dirs = F)
+    }
+    list_DC_tif <- list_DC[stringr::str_detect(list_DC, ".tif")]
+    # move files from tmp directory to target directory
+    for (fpath in list_DC_tif){
+      if (!stringr::str_detect(fpath,pattern ="MSK_CLDPRB")){
+        fband <- stringr::str_extract(fpath, pattern ="[B]{1}.{2}(?=_2)") #[/]{1}
+        targetPath <- ifelse(fband %in% sapply(B10m, function(x) S2_band_StandardizeName(x)),
+                             yes = FullPath_SubDir[1],
+                             no = FullPath_SubDir[2])
+      } else {
+        targetPath <- FullPath_SubDir[3]
+      }
+      filesstrings::file.move(fpath, targetPath)
+    }
+  }
+  FullPath_S2 <- paste0(l2a_path,"/L2A_",IndividualAcq)
+
+  return(FullPath_S2)
+}
+
+#' This function was made to correctly create the granule line corresponding to a RGEE data acquisition
+#' programmed by romain.dous@inrae.fr
+#' @param datastrip_id character. properties$DATASTRIP_ID
+#' @param granule_id character. properties$GRANULE_ID
+#'
+#' @return granule character. GRANULE
+#' @importFrom stringr str_extract str_split
+#' @export
+#'
+granuleIdentifier_creation <- function(datastrip_id,granule_id){
+  extraction_datastrip_id <- stringr::str_extract(datastrip_id,".*(?=DS)")
+  text_part1 <- paste0(extraction_datastrip_id,"_TL_VGS2")
+  extraction_granule_id <- stringr::str_split(granule_id,"_")[[1]]
+  text_part2 <- paste(text_part1,extraction_granule_id[4],extraction_granule_id[3],extraction_granule_id[2],sep = "_")
+  extraction_datastrip_N0 <- stringr::str_extract(datastrip_id,"[N]{1}\\d{2}[.]{1}\\d{2}")
+  granule <- paste(text_part2,extraction_datastrip_N0, sep = "_")
+  return(granule)
+}
+
+#' This function is used to find the good features data for an acquisition
+#' programmed by romain.dous@inrae.fr
+#' @param Acq character. Information of the acquisition. example : "20220321T104731_20220321T105204_T31UFQ".
+#' @param feat list. Total of features information for all acquisitions. Equivalent of features_MTD$features.
+#'
+#' @return features_Acq list. Features information only for the targeted acquisition.
+#' stop if the ACq is not present in the features data.
+#' @importFrom stringr str_extract
+#' @export
+#'
+identification_Acq_features <- function(Acq,feat){
+  features_Acq <- NULL
+  f <- 1
+  while(is.null(features_Acq) & f <= length(feat) & !is.na(Acq)){
+    if(Acq == stringr::str_extract(feat[[f]]$id, "(?<=S2_SR/).*")){
+      features_Acq <- feat[[f]]
+    }
+    f <- f + 1
+  }
+  if(is.null(features_Acq) & f > length(feat)){
+    features_Acq <- NULL
+  } else {
+    return(features_Acq)
+  }
+}
+
 #' convert image coordinates from index to X-Y
 #'
 #' @param Raster image raster object
@@ -1010,6 +1264,29 @@ read_raster <- function(path_raster, path_vector = NULL, BBpix = NULL){
   return(starsobj)
 }
 
+#' With the ESPG, this function writes the CRS name corresponding
+#' programmed by romain.dous@inrae.fr
+#' @param crs_init character. EPSG
+#'
+#' @return name_crs character. Complete name of the ESPG
+#' @importFrom sf st_crs
+#' @importFrom stringr str_extract str_split
+#' @importFrom utils head
+#' @export
+
+recup_name_crs <- function(crs_init){
+
+  crs_data <- sf::st_crs(crs_init)
+  wkt_crs <- crs_data$wkt
+  heading <- utils::head(wkt_crs)
+  research_projstringr <- stringr::str_extract(heading,"(?<!\\\\).*(?!\\\\)" )
+  research_split <- stringr::str_split(research_projstringr,"")[[1]]
+  research_length <- length(research_split)
+  research_keep <- research_split[-c(1:9,(research_length-1):research_length)]
+  name_crs <- paste0(research_keep, collapse = "")
+  return(name_crs)
+}
+
 #' This function reprojects a shapefile and saves reprojected shapefile
 #'
 #' @param path_vector_init character. path for a shapefile to be reprojected
@@ -1050,6 +1327,22 @@ reproject_shp = function(path_vector_init,newprojection,path_vector_reproj){
   return(path_vector)
 }
 
+#' This function standardizes S2 band names downloaded with GEE (from BX to B0X)
+#' programmed by romain.dous@inrae.fr
+#' @param band character. Original band name (e.g. B2)
+#'
+#' @return true_num character. standardized band name (e.g. B02)
+#' @export
+
+S2_band_StandardizeName <- function(band){
+  name <- strsplit(band,"")
+  if(length(name[[1]]) < 3){
+    true_num <- paste0(name[[1]][1],'0',name[[1]][2])
+  } else {
+    true_num <- band
+  }
+  return(true_num)
+}
 
 #' perform atmospheric corrections to convert L1C to L2A data with Sen2cor
 #'
@@ -1169,7 +1462,7 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
   }
   # Save cloud mask as in biodivMapR (0 = clouds, 1 = pixel ok)
   cloudmask <- stars::read_stars(S2_stars$attr[WhichCloud],proxy = FALSE)
-  if (S2source=='SAFE' | S2source=='THEIA'){
+  if (S2source=='SAFE' | S2source=='THEIA' | S2source == 'GEE'){
     Cloudy <- which(cloudmask[[1]]>0)
     Sunny <- which(cloudmask[[1]]==0)
   } else if (S2source=='LaSRC'){
@@ -1179,7 +1472,7 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
   cloudmask[[1]][Cloudy] <- 0
   cloudmask[[1]][Sunny] <- 1
   Cloudbin <- file.path(Cloud_path,'CloudMask_Binary')
-  stars::write_stars(cloudmask, dsn=Cloudbin, driver =  "ENVI",type='Byte',overwrite = TRUE)
+  stars::write_stars(cloudmask, dsn = Cloudbin, driver = "ENVI", type = 'Byte', overwrite = TRUE)
   CloudMasks <- list('BinaryMask' = Cloudbin, 'RawMask' = Cloudraw)
   # delete temporary file
   file.remove(S2_stars$attr[WhichCloud])
@@ -1491,6 +1784,203 @@ write_Stack_S2 <- function(Stars_S2, Stars_Spectral, Refl_path, Format='ENVI',
   }
   return(invisible())
 }
+
+
+#' This function is made to correctly create the MTD_TL.xml for each dnowloaded date using the MTD_TL.xml template
+#' programmed by romain.dous@inrae.fr
+#' @param features_Acq list. list of features datas link to the studied acquisition
+#' @param AcqDir character. Path for the acquisition
+#'
+#' @importFrom xml2 read_xml xml_find_all xml_text write_xml
+#' @importFrom stringr str_replace
+
+write_template_TL <- function(features_Acq,AcqDir){
+
+  # opening template and writing preparation
+  templates_dir <- system.file("extdata", "MTD_TL.xml", package = "preprocS2")
+  xml_MTD <- xml2::read_xml(templates_dir)
+  xml_name_out <- "MTD_TL.xml"
+
+  # data.frame containing original texts and substitues
+  tab_MTD <- data.frame('L1C_TILE_ID' = stringr::str_replace(features_Acq$properties$DATASTRIP_ID,"L2A","L1C"),
+                        'TILE_ID' = stringr::str_replace(features_Acq$properties$DATASTRIP_ID,"DS","TL"),
+                        'DATASTRIP_ID' = features_Acq$properties$DATASTRIP_ID,
+                        'HORIZONTAL_CS_NAME' = recup_name_crs(features_Acq$bands[[1]]$crs),
+                        'HORIZONTAL_CS_CODE' = features_Acq$bands[[1]]$crs,
+                        'Mean_Sun_Angle_ZENITH_ANGLE' = features_Acq$properties$MEAN_SOLAR_ZENITH_ANGLE,
+                        'Mean_Sun_Angle_AZIMUTH_ANGLE' = features_Acq$properties$MEAN_SOLAR_AZIMUTH_ANGLE,
+                        'ZENITH_ANGLE_B1' = features_Acq$properties$MEAN_INCIDENCE_ZENITH_ANGLE_B1,
+                        'AZIMUTH_ANGLE_B1' = features_Acq$properties$MEAN_INCIDENCE_AZIMUTH_ANGLE_B1,
+                        'ZENITH_ANGLE_B9' = features_Acq$properties$MEAN_INCIDENCE_ZENITH_ANGLE_B9,
+                        'AZIMUTH_ANGLE_B9' = features_Acq$properties$MEAN_INCIDENCE_AZIMUTH_ANGLE_B9,
+                        'ZENITH_ANGLE_B10' = features_Acq$properties$MEAN_INCIDENCE_ZENITH_ANGLE_B10,
+                        'AZIMUTH_ANGLE_B10' = features_Acq$properties$MEAN_INCIDENCE_AZIMUTH_ANGLE_B10,
+                        'ZENITH_ANGLE_B2' = features_Acq$properties$MEAN_INCIDENCE_ZENITH_ANGLE_B2,
+                        'AZIMUTH_ANGLE_B2' = features_Acq$properties$MEAN_INCIDENCE_AZIMUTH_ANGLE_B2,
+                        'ZENITH_ANGLE_B3' = features_Acq$properties$MEAN_INCIDENCE_ZENITH_ANGLE_B3,
+                        'AZIMUTH_ANGLE_B3' = features_Acq$properties$MEAN_INCIDENCE_AZIMUTH_ANGLE_B3,
+                        'ZENITH_ANGLE_B4' = features_Acq$properties$MEAN_INCIDENCE_ZENITH_ANGLE_B4,
+                        'AZIMUTH_ANGLE_B4' = features_Acq$properties$MEAN_INCIDENCE_AZIMUTH_ANGLE_B4,
+                        'ZENITH_ANGLE_B5' = features_Acq$properties$MEAN_INCIDENCE_ZENITH_ANGLE_B5,
+                        'AZIMUTH_ANGLE_B5' = features_Acq$properties$MEAN_INCIDENCE_AZIMUTH_ANGLE_B5,
+                        'ZENITH_ANGLE_B6' = features_Acq$properties$MEAN_INCIDENCE_ZENITH_ANGLE_B6,
+                        'AZIMUTH_ANGLE_B6' = features_Acq$properties$MEAN_INCIDENCE_AZIMUTH_ANGLE_B6,
+                        'ZENITH_ANGLE_B7' = features_Acq$properties$MEAN_INCIDENCE_ZENITH_ANGLE_B7,
+                        'AZIMUTH_ANGLE_B7' = features_Acq$properties$MEAN_INCIDENCE_AZIMUTH_ANGLE_B7,
+                        'ZENITH_ANGLE_B8' = features_Acq$properties$MEAN_INCIDENCE_ZENITH_ANGLE_B8,
+                        'AZIMUTH_ANGLE_B8' = features_Acq$properties$MEAN_INCIDENCE_AZIMUTH_ANGLE_B8,
+                        'ZENITH_ANGLE_B8A' = features_Acq$properties$MEAN_INCIDENCE_ZENITH_ANGLE_B8A,
+                        'AZIMUTH_ANGLE_B8A' = features_Acq$properties$MEAN_INCIDENCE_AZIMUTH_ANGLE_B8A,
+                        'ZENITH_ANGLE_B11' = features_Acq$properties$MEAN_INCIDENCE_ZENITH_ANGLE_B11,
+                        'AZIMUTH_ANGLE_B11' = features_Acq$properties$MEAN_INCIDENCE_AZIMUTH_ANGLE_B11,
+                        'ZENITH_ANGLE_B12' = features_Acq$properties$MEAN_INCIDENCE_ZENITH_ANGLE_B12,
+                        'AZIMUTH_ANGLE_B12' = features_Acq$properties$MEAN_INCIDENCE_AZIMUTH_ANGLE_B12,
+                        'CLOUDY_PIXEL_PERCENTAGE' = features_Acq$properties$CLOUDY_PIXEL_PERCENTAGE,
+                        'DEGRADED_MSI_DATA_PERCENTAGE' = features_Acq$properties$DEGRADED_MSI_DATA_PERCENTAGE,
+                        'NODATA_PIXEL_PERCENTAGE' = features_Acq$properties$NODATA_PIXEL_PERCENTAGE,
+                        'SATURATED_DEFECTIVE_PIXEL_PERCENTAGE' = features_Acq$properties$SATURATED_DEFECTIVE_PIXEL_PERCENTAGE,
+                        'DARK_FEATURES_PERCENTAGE' = features_Acq$properties$DARK_FEATURES_PERCENTAGE,
+                        'CLOUD_SHADOW_PERCENTAGE' = features_Acq$properties$CLOUD_SHADOW_PERCENTAGE,
+                        'VEGETATION_PERCENTAGE' = features_Acq$properties$VEGETATION_PERCENTAGE,
+                        'NOT_VEGETATED_PERCENTAGE' = features_Acq$properties$NOT_VEGETATED_PERCENTAGE,
+                        'WATER_PERCENTAGE' = features_Acq$properties$WATER_PERCENTAGE,
+                        'UNCLASSIFIED_PERCENTAGE' = features_Acq$properties$UNCLASSIFIED_PERCENTAGE,
+                        'MEDIUM_PROBA_CLOUDS_PERCENTAGE' = features_Acq$properties$MEDIUM_PROBA_CLOUDS_PERCENTAGE,
+                        'HIGH_PROBA_CLOUDS_PERCENTAGE' = features_Acq$properties$HIGH_PROBA_CLOUDS_PERCENTAGE,
+                        'THIN_CIRRUS_PERCENTAGE' = features_Acq$properties$THIN_CIRRUS_PERCENTAGE,
+                        'SNOW_ICE_PERCENTAGE' = features_Acq$properties$SNOW_ICE_PERCENTAGE,
+                        'RADIATIVE_TRANSFER_ACCURACY' = features_Acq$properties$RADIATIVE_TRANSFER_ACCURACY,
+                        'WATER_VAPOUR_RETRIEVAL_ACCURACY' = features_Acq$properties$WATER_VAPOUR_RETRIEVAL_ACCURACY,
+                        'AOT_RETRIEVAL_ACCURACY' = features_Acq$properties$AOT_RETRIEVAL_ACCURACY)
+
+  # text substitution
+  text_xml <- xml2::xml_find_all(xml_MTD, "//text()")
+  text_modif <- xml2::xml_text(text_xml)
+  text_modif_f <- text_modif
+  # text substitution
+  for (field2update in names(tab_MTD)){
+    sel <- which(text_modif_f == field2update)
+    text_modif_f[sel] <- tab_MTD[[field2update]]
+  }
+  xml2::xml_text(text_xml) <-  text_modif_f
+  xml2::write_xml(xml_MTD, file.path(AcqDir,xml_name_out), options = "format", encoding = "UTF-8")
+}
+
+#' This function is made to correctly create the MTD_MSIL2A.xml for each dnowloaded date using the MTD_MSIL2A.xml template
+#' programmed by romain.dous@inrae.fr
+#' @param features_Acq list. list of features datas link to the studied acquisition
+#' @param AcqDir character. Path for the acquisition
+#' @param Acq character. data of the acquisiton
+#'
+#' @importFrom xml2 read_xml xml_find_all xml_text write_xml xml_attrs
+#' @importFrom stringr str_replace
+
+write_template_MSIL2A <- function(features_Acq,AcqDir,Acq){
+
+  # opening template and writing preparation
+  templates_dir <- system.file("extdata", "MTD_MSIL2A.xml", package = "preprocS2")
+  xml_name_out <- "MTD_MSIL2A.xml"
+  xml_MTD <- xml2::read_xml(templates_dir)
+
+  # datakeIdentifier modification
+  datatake_node <- xml2::xml_find_all(xml_MTD,".//Datatake")
+  datatake_mode_modif <- xml_attrs(datatake_node)
+  datatake_mode_modif[[1]][1] <- features_Acq$properties$DATATAKE_IDENTIFIER
+  xml2::xml_attrs(datatake_node) <-  datatake_mode_modif
+
+  # granule update
+  granule_tab <- data.frame('datastripIdentifier' = features_Acq$properties$DATASTRIP_ID,
+                            'granuleIdentifier' = granuleIdentifier_creation(features_Acq$properties$DATASTRIP_ID,
+                                                                             features_Acq$properties$GRANULE_ID))
+  granule_node <- xml_find_all(xml_MTD,".//Granule")
+  granule_mode_modif <-  xml2::xml_attrs(granule_node)
+  for(gfield in names(granule_tab)){
+    granule_mode_modif[[1]][gfield] <- granule_tab[[gfield]]
+  }
+  xml2::xml_attrs(granule_node) <-  granule_mode_modif
+
+  # data.frame containing original texts and substitues
+  tab_MTD <- data.frame('PRODUCT_START_TIME' = get_datetime_from_S2prod(features_Acq$properties$PRODUCT_ID, info_type = "start"),
+                        'PRODUCT_STOP_TIME' = get_datetime_from_S2prod(features_Acq$properties$PRODUCT_ID, info_type = "stop"),
+                        'PROCESSING_BASELINE' = features_Acq$properties$PROCESSING_BASELINE,
+                        'GENERATION_TIME' = get_datetime_from_S2prod(features_Acq$properties$PRODUCT_ID, info_type = "generation"),
+                        'SPACECRAFT_NAME' = features_Acq$properties$SPACECRAFT_NAME,
+                        'DATATAKE_TYPE' = features_Acq$properties$DATATAKE_TYPE,
+                        'DATATAKE_SENSING_START' = get_datetime_from_S2prod(features_Acq$properties$PRODUCT_ID, info_type = "start"),
+                        'SENSING_ORBIT_NUMBER' = features_Acq$properties$SENSING_ORBIT_NUMBER,
+                        'SENSING_ORBIT_DIRECTION' = features_Acq$properties$SENSING_ORBIT_DIRECTION,
+                        'IMAGE_FILE_B02_10m' = paste0("L2A_",Acq,"/R10m/",Acq,"_B02_10m"),
+                        'IMAGE_FILE_B03_10m' = paste0("L2A_",Acq,"/R10m/",Acq,"_B03_10m"),
+                        'IMAGE_FILE_B04_10m' = paste0("L2A_",Acq,"/R10m/",Acq,"_B04_10m"),
+                        'IMAGE_FILE_B08_10m' = paste0("L2A_",Acq,"/R10m/",Acq,"_B08_10m"),
+                        'IMAGE_FILE_B05_20m' = paste0("L2A_",Acq,"/R20m/",Acq,"_B05_20m"),
+                        'IMAGE_FILE_B06_20m' = paste0("L2A_",Acq,"/R20m/",Acq,"_B06_20m"),
+                        'IMAGE_FILE_B07_20m' = paste0("L2A_",Acq,"/R20m/",Acq,"_B07_20m"),
+                        'IMAGE_FILE_B8A_20m' = paste0("L2A_",Acq,"/R20m/",Acq,"_B8A_20m"),
+                        'IMAGE_FILE_B11_20m' = paste0("L2A_",Acq,"/R20m/",Acq,"_B11_20m"),
+                        'IMAGE_FILE_B12_20m' = paste0("L2A_",Acq,"/R20m/",Acq,"_B12_20m"),
+                        'BOA_ADD_OFFSET_B1' = features_Acq$properties$BOA_ADD_OFFSET_B1,
+                        'BOA_ADD_OFFSET_B2' = features_Acq$properties$BOA_ADD_OFFSET_B2,
+                        'BOA_ADD_OFFSET_B3' = features_Acq$properties$BOA_ADD_OFFSET_B3,
+                        'BOA_ADD_OFFSET_B4' = features_Acq$properties$BOA_ADD_OFFSET_B4,
+                        'BOA_ADD_OFFSET_B5' = features_Acq$properties$BOA_ADD_OFFSET_B5,
+                        'BOA_ADD_OFFSET_B6' = features_Acq$properties$BOA_ADD_OFFSET_B6,
+                        'BOA_ADD_OFFSET_B7' = features_Acq$properties$BOA_ADD_OFFSET_B7,
+                        'BOA_ADD_OFFSET_B8' = features_Acq$properties$BOA_ADD_OFFSET_B8,
+                        'BOA_ADD_OFFSET_B8A' = features_Acq$properties$BOA_ADD_OFFSET_B8A,
+                        'BOA_ADD_OFFSET_B9' = features_Acq$properties$BOA_ADD_OFFSET_B9,
+                        'BOA_ADD_OFFSET_B10' = features_Acq$properties$BOA_ADD_OFFSET_B10,
+                        'BOA_ADD_OFFSET_B11' = features_Acq$properties$BOA_ADD_OFFSET_B11,
+                        'BOA_ADD_OFFSET_B12' = features_Acq$properties$BOA_ADD_OFFSET_B12,
+                        'SOLAR_IRRADIANCE_B1' = features_Acq$properties$SOLAR_IRRADIANCE_B1,
+                        'SOLAR_IRRADIANCE_B2' = features_Acq$properties$SOLAR_IRRADIANCE_B2,
+                        'SOLAR_IRRADIANCE_B3' = features_Acq$properties$SOLAR_IRRADIANCE_B3,
+                        'SOLAR_IRRADIANCE_B4' = features_Acq$properties$SOLAR_IRRADIANCE_B4,
+                        'SOLAR_IRRADIANCE_B5' = features_Acq$properties$SOLAR_IRRADIANCE_B5,
+                        'SOLAR_IRRADIANCE_B6' = features_Acq$properties$SOLAR_IRRADIANCE_B6,
+                        'SOLAR_IRRADIANCE_B7' = features_Acq$properties$SOLAR_IRRADIANCE_B7,
+                        'SOLAR_IRRADIANCE_B8' = features_Acq$properties$SOLAR_IRRADIANCE_B8,
+                        'SOLAR_IRRADIANCE_B8A' = features_Acq$properties$SOLAR_IRRADIANCE_B8A,
+                        'SOLAR_IRRADIANCE_B9' = features_Acq$properties$SOLAR_IRRADIANCE_B9,
+                        'SOLAR_IRRADIANCE_B10' = features_Acq$properties$SOLAR_IRRADIANCE_B10,
+                        'SOLAR_IRRADIANCE_B11' = features_Acq$properties$SOLAR_IRRADIANCE_B11,
+                        'SOLAR_IRRADIANCE_B12' = features_Acq$properties$SOLAR_IRRADIANCE_B12,
+                        'CLOUD_COVERAGE_ASSESSMENT' = features_Acq$properties$CLOUD_COVERAGE_ASSESSMENT,
+                        'DEGRADED_MSI_DATA_PERCENTAGE' = features_Acq$properties$DEGRADED_MSI_DATA_PERCENTAGE,
+                        'FORMAT_CORRECTNESS' = features_Acq$properties$FORMAT_CORRECTNESS,
+                        'GENERAL_QUALITY' = features_Acq$properties$GENERAL_QUALITY,
+                        'GEOMETRIC_QUALITY' = features_Acq$properties$GEOMETRIC_QUALITY,
+                        'RADIOMETRIC_QUALITY' = features_Acq$properties$RADIOMETRIC_QUALITY,
+                        'SENSOR_QUALITY' = features_Acq$properties$SENSOR_QUALITY,
+                        'NODATA_PIXEL_PERCENTAGE' = features_Acq$properties$NODATA_PIXEL_PERCENTAGE,
+                        'SATURATED_DEFECTIVE_PIXEL_PERCENTAGE' = features_Acq$properties$SATURATED_DEFECTIVE_PIXEL_PERCENTAGE,
+                        'DARK_FEATURES_PERCENTAGE' = features_Acq$properties$DARK_FEATURES_PERCENTAGE,
+                        'CLOUD_SHADOW_PERCENTAGE' = features_Acq$properties$CLOUD_SHADOW_PERCENTAGE,
+                        'VEGETATION_PERCENTAGE' = features_Acq$properties$VEGETATION_PERCENTAGE,
+                        'NOT_VEGETATED_PERCENTAGE' = features_Acq$properties$NOT_VEGETATED_PERCENTAGE,
+                        'WATER_PERCENTAGE' = features_Acq$properties$WATER_PERCENTAGE,
+                        'UNCLASSIFIED_PERCENTAGE' = features_Acq$properties$UNCLASSIFIED_PERCENTAGE,
+                        'MEDIUM_PROBA_CLOUDS_PERCENTAGE' = features_Acq$properties$MEDIUM_PROBA_CLOUDS_PERCENTAGE,
+                        'HIGH_PROBA_CLOUDS_PERCENTAGE' = features_Acq$properties$HIGH_PROBA_CLOUDS_PERCENTAGE,
+                        'THIN_CIRRUS_PERCENTAGE' = features_Acq$properties$THIN_CIRRUS_PERCENTAGE,
+                        'SNOW_ICE_PERCENTAGE' = features_Acq$properties$SNOW_ICE_PERCENTAGE,
+                        'RADIATIVE_TRANSFER_ACCURACY' = features_Acq$properties$RADIATIVE_TRANSFER_ACCURACY,
+                        'WATER_VAPOUR_RETRIEVAL_ACCURACY' = features_Acq$properties$WATER_VAPOUR_RETRIEVAL_ACCURACY,
+                        'AOT_RETRIEVAL_ACCURACY' = features_Acq$properties$AOT_RETRIEVAL_ACCURACY)
+
+  text_xml <- xml2::xml_find_all(xml_MTD, "//text()")
+  text_modif <- xml2::xml_text(text_xml)
+  text_modif_f <- text_modif
+  # text substitution
+  for (field2update in names(tab_MTD)){
+    sel <- which(text_modif_f == field2update)
+    text_modif_f[sel] <- tab_MTD[[field2update]]
+  }
+  xml2::xml_text(text_xml) <-  text_modif_f
+  xml2::write_xml(xml_MTD, file.path(AcqDir,xml_name_out), options = "format", encoding = "UTF-8")
+}
+
+
 
 #' #' This function crops and resamples S2 bands based on OGR from vector file
 #' #' only resamples if CropExtent= FALSE

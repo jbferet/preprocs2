@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<n1:Level-2A_Tile_ID xmlns:n1="https://psd-14.sentinel2.eo.esa.int/PSD/S2_PDI_Level-2A_Tile_Metadata.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://psd-14.sentinel2.eo.esa.int/PSD/S2_PDI_Level-2A_Tile_Metadata.xsd /gpfs/dpc/app/s2ipf/FORMAT_METADATA_TILE_L1C/04.04.01/scripts/../../../schemas/04.04.00/PSD/S2_PDI_Level-2A_Tile_Metadata.xsd">
+  <n1:General_Info>
+    <L1C_TILE_ID metadataLevel="Brief">L1C_TILE_ID</L1C_TILE_ID>
+    <TILE_ID metadataLevel="Brief">TILE_ID</TILE_ID>
+    <DATASTRIP_ID metadataLevel="Standard">DATASTRIP_ID</DATASTRIP_ID>
+    <DOWNLINK_PRIORITY metadataLevel="Standard">NOMINAL</DOWNLINK_PRIORITY>
+  </n1:General_Info>
+  <n1:Geometric_Info>
+    <Tile_Geocoding metadataLevel="Brief">
+      <HORIZONTAL_CS_NAME>HORIZONTAL_CS_NAME</HORIZONTAL_CS_NAME>
+      <HORIZONTAL_CS_CODE>HORIZONTAL_CS_CODE</HORIZONTAL_CS_CODE>
+    </Tile_Geocoding>
+    <Tile_Angles metadataLevel="Standard">
+      <Mean_Sun_Angle>
+        <ZENITH_ANGLE unit="deg">Mean_Sun_Angle_ZENITH_ANGLE</ZENITH_ANGLE>
+        <AZIMUTH_ANGLE unit="deg">Mean_Sun_Angle_AZIMUTH_ANGLE</AZIMUTH_ANGLE>
+      </Mean_Sun_Angle>
+      <Mean_Viewing_Incidence_Angle_List>
+        <Mean_Viewing_Incidence_Angle bandId="0">
+          <ZENITH_ANGLE unit="deg">ZENITH_ANGLE_B1</ZENITH_ANGLE>
+          <AZIMUTH_ANGLE unit="deg">AZIMUTH_ANGLE_B1</AZIMUTH_ANGLE>
+        </Mean_Viewing_Incidence_Angle>
+        <Mean_Viewing_Incidence_Angle bandId="9">
+          <ZENITH_ANGLE unit="deg">ZENITH_ANGLE_B9</ZENITH_ANGLE>
+          <AZIMUTH_ANGLE unit="deg">AZIMUTH_ANGLE_B9</AZIMUTH_ANGLE>
+        </Mean_Viewing_Incidence_Angle>
+        <Mean_Viewing_Incidence_Angle bandId="10">
+          <ZENITH_ANGLE unit="deg">ZENITH_ANGLE_B10</ZENITH_ANGLE>
+          <AZIMUTH_ANGLE unit="deg">AZIMUTH_ANGLE_B10</AZIMUTH_ANGLE>
+        </Mean_Viewing_Incidence_Angle>
+        <Mean_Viewing_Incidence_Angle bandId="1">
+          <ZENITH_ANGLE unit="deg">ZENITH_ANGLE_B2</ZENITH_ANGLE>
+          <AZIMUTH_ANGLE unit="deg">AZIMUTH_ANGLE_B2</AZIMUTH_ANGLE>
+        </Mean_Viewing_Incidence_Angle>
+        <Mean_Viewing_Incidence_Angle bandId="2">
+          <ZENITH_ANGLE unit="deg">ZENITH_ANGLE_B3</ZENITH_ANGLE>
+          <AZIMUTH_ANGLE unit="deg">AZIMUTH_ANGLE_B3</AZIMUTH_ANGLE>
+        </Mean_Viewing_Incidence_Angle>
+        <Mean_Viewing_Incidence_Angle bandId="3">
+          <ZENITH_ANGLE unit="deg">ZENITH_ANGLE_B4</ZENITH_ANGLE>
+          <AZIMUTH_ANGLE unit="deg">AZIMUTH_ANGLE_B4</AZIMUTH_ANGLE>
+        </Mean_Viewing_Incidence_Angle>
+        <Mean_Viewing_Incidence_Angle bandId="4">
+          <ZENITH_ANGLE unit="deg">ZENITH_ANGLE_B5</ZENITH_ANGLE>
+          <AZIMUTH_ANGLE unit="deg">AZIMUTH_ANGLE_B5</AZIMUTH_ANGLE>
+        </Mean_Viewing_Incidence_Angle>
+        <Mean_Viewing_Incidence_Angle bandId="5">
+          <ZENITH_ANGLE unit="deg">ZENITH_ANGLE_B6</ZENITH_ANGLE>
+          <AZIMUTH_ANGLE unit="deg">AZIMUTH_ANGLE_B6</AZIMUTH_ANGLE>
+        </Mean_Viewing_Incidence_Angle>
+        <Mean_Viewing_Incidence_Angle bandId="6">
+          <ZENITH_ANGLE unit="deg">ZENITH_ANGLE_B7</ZENITH_ANGLE>
+          <AZIMUTH_ANGLE unit="deg">AZIMUTH_ANGLE_B7</AZIMUTH_ANGLE>
+        </Mean_Viewing_Incidence_Angle>
+        <Mean_Viewing_Incidence_Angle bandId="7">
+          <ZENITH_ANGLE unit="deg">ZENITH_ANGLE_B8</ZENITH_ANGLE>
+          <AZIMUTH_ANGLE unit="deg">AZIMUTH_ANGLE_B8</AZIMUTH_ANGLE>
+        </Mean_Viewing_Incidence_Angle>
+        <Mean_Viewing_Incidence_Angle bandId="8">
+          <ZENITH_ANGLE unit="deg">ZENITH_ANGLE_B8A</ZENITH_ANGLE>
+          <AZIMUTH_ANGLE unit="deg">AZIMUTH_ANGLE_B8A</AZIMUTH_ANGLE>
+        </Mean_Viewing_Incidence_Angle>
+        <Mean_Viewing_Incidence_Angle bandId="11">
+          <ZENITH_ANGLE unit="deg">ZENITH_ANGLE_B11</ZENITH_ANGLE>
+          <AZIMUTH_ANGLE unit="deg">AZIMUTH_ANGLE_B11</AZIMUTH_ANGLE>
+        </Mean_Viewing_Incidence_Angle>
+        <Mean_Viewing_Incidence_Angle bandId="12">
+          <ZENITH_ANGLE unit="deg">ZENITH_ANGLE_B12</ZENITH_ANGLE>
+          <AZIMUTH_ANGLE unit="deg">AZIMUTH_ANGLE_B12</AZIMUTH_ANGLE>
+        </Mean_Viewing_Incidence_Angle>
+      </Mean_Viewing_Incidence_Angle_List>
+    </Tile_Angles>
+  </n1:Geometric_Info>
+  <n1:Quality_Indicators_Info metadataLevel="Standard">
+    <Image_Content_QI>
+      <CLOUDY_PIXEL_PERCENTAGE>CLOUDY_PIXEL_PERCENTAGE</CLOUDY_PIXEL_PERCENTAGE>
+      <DEGRADED_MSI_DATA_PERCENTAGE>DEGRADED_MSI_DATA_PERCENTAGE</DEGRADED_MSI_DATA_PERCENTAGE>
+      <NODATA_PIXEL_PERCENTAGE>NODATA_PIXEL_PERCENTAGE</NODATA_PIXEL_PERCENTAGE>
+      <SATURATED_DEFECTIVE_PIXEL_PERCENTAGE>SATURATED_DEFECTIVE_PIXEL_PERCENTAGE</SATURATED_DEFECTIVE_PIXEL_PERCENTAGE>
+      <DARK_FEATURES_PERCENTAGE>DARK_FEATURES_PERCENTAGE</DARK_FEATURES_PERCENTAGE>
+      <CLOUD_SHADOW_PERCENTAGE>CLOUD_SHADOW_PERCENTAGE</CLOUD_SHADOW_PERCENTAGE>
+      <VEGETATION_PERCENTAGE>VEGETATION_PERCENTAGE</VEGETATION_PERCENTAGE>
+      <NOT_VEGETATED_PERCENTAGE>NOT_VEGETATED_PERCENTAGE</NOT_VEGETATED_PERCENTAGE>
+      <WATER_PERCENTAGE>WATER_PERCENTAGE</WATER_PERCENTAGE>
+      <UNCLASSIFIED_PERCENTAGE>UNCLASSIFIED_PERCENTAGE</UNCLASSIFIED_PERCENTAGE>
+      <MEDIUM_PROBA_CLOUDS_PERCENTAGE>MEDIUM_PROBA_CLOUDS_PERCENTAGE</MEDIUM_PROBA_CLOUDS_PERCENTAGE>
+      <HIGH_PROBA_CLOUDS_PERCENTAGE>HIGH_PROBA_CLOUDS_PERCENTAGE</HIGH_PROBA_CLOUDS_PERCENTAGE>
+      <THIN_CIRRUS_PERCENTAGE>THIN_CIRRUS_PERCENTAGE</THIN_CIRRUS_PERCENTAGE>
+      <SNOW_ICE_PERCENTAGE>SNOW_ICE_PERCENTAGE</SNOW_ICE_PERCENTAGE>
+      <RADIATIVE_TRANSFER_ACCURACY>RADIATIVE_TRANSFER_ACCURACY</RADIATIVE_TRANSFER_ACCURACY>
+      <WATER_VAPOUR_RETRIEVAL_ACCURACY>WATER_VAPOUR_RETRIEVAL_ACCURACY</WATER_VAPOUR_RETRIEVAL_ACCURACY>
+      <AOT_RETRIEVAL_ACCURACY>AOT_RETRIEVAL_ACCURACY</AOT_RETRIEVAL_ACCURACY>
+    </Image_Content_QI>
+  </n1:Quality_Indicators_Info>
+</n1:Level-2A_Tile_ID>

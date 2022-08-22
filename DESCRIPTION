@@ -1,18 +1,23 @@
 Package: preprocS2
 Title: preprocessing of Sentinel-2 data downloaded from various data hubs / produced from various atmospheric correction methods
-Version: 1.1.4
+Version: 1.2.0
 Authors@R: c(person(given = "Jean-Baptiste", 
 					    family = "Feret", 
 					    email = "jb.feret@teledetection.fr", 
 					    role = c("aut", "cre", "cph"),
-					    comment = c(ORCID = "0000-0002-0151-1334")))
-Description: The package preprocS2 allows production of raster stack from Sentinel-2 directories, as well as cropping, production of cloud mask....
+					    comment = c(ORCID = "0000-0002-0151-1334")),
+			person(	given = "Romain", 
+					family = "Dous", 
+					email = "romain.dous@inrae.fr", 
+					role = c("ctb")))
+Description: The package preprocS2 allows production of raster stack from Sentinel-2 directories, as well as cropping, production of cloud mask. 
+	It can download from various hubs: Scihub and google cloud using the package Sen2R, and image subsets via google earth engine using the package rgee.
 License: GPL (>= 3)
 Depends: R (>= 3.5.0)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Suggests: knitr,
     rmarkdown
 Imports: 
@@ -32,7 +37,10 @@ Imports:
     R.utils,
     gdalUtils,
     fasterize,
-    XML
+    XML,
+    xml2,
+    rgee,
+    filesstrings
 VignetteBuilder: knitr
 URL: https://gitlab.com/jbferet/preprocS2
 BugReports: https://gitlab.com/jbferet/preprocS2/issues
