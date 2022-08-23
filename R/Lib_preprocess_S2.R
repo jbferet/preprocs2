@@ -147,14 +147,14 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector = NULL, S2source = 'SAF
   if (!is.null(path_vector)){
     raster_proj <- raster::projection(rastmp)
     path_vector_reproj <- paste(tools::file_path_sans_ext(path_vector),'_reprojected.shp',sep = '')
-    path_vector <- suppressWarnings(reproject_shp(path_vector_init = path_vector,
-                                                  newprojection = raster_proj,
-                                                  path_vector_reproj = path_vector_reproj))
+    path_vector <- reproject_shp(path_vector_init = path_vector,
+                                 newprojection = raster_proj,
+                                 path_vector_reproj = path_vector_reproj)
   }
   # Extract data corresponding to the vector footprint (if provided) & resample data if needed
   if (length(S2_Bands$S2Bands_10m)>0){
-    Stack_10m <- suppressWarnings(read_S2bands(S2_Bands = S2_Bands$S2Bands_10m, path_vector = path_vector,
-                                               resampling = 1, interpolation = interpolation))
+    Stack_10m <- read_S2bands(S2_Bands = S2_Bands$S2Bands_10m, path_vector = path_vector,
+                              resampling = 1, interpolation = interpolation)
   }
   if (length(S2_Bands$S2Bands_20m)>0){
     if (resolution==10 && S2source!='LaSRC'){
@@ -162,10 +162,10 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector = NULL, S2source = 'SAF
     } else {
       resampling <- 1
     }
-    Stack_20m <- suppressWarnings(read_S2bands(S2_Bands = S2_Bands$S2Bands_20m,
-                                               path_vector = path_vector,
-                                               resampling = resampling,
-                                               interpolation = interpolation))
+    Stack_20m <- read_S2bands(S2_Bands = S2_Bands$S2Bands_20m,
+                              path_vector = path_vector,
+                              resampling = resampling,
+                              interpolation = interpolation)
   }
   # get full stack including 10m and 20m spatial resolution
   if (length(S2_Bands$S2Bands_10m)>0 & length(S2_Bands$S2Bands_20m)>0 ){
@@ -1769,6 +1769,12 @@ write_Stack_S2 <- function(Stars_S2, Stars_Spectral, Refl_path, Format='ENVI',
                            datatype='Int16',sensor='Unknown', MaxChunk = 256){
 
   # write raster file from proxy using chunks
+  # terra::writeRaster(x = aa,
+  #                    filename = 'test',
+  #                    filetype=Format,
+  #                    datatype='INT2U',
+  #                    overwrite=T)
+  # st_as_stars(st_as_stars(raster(f)))
   SizeObj <- 2*dim(Stars_S2)[1]*dim(Stars_S2)[2]*dim(Stars_S2)[3]/(1024**2)
   nbChunks <- ceiling(SizeObj/MaxChunk)
   stars::write_stars(obj = Stars_S2,
