@@ -10,7 +10,8 @@ get_S2_L2A_Image(
   dateAcq,
   DeleteL1C = FALSE,
   Sen2Cor = TRUE,
-  GoogleCloud = FALSE
+  GoogleCloud = FALSE,
+  level = "L2A"
 )
 }
 \arguments{
@@ -24,7 +25,9 @@ get_S2_L2A_Image(
 
 \item{Sen2Cor}{Boolean. set TRUE to automatically perform atmospheric corrections using sen2Cor}
 
-\item{GoogleCloud}{boolean. set to TRUE if google cloud SDK is installed and
+\item{GoogleCloud}{boolean. set to TRUE if google cloud SDK is installed and}
+
+\item{level}{character. define if L2A (default) or force L1C download
 sen2r configured as an alternative hub for S2 download}
 }
 \value{

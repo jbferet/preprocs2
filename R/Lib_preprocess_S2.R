@@ -758,6 +758,7 @@ get_S2_L1C_Image <- function(list_safe,l1c_path,path_vector,time_interval,
 #' @param DeleteL1C Boolean. set TRUE to delete L1C images
 #' @param Sen2Cor Boolean. set TRUE to automatically perform atmospheric corrections using sen2Cor
 #' @param GoogleCloud boolean. set to TRUE if google cloud SDK is installed and
+#' @param level character. define if L2A (default) or force L1C download
 #' sen2r configured as an alternative hub for S2 download
 #'
 #' @return PathL2A character. Path for L2A image
@@ -767,7 +768,7 @@ get_S2_L1C_Image <- function(list_safe,l1c_path,path_vector,time_interval,
 #' @export
 get_S2_L2A_Image <- function(l2a_path, spatial_extent, dateAcq,
                              DeleteL1C = FALSE, Sen2Cor = TRUE,
-                             GoogleCloud=FALSE){
+                             GoogleCloud=FALSE, level = 'L2A'){
 
   # Needs to be updated: define path for L1c data
   l1c_path <- l2a_path
@@ -781,7 +782,7 @@ get_S2_L2A_Image <- function(l2a_path, spatial_extent, dateAcq,
   }
   list_safe <- sen2r::s2_list(spatial_extent = sf::st_read(dsn = spatial_extent),
                               time_interval = time_interval,
-                              server = server,availability = 'check')
+                              server = server,availability = 'check', level = level)
   # download products
   sen2r::s2_download(list_safe, outdir=l2a_path)
   # name all products
@@ -800,12 +801,12 @@ get_S2_L2A_Image <- function(l2a_path, spatial_extent, dateAcq,
                  recursive = T,force = T)
           # delete from full path and add atmospherically corrected
           WhichImg <- grep(x = ProdFullPath, pattern =imgname)
-          DateAcq <- get_date(imgname)
+          DateAcq <- format(get_date(imgname),'%Y%m%d')
           TileName <- get_tile(imgname)
           PathL2A <- list.files(path = l2a_path,pattern = TileName,full.names = TRUE)
           PathL2A <- PathL2A[grep(x = PathL2A, pattern =DateAcq)]
           PathL2A <- PathL2A[grep(x = basename(PathL2A), pattern ='L2A')]
-          ProdFullPath[WhichImg] <- PathL2A
+          ProdFullPath[WhichImg] <- PathL2A[1]
         }
       }
     }
@@ -1373,6 +1374,7 @@ S2_from_L1C_to_L2A <- function(prodName, l1c_path, l2a_path, datePattern, tmp_pa
                R.utils::getAbsolutePath(file.path(l1c_path,prodName)),sep = ' ')
   system(cmd)
   PathL2A <- list.files(path = l2a_path,pattern = datePattern,full.names = TRUE)
+  PathL2A <- PathL2A[grep(pattern = 'L2A',x = PathL2A)[1]]
 
   # # Ready when parameterization of sen2cor with sen2r will be ok
   # PathL2A <- tryCatch(
@@ -1551,7 +1553,7 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int
     s2xml <- XML::xmlToList(MTD_LaSRC)
     attributes_LaSRC <- s2xml$bands[[14]]$.attrs
     attributes_LaSRC_df <- data.frame(attributes_LaSRC)
-    if (match('add_offset',rownames(attributes_LaSRC_df))>0 & match('scale_factor',rownames(attributes_LaSRC_df))>0){
+    if (!is.na(match('add_offset',rownames(attributes_LaSRC_df))) & !is.na(match('scale_factor',rownames(attributes_LaSRC_df)))){
       XML_Offset <- as.numeric(attributes_LaSRC[['add_offset']])
       BOA_QuantVal <- 1/as.numeric(attributes_LaSRC[['scale_factor']])
       Offset <- data.frame('BandName' = listBands_bis,
