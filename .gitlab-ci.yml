@@ -40,7 +40,7 @@ check:
   stage: check
   script:
   - R -e 'devtools::check(check_dir = Sys.getenv("CHECK_DIR"), error_on = "error")'
-  - R -e 'devtools::install()'
+  - R -e 'devtools::install(upgrade=F)'
 
 pages:
   stage: deploy
