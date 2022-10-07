@@ -26,7 +26,13 @@ devtools::install_gitlab('jbferet/preprocS2')
 
 ### Downgrade stars to 0.5.5
 
-The latest version of the `stars` package currently 
+The latest version (v0.5.6) of the `stars` package currently raises errors. Then we recommend using the previous version. 
+
+The downgrade can be performed on your R distribution with this command : 
+
+```
+devtools::install_version("stars", version = "0.5.5", repos = "http://cran.us.r-project.org")
+```
 
 
 ## Example
