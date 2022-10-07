@@ -1081,6 +1081,8 @@ ind2sub <- function(Raster, Image_Index) {
 #' @export
 mosaic_rasters <- function(list_rasters,dst_mosaic, Stretch = FALSE){
 
+  # convert
+  R.utils::getAbsolutePath(list_rasters)
   # produce mosaic
   gdalUtils::mosaic_rasters(gdalfile = list_rasters, dst_dataset = dst_mosaic,
                             separate = FALSE, of="EHdr", verbose=TRUE)
