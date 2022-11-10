@@ -87,6 +87,7 @@ Path_S2 <- file.path(DirWrite,list.files(DirWrite,pattern = '.SAFE'))
 You can also use the function `get_S2_L2A_Image` from `preprocS2` in order to download this image. This function uses the `s2_download` from `sen2r`. If a google cloud accounbt is parameterized in `sen2r`, you can alternatively download S2 images from it by setting `GoogleCloud = TRUE`.
 
 ```{r download_S2_image_preprocS2}
+library(preprocS2)
 # define date of S2 acquisition
 dateAcq <- '2022-05-28'
 # define path for study area

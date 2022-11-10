@@ -27,6 +27,9 @@ adjust_ENVI_hdr <- function(dsn, Bands, sensor = 'Unknown', Stretch = FALSE){
   HDR$`band names` <- Bands$bandname
   if (length(Bands$wavelength)==length(Bands$bandname)){
     HDR$wavelength <- Bands$wavelength
+    if (!is.null(Bands$`wavelength units`)){
+      HDR$`wavelength units` <- 'nanometers'
+    }
   } else {
     HDR$wavelength <- NULL
   }
@@ -1579,6 +1582,7 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int
   starsnames <- names(S2_stars$attr)
   Stars_Spectral$bandname <- starsnames[which(!starsnames=='Cloud')]
   Stars_Spectral$wavelength <- WL_s2[Stars_Spectral$bandname]
+  Stars_Spectral$`wavelength units` <- 'nanometers'
 
   SortedWL <- names(WL_s2)
   Reorder <- match(SortedWL,Stars_Spectral$bandname)
