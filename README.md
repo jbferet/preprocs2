@@ -11,6 +11,29 @@
 The goal of preprocS2 is to provide a common framework for the preprocessing of Level-2A Sentinel-2 images. 
 Sentinel-2 L2A images can be produced or obtained from various data hubs or atmospheric correction methods. `preprocS2` provides a unique function to read, crop, resample the original image directory, and write it as a raster stack.
 
+## prerequisites: 
+
+### installing gdalUtils
+
+The package [`gdalUtils`](https://github.com/cran/gdalUtils) is currently used in the function `mosaic_rasters`. This package is currently unavailable from the CRAN. Therefore, a manual installation may be required: 
+
+
+```
+install.packages("devtools")
+devtools:::install_github("gearslaboratory/gdalUtils")
+```
+
+### Downgrade stars to 0.5.5
+
+The version 0.5.6 of the `stars` package currently raises errors. Then we recommend using the previous version. 
+
+The downgrade can be performed on your R distribution with this command : 
+
+```
+devtools::install_version("stars", version = "0.5.5", repos = "http://cran.us.r-project.org")
+```
+
+__EDIT:__ tests need to be performed on version 0.6 of `stars` to check if it still raises errors.
 
 ## Installation
 
@@ -22,16 +45,6 @@ Then, after installing package `devtools`, you will install the package `preproc
 
 ```
 devtools::install_gitlab('jbferet/preprocS2')
-```
-
-### Downgrade stars to 0.5.5
-
-The latest version (v0.5.6) of the `stars` package currently raises errors. Then we recommend using the previous version. 
-
-The downgrade can be performed on your R distribution with this command : 
-
-```
-devtools::install_version("stars", version = "0.5.5", repos = "http://cran.us.r-project.org")
 ```
 
 

@@ -5,11 +5,7 @@ Authors@R: c(person(given = "Jean-Baptiste",
 					    family = "Feret", 
 					    email = "jb.feret@teledetection.fr", 
 					    role = c("aut", "cre", "cph"),
-					    comment = c(ORCID = "0000-0002-0151-1334")),
-			person(	given = "Romain", 
-					family = "Dous", 
-					email = "romain.dous@inrae.fr", 
-					role = c("ctb")))
+					    comment = c(ORCID = "0000-0002-0151-1334")))
 Description: The package preprocS2 allows production of raster stack from Sentinel-2 directories, as well as cropping, production of cloud mask. 
 	It can download from various hubs: Scihub and google cloud using the package Sen2R, and image subsets via google earth engine using the package rgee.
 License: GPL (>= 3)
