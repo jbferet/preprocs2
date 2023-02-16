@@ -1,7 +1,8 @@
-pandoc: 2.11.4
-pkgdown: 1.6.1
+pandoc: 2.19.2
+pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   preprocS2: preprocS2.html
-last_built: 2021-09-29T21:16Z
+  preprocS2_1: preprocS2_1.html
+last_built: 2023-01-12T15:32Z
 

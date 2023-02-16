@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,29 +33,35 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">preprocS2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.3</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/preprocS2.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/preprocS2_1.html">Copernicus Academy biodiv#1: download</a>
+    </li>
+  </ul>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://gitlab.com/jbferet/preprocS2/">
-    <span class="fab fa-github fa-lg"></span>
+  <a href="https://gitlab.com/jbferet/preprocS2/" class="external-link">
+    <span class="fab fa-gitlab fa-lg"></span>
      
   </a>
 </li>
@@ -67,111 +75,199 @@
 
       
 
-      </header><script src="preprocS2_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>1. Preprocessing S2 images with level-2A</h1>
-                        <h4 class="author">Jean-Baptiste Féret</h4>
+                        <h4 data-toc-skip class="author">Jean-Baptiste
+Féret</h4>
             
-            <h4 class="date">2021-08-19</h4>
+            <h4 data-toc-skip class="date">2023-01-12</h4>
       
-      <small class="dont-index">Source: <a href="https://gitlab.com/jbferet/preprocS2/blob/master/vignettes/preprocS2.Rmd"><code>vignettes/preprocS2.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://gitlab.com/jbferet/preprocS2/blob/HEAD/vignettes/preprocS2.Rmd" class="external-link"><code>vignettes/preprocS2.Rmd</code></a></small>
       <div class="hidden name"><code>preprocS2.Rmd</code></div>
 
     </div>
 
     
     
-<p>This tutorial aims at illustrating how to access and preprocess Sentinel-2 images acquired at Level-2A with the R package <code>preprocS2</code>.</p>
-<div id="identifying-and-downloading-sentinel-2-images" class="section level1">
-<h1 class="hasAnchor">
-<a href="#identifying-and-downloading-sentinel-2-images" class="anchor"></a>Identifying and downloading Sentinel-2 images</h1>
-<p>In the present situation, we are interested in downloading a unique Sentinel-2 image with no cloud cover for an illustration of the package. We selected the Barrax area in Spain, as it is a well-known study area for application using remote sensing for crop monitoring.</p>
-<p>First, we used <a href="https://apps.sentinel-hub.com/eo-browser/?zoom=11&amp;lat=39.09836&amp;lng=-2.01462&amp;themeId=DEFAULT-THEME&amp;visualizationUrl=https%3A%2F%2Fservices.sentinel-hub.com%2Fogc%2Fwms%2Fbd86bcc0-f318-402b-a145-015f85b9427e&amp;datasetId=S2L2A&amp;fromTime=2021-05-13T00%3A00%3A00.000Z&amp;toTime=2021-05-13T23%3A59%3A59.999Z&amp;layerId=1_TRUE_COLOR">Sentinel-hub</a> in order to identify an acquisition corresponding to our requirement.</p>
-<p>Once the S2 tile and the date of acquisition were identified, we could proceed to the image download. We first defined a polygon corresponding to our study area, named ‘Study_area_Barrax.shp’ and saved on our computer.</p>
-<p>We then used the R package <a href="https://sen2r.ranghetti.info/"><code>sen2r</code></a> in order to identify S2 product available for a specific date of acquisition, and download the corresponding Sentinel-2 SAFE archive. Here, level-2A images (atmospherically corrected with Sen2Cor) can be downloaded directly from <a href="https://scihub.copernicus.eu">SciHub</a> with sen2r.</p>
+<p>This tutorial aims at illustrating how to access and preprocess
+Sentinel-2 images acquired at Level-2A with the R package
+<code>preprocS2</code>.</p>
+<div class="section level2">
+<h2 id="identifying-and-downloading-sentinel-2-images">Identifying and downloading Sentinel-2 images<a class="anchor" aria-label="anchor" href="#identifying-and-downloading-sentinel-2-images"></a>
+</h2>
+<p>This tutorial aims at illustrating how to use preprocS2 to download
+and prepare Sentinel-2 images for further processings using R packages
+such as <a href="https://jbferet.github.io/biodivMapR/index.html" class="external-link"><code>biodivMapR</code></a>
+for spectral diversity mapping, or <a href="https://jbferet.gitlab.io/prosail/index.html" class="external-link"><code>prosail</code></a>
+for the computation of vegetation biophysical variables or spectral
+indices</p>
+<p>We are interested in downloading a unique Sentinel-2 image with no
+cloud cover for an illustration of the package. We selected the Barrax
+area in Spain, as it is a well-known study area for application using
+remote sensing for crop monitoring.</p>
+<div class="section level4">
+<h4 id="download-vector-files-used-to-identify-study-area">Download vector files used to identify study area<a class="anchor" aria-label="anchor" href="#download-vector-files-used-to-identify-study-area"></a>
+</h4>
+<p>We first define a data directory (modify following your personal
+taste) and download a shapefile corresponding to our study area. The
+following code allows downloading the zipfile containing the vector
+data, and unzipping it in the same directory as the one including the
+raster data.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://sen2r.ranghetti.info">sen2r</a></span><span class="op">)</span>
-<span class="co"># define date of S2 acquisition</span>
-<span class="va">dateAcq</span> <span class="op">&lt;-</span> <span class="st">'2021-05-13'</span>
-<span class="va">time_window</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">dateAcq</span>, <span class="va">dateAcq</span><span class="op">)</span><span class="op">)</span>
-<span class="co"># define path for study area</span>
-<span class="va">path_vector</span> <span class="op">&lt;-</span> <span class="st">'../DATA/Study_area_Barrax.shp'</span>
-<span class="co"># get product name corresponding to Barrax </span>
-<span class="va">list_safe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://sen2r.ranghetti.info/reference/s2_list.html">s2_list</a></span><span class="op">(</span>spatial_extent <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html">st_read</a></span><span class="op">(</span>dsn <span class="op">=</span> <span class="va">path_vector</span><span class="op">)</span>, time_interval <span class="op">=</span> <span class="va">time_window</span><span class="op">)</span>
-<span class="co"># define output directory where SAFE zipfile is stored</span>
-<span class="va">DirWrite</span> <span class="op">&lt;-</span> <span class="st">'../DATA/S2_Images'</span>
-<span class="fu"><a href="https://sen2r.ranghetti.info/reference/s2_download.html">s2_download</a></span><span class="op">(</span><span class="va">list_safe</span>, outdir<span class="op">=</span><span class="va">DirWrite</span><span class="op">)</span></code></pre></div>
-</div>
-<div id="preprocess-s2-image" class="section level1">
-<h1 class="hasAnchor">
-<a href="#preprocess-s2-image" class="anchor"></a>Preprocess S2 image</h1>
-<p>Once the SAFE S2 image is downloaded, the R package <a href="https://jbferet.gitlab.io/preprocS2/index.html"><code>preprocS2</code></a> is used to stack individual bands, crop to required extent defined by the vector file, produce a binary cloud mask and save in the desired raster format.</p>
-<p>The function <code>extract_from_S2_L2A</code> performs cropping and resampling to 10m if needed, and provides a stars object as output, along with location for metadata and image full name.</p>
+<code class="sourceCode R"><span><span class="co"># library</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/r-lib/zip#readme" class="external-link">zip</a></span><span class="op">)</span></span>
+<span><span class="co"># define data directory</span></span>
+<span><span class="va">Path_Data</span> <span class="op">&lt;-</span> <span class="st">'../../01_DATA'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">Path_Data</span>,showWarnings <span class="op">=</span> <span class="cn">F</span>, recursive <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<span><span class="co"># name zip file including plots located on the tile</span></span>
+<span><span class="va">destzip</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">Path_Data</span>,<span class="st">'Study_area_Barrax.zip'</span>,fsep <span class="op">=</span> <span class="st">'\\'</span><span class="op">)</span></span>
+<span><span class="co"># url for the zip file</span></span>
+<span><span class="va">url</span> <span class="op">&lt;-</span> <span class="st">'https://gitlab.com/jbferet/myshareddata/-/raw/master/preprocS2_Example/Study_area_Barrax.zip'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/download.file.html" class="external-link">download.file</a></span><span class="op">(</span>url <span class="op">=</span> <span class="va">url</span>, destfile <span class="op">=</span> <span class="va">destzip</span><span class="op">)</span></span>
+<span><span class="va">destunz</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">Path_Data</span>,<span class="st">'Study_area_Barrax'</span>,fsep <span class="op">=</span> <span class="st">'\\'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/zip/man/unzip.html" class="external-link">unzip</a></span><span class="op">(</span>zipfile <span class="op">=</span> <span class="va">destzip</span>,exdir <span class="op">=</span> <span class="va">destunz</span><span class="op">)</span></span></code></pre></div>
+<p>Then, we use <a href="https://apps.sentinel-hub.com/eo-browser/?zoom=11&amp;lat=39.09836&amp;lng=-2.01462&amp;themeId=DEFAULT-THEME&amp;visualizationUrl=https%3A%2F%2Fservices.sentinel-hub.com%2Fogc%2Fwms%2Fbd86bcc0-f318-402b-a145-015f85b9427e&amp;datasetId=S2L2A&amp;fromTime=2021-05-13T00%3A00%3A00.000Z&amp;toTime=2021-05-13T23%3A59%3A59.999Z&amp;layerId=1_TRUE_COLOR" class="external-link">Sentinel-hub</a>
+in order to identify an acquisition corresponding to our
+requirement.</p>
+<p>Once the S2 tile and the date of acquisition are identified, we can
+proceed to the image download.</p>
+<p>We then used the R package <a href="https://sen2r.ranghetti.info/" class="external-link"><code>sen2r</code></a> in order to
+identify S2 product available for a specific date of acquisition, and
+download the corresponding Sentinel-2 SAFE archive. Here, level-2A
+images (atmospherically corrected with Sen2Cor) can be downloaded
+directly from <a href="https://scihub.copernicus.eu" class="external-link">SciHub</a> with
+sen2r.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://gitlab.com/jbferet/preprocS2">preprocS2</a></span><span class="op">)</span>
-<span class="co">##____________________________________________________________________##</span>
-<span class="co">##        Define where data is stored and where to write results      ##</span>
-<span class="co">##--------------------------------------------------------------------##</span>
-<span class="co"># define raster path</span>
-<span class="va">Path_S2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="va">DirWrite</span>,<span class="fu"><a href="https://rdrr.io/r/base/list.files.html">list.files</a></span><span class="op">(</span><span class="va">DirWrite</span>,pattern <span class="op">=</span> <span class="st">'.SAFE'</span><span class="op">)</span><span class="op">)</span>
-<span class="co"># Result directory</span>
-<span class="va">result_path</span> <span class="op">&lt;-</span> <span class="st">'../RESULTS'</span>
-<span class="fu"><a href="https://rdrr.io/r/base/files2.html">dir.create</a></span><span class="op">(</span>path <span class="op">=</span> <span class="va">result_path</span>,showWarnings <span class="op">=</span> <span class="cn">FALSE</span>,recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-
-<span class="co">##____________________________________________________________________##</span>
-<span class="co">##                  Extract, resample &amp; stack data                    ##</span>
-<span class="co">##--------------------------------------------------------------------##</span>
-<span class="co"># define resolution</span>
-<span class="va">resolution</span> <span class="op">&lt;-</span> <span class="fl">10</span>
-<span class="co"># define source of data</span>
-<span class="va">S2source</span> <span class="op">&lt;-</span> <span class="st">'SAFE'</span>
-<span class="va">S2obj</span> <span class="op">&lt;-</span> <span class="fu">preprocS2</span><span class="fu">::</span><span class="fu"><a href="../reference/extract_from_S2_L2A.html">extract_from_S2_L2A</a></span><span class="op">(</span>Path_dir_S2 <span class="op">=</span> <span class="va">Path_S2</span>,
-                                        path_vector <span class="op">=</span> <span class="va">path_vector</span>,
-                                        S2source <span class="op">=</span> <span class="va">S2source</span>,
-                                        resolution <span class="op">=</span> <span class="va">resolution</span><span class="op">)</span>
-
-<span class="co"># update shapefile if needed (reprojection)</span>
-<span class="va">path_vector</span> <span class="op">&lt;-</span> <span class="va">S2obj</span><span class="op">$</span><span class="va">path_vector</span></code></pre></div>
-</div>
-<div id="write-reflectance-cloud-mask-and-metadata" class="section level1">
-<h1 class="hasAnchor">
-<a href="#write-reflectance-cloud-mask-and-metadata" class="anchor"></a>Write reflectance, cloud mask and metadata</h1>
-<p>Once the image is read, it can be written as stacked raster file, and stored with the binary cloud mask and the metadata file.</p>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sen2r.ranghetti.info" class="external-link">sen2r</a></span><span class="op">)</span></span>
+<span><span class="co"># define date of S2 acquisition</span></span>
+<span><span class="va">dateAcq</span> <span class="op">&lt;-</span> <span class="st">'2022-05-28'</span></span>
+<span><span class="va">time_window</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">dateAcq</span>, <span class="va">dateAcq</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># define path for study area</span></span>
+<span><span class="va">path_vector</span> <span class="op">&lt;-</span> <span class="st">'../../01_DATA/Study_area_Barrax/Study_area_Barrax.shp'</span></span>
+<span><span class="co"># get product name corresponding to Barrax </span></span>
+<span><span class="va">list_safe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://sen2r.ranghetti.info/reference/s2_list.html" class="external-link">s2_list</a></span><span class="op">(</span>spatial_extent <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">st_read</a></span><span class="op">(</span>dsn <span class="op">=</span> <span class="va">path_vector</span><span class="op">)</span>, time_interval <span class="op">=</span> <span class="va">time_window</span><span class="op">)</span></span>
+<span><span class="co"># define output directory where SAFE zipfile is stored</span></span>
+<span><span class="va">DirWrite</span> <span class="op">&lt;-</span> <span class="st">'../../01_DATA/S2_Images'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">DirWrite</span>,showWarnings <span class="op">=</span> <span class="cn">F</span>, recursive <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://sen2r.ranghetti.info/reference/s2_download.html" class="external-link">s2_download</a></span><span class="op">(</span><span class="va">list_safe</span>, outdir<span class="op">=</span><span class="va">DirWrite</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># define raster path</span></span>
+<span><span class="va">Path_S2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">DirWrite</span>,<span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">DirWrite</span>,pattern <span class="op">=</span> <span class="st">'.SAFE'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>You can also use the function <code>get_S2_L2A_Image</code> from
+<code>preprocS2</code> in order to download this image. This function
+uses the <code>s2_download</code> from <code>sen2r</code>. If a google
+cloud accounbt is parameterized in <code>sen2r</code>, you can
+alternatively download S2 images from it by setting
+<code>GoogleCloud = TRUE</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># create specific result directory corresponding to granule name</span>
-<span class="va">results_site_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="va">result_path</span>,<span class="fu"><a href="https://rdrr.io/r/base/basename.html">basename</a></span><span class="op">(</span><span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Bands</span><span class="op">$</span><span class="va">GRANULE</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/files2.html">dir.create</a></span><span class="op">(</span>path <span class="op">=</span> <span class="va">results_site_path</span>,showWarnings <span class="op">=</span> <span class="cn">FALSE</span>,recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">##____________________________________________________________________##</span>
-<span class="co">##                        Write CLOUD MASK                            ##</span>
-<span class="co">##--------------------------------------------------------------------##</span>
-<span class="co"># directory for cloud mask</span>
-<span class="va">Cloud_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="va">results_site_path</span>,<span class="st">'CloudMask'</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/files2.html">dir.create</a></span><span class="op">(</span>path <span class="op">=</span> <span class="va">Cloud_path</span>,showWarnings <span class="op">=</span> <span class="cn">FALSE</span>,recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co"># Filename for cloud mask</span>
-<span class="va">cloudmasks</span> <span class="op">&lt;-</span> <span class="fu">preprocS2</span><span class="fu">::</span><span class="fu"><a href="../reference/save_cloud_s2.html">save_cloud_s2</a></span><span class="op">(</span>S2_stars <span class="op">=</span> <span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Stack</span>,
-                                       Cloud_path <span class="op">=</span> <span class="va">Cloud_path</span>,
-                                       S2source <span class="op">=</span> <span class="va">S2source</span>, SaveRaw <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
-<span class="co">##____________________________________________________________________##</span>
-<span class="co">##                        Write REFLECTANCE                           ##</span>
-<span class="co">##--------------------------------------------------------------------##</span>
-<span class="co"># directory for Reflectance</span>
-<span class="va">Refl_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="va">results_site_path</span>,<span class="st">'Reflectance'</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/files2.html">dir.create</a></span><span class="op">(</span>path <span class="op">=</span> <span class="va">Refl_dir</span>,showWarnings <span class="op">=</span> <span class="cn">FALSE</span>,recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co"># filename for Reflectance</span>
-<span class="va">Refl_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="va">Refl_dir</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html">basename</a></span><span class="op">(</span><span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Bands</span><span class="op">$</span><span class="va">GRANULE</span><span class="op">)</span>,<span class="st">'_Refl'</span>,sep <span class="op">=</span> <span class="st">''</span><span class="op">)</span><span class="op">)</span>
-
-<span class="co"># Save Reflectance file as ENVI image with BIL interleaves</span>
-<span class="va">tileS2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/substr.html">substring</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/strsplit.html">strsplit</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html">basename</a></span><span class="op">(</span><span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Bands</span><span class="op">$</span><span class="va">GRANULE</span><span class="op">)</span>,<span class="st">'_'</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,<span class="fl">2</span><span class="op">)</span>
-<span class="va">dateAcqS2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substr.html">substring</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/strsplit.html">strsplit</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html">basename</a></span><span class="op">(</span><span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Bands</span><span class="op">$</span><span class="va">GRANULE</span><span class="op">)</span>,<span class="st">'_'</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span>,<span class="fl">1</span>,<span class="fl">8</span><span class="op">)</span>,format<span class="op">=</span><span class="st">"%Y%m%d"</span><span class="op">)</span>
-<span class="fu">preprocS2</span><span class="fu">::</span><span class="fu"><a href="../reference/save_reflectance_s2.html">save_reflectance_s2</a></span><span class="op">(</span>S2_stars <span class="op">=</span> <span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Stack</span>, Refl_path <span class="op">=</span> <span class="va">Refl_path</span>,
-                               S2Sat <span class="op">=</span> <span class="cn">NULL</span>, tile_S2 <span class="op">=</span> <span class="va">tile_S2</span>, dateAcq_S2 <span class="op">=</span> <span class="va">dateAcq_S2</span>,
-                               Format <span class="op">=</span> <span class="st">'ENVI_BIL'</span>, datatype <span class="op">=</span> <span class="st">'INT2S'</span>, MTD <span class="op">=</span> <span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Bands</span><span class="op">$</span><span class="va">metadata</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gitlab.com/jbferet/preprocS2" class="external-link">preprocS2</a></span><span class="op">)</span></span>
+<span><span class="co"># define date of S2 acquisition</span></span>
+<span><span class="va">dateAcq</span> <span class="op">&lt;-</span> <span class="st">'2022-05-28'</span></span>
+<span><span class="co"># define path for study area</span></span>
+<span><span class="va">path_vector</span> <span class="op">&lt;-</span> <span class="st">'../../01_DATA/Study_area_Barrax/Study_area_Barrax.shp'</span></span>
+<span><span class="co"># define output directory where SAFE zipfile is stored</span></span>
+<span><span class="va">DirWrite</span> <span class="op">&lt;-</span> <span class="st">'../../01_DATA/S2_Images'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">DirWrite</span>,showWarnings <span class="op">=</span> <span class="cn">F</span>, recursive <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">Path_S2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_S2_L2A_Image.html">get_S2_L2A_Image</a></span><span class="op">(</span>l2a_path <span class="op">=</span> <span class="va">DirWrite</span>, </span>
+<span>                            spatial_extent <span class="op">=</span> <span class="va">path_vector</span>, </span>
+<span>                            dateAcq <span class="op">=</span> <span class="va">dateAcq</span>,</span>
+<span>                            DeleteL1C <span class="op">=</span> <span class="cn">TRUE</span>, </span>
+<span>                            Sen2Cor <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                            GoogleCloud <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="computation-of-spectral-indices-and-biophysical-variables" class="section level1">
-<h1 class="hasAnchor">
-<a href="#computation-of-spectral-indices-and-biophysical-variables" class="anchor"></a>Computation of spectral indices and biophysical variables</h1>
-<p>Once reflectance data is written as a raster file, the R package <code>prosail</code> can be used for the computation of various spectral indices and biophysical variables direcrtlty from a raster stack corresponding to Level-2A reflectance.</p>
+</div>
+<div class="section level2">
+<h2 id="preprocess-s2-image">Preprocess S2 image<a class="anchor" aria-label="anchor" href="#preprocess-s2-image"></a>
+</h2>
+<p>Once the SAFE S2 image is downloaded, the R package <a href="https://jbferet.gitlab.io/preprocS2/index.html" class="external-link"><code>preprocS2</code></a>
+is used to stack individual bands, crop to required extent defined by
+the vector file, produce a binary cloud mask and save in the desired
+raster format.</p>
+<p>The function <code>extract_from_S2_L2A</code> performs cropping and
+resampling to 10m if needed, and provides a stars object as output,
+along with file path for metadata and image full name.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gitlab.com/jbferet/preprocS2" class="external-link">preprocS2</a></span><span class="op">)</span></span>
+<span><span class="co">##____________________________________________________________________##</span></span>
+<span><span class="co">##        Define where data is stored and where to write results      ##</span></span>
+<span><span class="co">##--------------------------------------------------------------------##</span></span>
+<span><span class="co"># Result directory</span></span>
+<span><span class="va">result_path</span> <span class="op">&lt;-</span> <span class="st">'../../03_RESULTS'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span>path <span class="op">=</span> <span class="va">result_path</span>,showWarnings <span class="op">=</span> <span class="cn">FALSE</span>,recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">##____________________________________________________________________##</span></span>
+<span><span class="co">##                  Extract, resample &amp; stack data                    ##</span></span>
+<span><span class="co">##--------------------------------------------------------------------##</span></span>
+<span><span class="co"># define resolution</span></span>
+<span><span class="va">resolution</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
+<span><span class="co"># define source of data</span></span>
+<span><span class="va">S2source</span> <span class="op">&lt;-</span> <span class="st">'SAFE'</span></span>
+<span><span class="va">S2obj</span> <span class="op">&lt;-</span> <span class="fu">preprocS2</span><span class="fu">::</span><span class="fu"><a href="../reference/extract_from_S2_L2A.html">extract_from_S2_L2A</a></span><span class="op">(</span>Path_dir_S2 <span class="op">=</span> <span class="va">Path_S2</span>,</span>
+<span>                                        path_vector <span class="op">=</span> <span class="va">path_vector</span>,</span>
+<span>                                        S2source <span class="op">=</span> <span class="va">S2source</span>,</span>
+<span>                                        resolution <span class="op">=</span> <span class="va">resolution</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># update shapefile if needed (reprojection)</span></span>
+<span><span class="va">path_vector</span> <span class="op">&lt;-</span> <span class="va">S2obj</span><span class="op">$</span><span class="va">path_vector</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="write-reflectance-cloud-mask-and-metadata">Write reflectance, cloud mask and metadata<a class="anchor" aria-label="anchor" href="#write-reflectance-cloud-mask-and-metadata"></a>
+</h2>
+<p>Once the image is read, it can be written as stacked raster file, and
+stored with the binary cloud mask and the metadata file. Since 2021, S2
+images are provided with an <a href="https://sentinels.copernicus.eu/web/sentinel/-/copernicus-sentinel-2-major-products-upgrade-upcoming" class="external-link">offset</a>
+in order to prevent from negative radiometric values. In order to
+account for this offset when writing reflectance file (and get actual
+reflectance values with a multiplying factor of 10 000), the S2 metadata
+files (MTD and MTD_MSI) are required. The path for these files is
+provised as an output of <code>extract_from_S2_L2A</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># create specific result directory corresponding to granule name</span></span>
+<span><span class="va">results_site_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">result_path</span>,<span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">basename</a></span><span class="op">(</span><span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Bands</span><span class="op">$</span><span class="va">GRANULE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span>path <span class="op">=</span> <span class="va">results_site_path</span>,showWarnings <span class="op">=</span> <span class="cn">FALSE</span>,recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">##____________________________________________________________________##</span></span>
+<span><span class="co">##                        Write CLOUD MASK                            ##</span></span>
+<span><span class="co">##--------------------------------------------------------------------##</span></span>
+<span><span class="co"># directory for cloud mask</span></span>
+<span><span class="va">Cloud_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">results_site_path</span>,<span class="st">'CloudMask'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span>path <span class="op">=</span> <span class="va">Cloud_path</span>,showWarnings <span class="op">=</span> <span class="cn">FALSE</span>,recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co"># Filename for cloud mask</span></span>
+<span><span class="va">cloudmasks</span> <span class="op">&lt;-</span> <span class="fu">preprocS2</span><span class="fu">::</span><span class="fu"><a href="../reference/save_cloud_s2.html">save_cloud_s2</a></span><span class="op">(</span>S2_stars <span class="op">=</span> <span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Stack</span>,</span>
+<span>                                       Cloud_path <span class="op">=</span> <span class="va">Cloud_path</span>,</span>
+<span>                                       S2source <span class="op">=</span> <span class="va">S2source</span>, SaveRaw <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<span><span class="co">##____________________________________________________________________##</span></span>
+<span><span class="co">##                        Write REFLECTANCE                           ##</span></span>
+<span><span class="co">##--------------------------------------------------------------------##</span></span>
+<span><span class="co"># directory for Reflectance</span></span>
+<span><span class="va">Refl_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">results_site_path</span>,<span class="st">'Reflectance'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span>path <span class="op">=</span> <span class="va">Refl_dir</span>,showWarnings <span class="op">=</span> <span class="cn">FALSE</span>,recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co"># filename for Reflectance</span></span>
+<span><span class="va">Refl_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">Refl_dir</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html" class="external-link">basename</a></span><span class="op">(</span><span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Bands</span><span class="op">$</span><span class="va">GRANULE</span><span class="op">)</span>,<span class="st">'_Refl'</span>,sep <span class="op">=</span> <span class="st">''</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Save Reflectance file as ENVI image with BIL interleaves</span></span>
+<span><span class="co"># metadata files are important to account for offset applied on S2 L2A products </span></span>
+<span><span class="va">tile_S2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_tile.html">get_tile</a></span><span class="op">(</span><span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Bands</span><span class="op">$</span><span class="va">GRANULE</span><span class="op">)</span></span>
+<span><span class="va">dateAcq_S2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_date.html">get_date</a></span><span class="op">(</span><span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Bands</span><span class="op">$</span><span class="va">GRANULE</span><span class="op">)</span></span>
+<span><span class="fu">preprocS2</span><span class="fu">::</span><span class="fu"><a href="../reference/save_reflectance_s2.html">save_reflectance_s2</a></span><span class="op">(</span>S2_stars <span class="op">=</span> <span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Stack</span>, </span>
+<span>                               Refl_path <span class="op">=</span> <span class="va">Refl_path</span>,</span>
+<span>                               S2Sat <span class="op">=</span> <span class="cn">NULL</span>, </span>
+<span>                               tile_S2 <span class="op">=</span> <span class="va">tile_S2</span>, </span>
+<span>                               dateAcq_S2 <span class="op">=</span> <span class="va">dateAcq_S2</span>,</span>
+<span>                               Format <span class="op">=</span> <span class="st">'ENVI'</span>, </span>
+<span>                               datatype <span class="op">=</span> <span class="st">'Int16'</span>, </span>
+<span>                               MTD <span class="op">=</span> <span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Bands</span><span class="op">$</span><span class="va">metadata</span>, </span>
+<span>                               MTD_MSI <span class="op">=</span> <span class="va">S2obj</span><span class="op">$</span><span class="va">S2_Bands</span><span class="op">$</span><span class="va">metadata_MSI</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="computation-of-spectral-indices-and-biophysical-variables">Computation of spectral indices and biophysical variables<a class="anchor" aria-label="anchor" href="#computation-of-spectral-indices-and-biophysical-variables"></a>
+</h2>
+<p>Once reflectance data is written as a raster file, the R package
+<code>prosail</code> can be used for the computation of various spectral
+indices and biophysical variables direcrtlty from a raster stack
+corresponding to Level-2A reflectance.</p>
 </div>
   </div>
 
@@ -186,11 +282,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Jean-Baptiste Feret.</p>
+  <p></p>
+<p>Developed by Jean-Baptiste Feret.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
@@ -198,6 +296,8 @@
 
   
 
+
+  
 
   </body>
 </html>

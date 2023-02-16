@@ -12,13 +12,16 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="preprocessing of Sentinel-2 data downloaded from various data hubs / produced from various atmospheric correction methods">
-<meta property="og:description" content="The package preprocS2 allows production of raster stack from Sentinel-2 directories, as well as cropping, production of cloud mask....">
+<meta property="og:description" content="The package preprocS2 allows production of raster stack from Sentinel-2 directories, as well as cropping, production of cloud mask. 
+	It can download from various hubs: Scihub and google cloud using the package Sen2R, and image subsets via google earth engine using the package rgee.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,29 +34,35 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">preprocS2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.3</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="articles/preprocS2.html">Get started</a>
 </li>
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="articles/preprocS2_1.html">Copernicus Academy biodiv#1: download</a>
+    </li>
+  </ul>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://gitlab.com/jbferet/preprocS2/">
-    <span class="fab fa-github fa-lg"></span>
+  <a href="https://gitlab.com/jbferet/preprocS2/" class="external-link">
+    <span class="fab fa-gitlab fa-lg"></span>
      
   </a>
 </li>
@@ -70,38 +79,66 @@
       </header><div class="row">
   <div class="contents col-md-9">
 
-<div id="preprocs2-" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#preprocs2-" class="anchor"></a><strong>preprocS2</strong> <img src="reference/figures/Sentinel-2.gif" align="right" alt="" width="200">
+<div class="section level1">
+<div class="page-header"><h1 id="preprocs2-">
+<strong>preprocS2</strong> <img src="reference/figures/Sentinel-2.gif" align="right" alt="" width="200"><a class="anchor" aria-label="anchor" href="#preprocs2-"></a>
 </h1></div>
 </div>
-<div id="a-r-package-dedicated-to-basic-preprocessing-of-sentinel-2-level-2a-reflectance-images" class="section level1">
-<h1 class="hasAnchor">
-<a href="#a-r-package-dedicated-to-basic-preprocessing-of-sentinel-2-level-2a-reflectance-images" class="anchor"></a>A R package dedicated to basic preprocessing of Sentinel-2 Level-2A reflectance images</h1>
-
+<div class="section level1">
+<h1 id="a-r-package-dedicated-to-basic-preprocessing-of-sentinel-2-level-2a-reflectance-images">A R package dedicated to basic preprocessing of Sentinel-2 Level-2A reflectance images<a class="anchor" aria-label="anchor" href="#a-r-package-dedicated-to-basic-preprocessing-of-sentinel-2-level-2a-reflectance-images"></a>
+</h1>
+<p><a href="https://www.r-project.org/Licenses/GPL-3" class="external-link"><img src="https://img.shields.io/badge/Licence-GPL--3-blue.svg" alt="licence"></a> <a href="https://gitlab.com/jbferet/preprocS2/pipelines/latest" class="external-link"><img src="https://gitlab.com/jbferet/preprocS2/badges/master/pipeline.svg" alt="Build Status"></a></p>
 </div>
-<div id="preprocs2" class="section level1">
-<h1 class="hasAnchor">
-<a href="#preprocs2" class="anchor"></a>preprocS2</h1>
-<p>The goal of preprocS2 is to provide a common framework for teh preprocessing of Level-2A Sentinel-2 images. Sentinel-2 L2A images can be produced or obtained from various data hubs or atmospheric correction methods. preprocS2 provides a unique function to read, crop, resample the original image directory, and write it as a raster stack.</p>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
-<p>After installing package <code>devtools</code>, you need to install the package <code>preprocS2</code> with the following command line in R session:</p>
-<pre><code><a href="https://devtools.r-lib.org//reference/remote-reexports.html">devtools::install_gitlab('jbferet/preprocS2')</a></code></pre>
+<div class="section level1">
+<h1 id="preprocs2">preprocS2<a class="anchor" aria-label="anchor" href="#preprocs2"></a>
+</h1>
+<p>The goal of preprocS2 is to provide a common framework for the preprocessing of Level-2A Sentinel-2 images. Sentinel-2 L2A images can be produced or obtained from various data hubs or atmospheric correction methods. <code>preprocS2</code> provides a unique function to read, crop, resample the original image directory, and write it as a raster stack.</p>
+<div class="section level2">
+<h2 id="prerequisites">prerequisites:<a class="anchor" aria-label="anchor" href="#prerequisites"></a>
+</h2>
+<div class="section level3">
+<h3 id="installing-gdalutils">installing gdalUtils<a class="anchor" aria-label="anchor" href="#installing-gdalutils"></a>
+</h3>
+<p>The package <a href="https://github.com/cran/gdalUtils" class="external-link"><code>gdalUtils</code></a> is currently used in the function <code>mosaic_rasters</code>. This package is currently unavailable from the CRAN. Therefore, a manual installation may be required:</p>
+<pre><code><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">:::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"gearslaboratory/gdalUtils"</span><span class="op">)</span></span></code></pre>
 </div>
-<div id="example" class="section level2">
-<h2 class="hasAnchor">
-<a href="#example" class="anchor"></a>Example</h2>
-<p>A tutorial vignette is available <a href="https://jbferet.gitlab.io/preprocS2/articles/preprocS21.html">here</a>.</p>
-<p>This is a basic example which shows you how to solve a common problem:</p>
-<p><code>{r example} library(preprocS2) ## basic example code</code></p>
-<p>What is special about using <code>README.Rmd</code> instead of just <code>README.md</code>? You can include R chunks like so:</p>
-<p><code>{r cars} summary(cars)</code></p>
-<p>You’ll still need to render <code>README.Rmd</code> regularly, to keep <code>README.md</code> up-to-date. <code><a href="https://devtools.r-lib.org//reference/build_rmd.html">devtools::build_readme()</a></code> is handy for this. You could also use GitHub Actions to re-render <code>README.Rmd</code> every time you push. An example workflow can be found here: <a href="https://github.com/r-lib/actions/tree/master/examples" class="uri">https://github.com/r-lib/actions/tree/master/examples</a>.</p>
-<p>You can also embed plots, for example:</p>
-<p><code>{r pressure, echo = FALSE} plot(pressure)</code></p>
-<p>In that case, don’t forget to commit and push the resulting figure files, so they display on GitHub and CRAN.</p>
+<div class="section level3">
+<h3 id="downgrade-stars-to-055">Downgrade stars to 0.5.5<a class="anchor" aria-label="anchor" href="#downgrade-stars-to-055"></a>
+</h3>
+<p>The version 0.5.6 of the <code>stars</code> package currently raises errors. Then we recommend using the previous version.</p>
+<p>The downgrade can be performed on your R distribution with this command :</p>
+<pre><code><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_version.html" class="external-link">install_version</a></span><span class="op">(</span><span class="st">"stars"</span>, version <span class="op">=</span> <span class="st">"0.5.5"</span>, repos <span class="op">=</span> <span class="st">"http://cran.us.r-project.org"</span><span class="op">)</span></span></code></pre>
+<p><strong>EDIT:</strong> tests need to be performed on version 0.6 of <code>stars</code> to check if it still raises errors.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>The full functionality of <code>preprocS2</code> requires installation and parameterization of various package. An important package to install is <a href="https://sen2r.ranghetti.info/" class="external-link"><code>sen2r</code></a>, as it allows to download Sentinel-2 images.</p>
+<p>Please refer to the <code>sen2r</code> installation guide if you want to access to atmospheric correction and Sentinel-2 download from the <a href="https://scihub.copernicus.eu/" class="external-link">Copernicus Open Access Hub</a> or from the <a href="Google%20Cloud%20https://cloud.google.com/storage/docs/public-datasets/sentinel-2" class="external-link">Google Cloud Sentinel-2 bucket</a>.</p>
+<p>Then, after installing package <code>devtools</code>, you will install the package <code>preprocS2</code> with the following command line in R session:</p>
+<pre><code><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_gitlab.html" class="external-link">install_gitlab</a></span><span class="op">(</span><span class="st">'jbferet/preprocS2'</span><span class="op">)</span></span></code></pre>
+</div>
+<div class="section level2">
+<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+</h2>
+<p>A tutorial vignette is available <a href="https://jbferet.gitlab.io/preprocs2/articles/preprocS2.html" class="external-link">here</a>.</p>
+<p>Sentinel-2 data can be accessed via various hubs including:</p>
+<ul>
+<li>
+<a href="https://scihub.copernicus.eu/" class="external-link">Copernicus Open Access Hub</a>, which provides complete, free and open access to Sentinel-2 data</li>
+<li>
+<a href="https://peps.cnes.fr/rocket/#/home" class="external-link">PEPS</a>, la ‘Plateforme d’Exploitation de Produits Sentinel’</li>
+<li><a href="https://theia.cnes.fr/atdistrib/rocket/#/search?collection=SENTINEL2" class="external-link">THEIA</a></li>
+</ul>
+<p><code>preprocS2</code> mainly aims at processing <a href="https://sentinels.copernicus.eu/web/sentinel/user-guides/sentinel-2-msi/product-types/level-2a" class="external-link">Level 2A Sentinel-2 products</a> delivered by an atmospheric correction algorithm, such as - <a href="http://step.esa.int/main/snap-supported-plugins/sen2cor/" class="external-link">Sen2Cor</a> - <a href="https://www.theia-land.fr/en/product/sentinel-2-surface-reflectance/" class="external-link">MAJA</a> - <a href="https://www.sciencedirect.com/science/article/pii/S0034425718304139" class="external-link">LaSRC</a></p>
+<p>However, it produce L2A images from L1C images with sen2cor through the R package <a href="https://sen2r.ranghetti.info/" class="external-link"><code>sen2r</code></a> if this package is properly parameterized.</p>
+</div>
+<div class="section level2">
+<h2 id="acknowledgments--fundings">Acknowledgments / Fundings<a class="anchor" aria-label="anchor" href="#acknowledgments--fundings"></a>
+</h2>
+<p>This research was supported by the Agence Nationale de la Recherche (<a href="https://anr.fr/en/open-calls-and-preannouncements/" class="external-link">ANR</a>, France) through the young researchers project <strong>BioCop</strong> (ANR-17-CE32-0001</p>
 </div>
 </div>
 
@@ -109,45 +146,50 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Browse source code at <br><a href="https://gitlab.com/jbferet/preprocS2/">https://​gitlab.com/​jbferet/​preprocS2/​</a>
-</li>
-<li>Report a bug at <br><a href="https://gitlab.com/jbferet/preprocS2/issues">https://​gitlab.com/​jbferet/​preprocS2/​issues</a>
-</li>
+<li><a href="https://gitlab.com/jbferet/preprocS2/" class="external-link">Browse source code</a></li>
+<li><a href="https://gitlab.com/jbferet/preprocS2/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
 <li><small>GPL (&gt;= 3)</small></li>
 </ul>
 </div>
-<div class="developers">
-<h2>Developers</h2>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li>Jean-Baptiste Feret <br><small class="roles"> Author, maintainer, copyright holder </small> <a href="https://orcid.org/0000-0002-0151-1334" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li><a href="authors.html#citation">Citing preprocS2</a></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li><a href="https://www.r-project.org/Licenses/GPL-3"><img src="https://img.shields.io/badge/Licence-GPL--3-blue.svg" alt="licence"></a></li>
-<li><a href="https://gitlab.com/jbferet/preprocS2/pipelines/latest"><img src="https://gitlab.com/jbferet/preprocS2/badges/master/pipeline.svg" alt="Build Status"></a></li>
+<li>Jean-Baptiste Feret <br><small class="roles"> Author, maintainer, copyright holder </small> <a href="https://orcid.org/0000-0002-0151-1334" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 </ul>
 </div>
-</div>
+
+
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Jean-Baptiste Feret.</p>
+  <p></p>
+<p>Developed by Jean-Baptiste Feret.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
@@ -155,6 +197,8 @@
 
   
 
+
+  
 
   </body>
 </html>

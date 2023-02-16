@@ -1,6 +1,6 @@
 Package: preprocS2
 Title: preprocessing of Sentinel-2 data downloaded from various data hubs / produced from various atmospheric correction methods
-Version: 1.2.2
+Version: 1.2.3
 Authors@R: c(person(given = "Jean-Baptiste", 
 					    family = "Feret", 
 					    email = "jb.feret@teledetection.fr", 
@@ -13,30 +13,27 @@ Depends: R (>= 3.5.0)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Suggests: knitr,
     rmarkdown
 Imports: 
-    sen2r,
+    filesstrings,
+    gdalUtils,
+    methods,
+    R.utils,
     raster,
-    sf,
+    rgdal,
+    rgee,
     rgeos,
+    sen2r,
+    sf,
     sp,
-    raster,
-    tools,
     stars (<= 0.5-5),
     stringr,
-    progress,
-    methods,
+    tools,
     utils,
-    rgdal,
-    R.utils,
-    gdalUtils,
-    fasterize,
     XML,
-    xml2,
-    rgee,
-    filesstrings
+    xml2
 VignetteBuilder: knitr
 URL: https://gitlab.com/jbferet/preprocS2
 BugReports: https://gitlab.com/jbferet/preprocS2/issues
