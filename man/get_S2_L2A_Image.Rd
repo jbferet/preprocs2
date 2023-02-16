@@ -6,8 +6,9 @@
 \usage{
 get_S2_L2A_Image(
   l2a_path,
-  spatial_extent,
   dateAcq,
+  spatial_extent = NULL,
+  tile = NULL,
   DeleteL1C = FALSE,
   Sen2Cor = TRUE,
   GoogleCloud = FALSE,
@@ -17,9 +18,11 @@ get_S2_L2A_Image(
 \arguments{
 \item{l2a_path}{character. path for storage of L2A image}
 
+\item{dateAcq}{character. date of acquisition}
+
 \item{spatial_extent}{path for a vector file}
 
-\item{dateAcq}{character. date of acquisition}
+\item{tile}{character. Sentinel-2 Tiles to be considered string (5-length character)}
 
 \item{DeleteL1C}{Boolean. set TRUE to delete L1C images}
 

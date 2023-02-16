@@ -756,8 +756,9 @@ get_S2_L1C_Image <- function(list_safe,l1c_path,path_vector,time_interval,
 #' download S2 L2A data from Copernicus hub or convert L1C to L2A
 #'
 #' @param l2a_path character. path for storage of L2A image
-#' @param spatial_extent path for a vector file
 #' @param dateAcq character. date of acquisition
+#' @param spatial_extent path for a vector file
+#' @param tile character. Sentinel-2 Tiles to be considered string (5-length character)
 #' @param DeleteL1C Boolean. set TRUE to delete L1C images
 #' @param Sen2Cor Boolean. set TRUE to automatically perform atmospheric corrections using sen2Cor
 #' @param GoogleCloud boolean. set to TRUE if google cloud SDK is installed and
@@ -769,7 +770,8 @@ get_S2_L1C_Image <- function(list_safe,l1c_path,path_vector,time_interval,
 #' @importFrom R.utils getAbsolutePath
 
 #' @export
-get_S2_L2A_Image <- function(l2a_path, spatial_extent, dateAcq,
+get_S2_L2A_Image <- function(l2a_path, dateAcq,
+                             spatial_extent = NULL, tile = NULL,
                              DeleteL1C = FALSE, Sen2Cor = TRUE,
                              GoogleCloud=FALSE, level = 'L2A'){
 
@@ -779,13 +781,18 @@ get_S2_L2A_Image <- function(l2a_path, spatial_extent, dateAcq,
   time_interval <- as.Date(c(dateAcq, dateAcq))
   # get list S2 products corresponding to study area and date of interest using sen2r package
   if (GoogleCloud==TRUE){
-    server = c("scihub","gcloud")
+    server <- c("scihub","gcloud")
   } else if (GoogleCloud==FALSE){
-    server = "scihub"
+    server <- "scihub"
   }
-  list_safe <- sen2r::s2_list(spatial_extent = sf::st_read(dsn = spatial_extent),
-                              time_interval = time_interval,
-                              server = server,availability = 'check', level = level)
+  if (!is.null(spatial_extent)){
+    spatial_extent_sf <- sf::st_read(dsn = spatial_extent)
+  } else {
+    spatial_extent_sf <- spatial_extent
+  }
+  list_safe <- sen2r::s2_list(spatial_extent = spatial_extent_sf,
+                              tile = tile, time_interval = time_interval,
+                              server = server, availability = 'check', level = level)
   # download products
   sen2r::s2_download(list_safe, outdir=l2a_path)
   # name all products
@@ -1679,11 +1686,11 @@ split_line <- function(x, separator, trim.blank = TRUE) {
 #' @importFrom sf st_as_sf st_write
 #' @export
 vectorize_raster_extent <- function(path_raster, path_vector, driver="ESRI Shapefile") {
-  rast <- raster(path_raster)
-  e <- extent(rast)
+  rast <- raster::raster(path_raster)
+  e <- raster::extent(rast)
   # coerce to a SpatialPolygons object
   p <- as(e, 'SpatialPolygons')
-  projection(p) <- projection(rast)
+  raster::projection(p) <- raster::projection(rast)
   p <- sf::st_as_sf(p)
   sf::st_write(obj = p, path_vector, driver=driver)  # create to a shapefile
   return(invisible())
@@ -1720,6 +1727,7 @@ write_ENVI_header <- function(HDR, HDRpath) {
 #'
 #' @return None
 #' @importFrom utils read.table
+#' @importFrom raster projection
 #' @export
 write_rasterStack_ENVI <- function(StackObj,StackPath,Bands,datatype='INT2S',
                                    sensor='Unknown', Stretch = FALSE){

@@ -19,10 +19,5 @@ Useful links:
 \author{
 \strong{Maintainer}: Jean-Baptiste Feret \email{jb.feret@teledetection.fr} (\href{https://orcid.org/0000-0002-0151-1334}{ORCID}) [copyright holder]
 
-Other contributors:
-\itemize{
-  \item Romain Dous \email{romain.dous@inrae.fr} [contributor]
-}
-
 }
 \keyword{internal}
