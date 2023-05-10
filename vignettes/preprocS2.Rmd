@@ -31,7 +31,7 @@ This tutorial aims at illustrating how to access and preprocess Sentinel-2 image
 
 # Identifying and downloading Sentinel-2 images
 
-This tutorial aims at illustrating how to use preprocS2 to download and prepare Sentinel-2 images for further processings using R packages such as [`biodivMapR`](https://jbferet.github.io/biodivMapR/index.html) for spectral diversity mapping, or [`prosail`](https://jbferet.gitlab.io/prosail/index.html) for the computation of vegetation biophysical variables or spectral indices
+This tutorial aims at illustrating how to use preprocS2 to download and prepare Sentinel-2 images for further processings using R packages such as [`biodivMapR`](https://jbferet.github.io/biodivMapR/index.html) for spectral diversity mapping, [`prosail`](https://jbferet.gitlab.io/prosail/index.html) for the computation of vegetation biophysical variables, or [`spinr`](https://gitlab.com/jbferet/spinr) for the computation of vegetation biophysical variables or spectral indices
 
 We are interested in downloading a unique Sentinel-2 image with no cloud cover for an illustration of the package. 
 We selected the Barrax area in Spain, as it is a well-known study area for application using remote sensing for crop monitoring. 
@@ -186,6 +186,6 @@ preprocS2::save_reflectance_s2(S2_stars = S2obj$S2_Stack,
 
 # Computation of spectral indices and biophysical variables
 
-Once reflectance data is written as a raster file, the R package `prosail` can be used for the computation of various spectral indices and biophysical variables direcrtlty from a raster stack corresponding to Level-2A reflectance. 
+Once reflectance data is written as a raster file, the R package [`spinr`](https://gitlab.com/jbferet/spinr) can be used for the computation of various spectral indices and biophysical variables direcrtlty from a raster stack corresponding to Level-2A reflectance. 
 
 
