@@ -7,6 +7,7 @@ various data hubs including THEIA, PEPS & SCIHUB (SAFE format & LaSRC)}
 \usage{
 extract_from_S2_L2A(
   Path_dir_S2,
+  Path_dir_Mask = NULL,
   path_vector = NULL,
   S2source = "SAFE",
   resolution = 10,
@@ -16,6 +17,8 @@ extract_from_S2_L2A(
 }
 \arguments{
 \item{Path_dir_S2}{character. path for S2 directory}
+
+\item{Path_dir_Mask}{character. path for S2 mask directory}
 
 \item{path_vector}{character. path for vector file}
 

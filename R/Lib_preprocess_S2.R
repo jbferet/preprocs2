@@ -118,6 +118,7 @@ dir_size <- function(path, recursive = TRUE) {
 #' This function reads S2 data from L2A directories downloaded from
 #' various data hubs including THEIA, PEPS & SCIHUB (SAFE format & LaSRC)
 #' @param Path_dir_S2 character. path for S2 directory
+#' @param Path_dir_Mask character. path for S2 mask directory
 #' @param path_vector character. path for vector file
 #' @param S2source character. type of directory format (depends on atmospheric correction: SAFE produced from Sen2Cor)
 #' @param resolution numeric. buffer applied to vector file (in meters)
@@ -132,14 +133,16 @@ dir_size <- function(path, recursive = TRUE) {
 #' @importFrom raster raster
 #' @importFrom tools file_path_sans_ext file_ext
 #' @export
-extract_from_S2_L2A <- function(Path_dir_S2, path_vector = NULL, S2source = 'SAFE',
+extract_from_S2_L2A <- function(Path_dir_S2, Path_dir_Mask = NULL,
+                                path_vector = NULL, S2source = 'SAFE',
                                 resolution=10, interpolation='bilinear',
                                 fre_sre = 'FRE'){
   # Get list of paths corresponding to S2 bands and depending on S2 directory
   S2_Bands <- get_S2_bands(Path_dir_S2 = Path_dir_S2,
                            S2source = S2source,
                            resolution = resolution,
-                           fre_sre = fre_sre)
+                           fre_sre = fre_sre,
+                           Path_dir_Mask = Path_dir_Mask)
 
   if (length(S2_Bands$S2Bands_10m)>0){
     rastmp <- raster::raster(S2_Bands$S2Bands_10m[[1]])
@@ -207,8 +210,9 @@ extract_from_S2_L2A <- function(Path_dir_S2, path_vector = NULL, S2source = 'SAF
       }
     }
     # reorder bands with increasing wavelength
-    S2Bands <- c("B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12", "Cloud")
     NameBands <- c(names(S2_Bands$S2Bands_10m),names(S2_Bands$S2Bands_20m))
+    if (!is.na(match('B02',NameBands))) S2Bands <- c("B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12", "Cloud")
+    if (!is.na(match('B2',NameBands))) S2Bands <- c("B2", "B3", "B4", "B5", "B6", "B7", "B8", "B8A", "B11", "B12", "Cloud")
     reorder_bands <- match(S2Bands,NameBands)
     NameBands <- NameBands[reorder_bands]
     ListFiles <- c(Stack_10m$attr,Stack_20m$attr)[reorder_bands]
@@ -404,11 +408,13 @@ get_HDR_name <- function(ImPath) {
 #' @param S2source character. defines if data comes from SciHub as SAFE directory, from THEIA or from LaSRC
 #' @param resolution numeric. spatial resolution of the final image: 10m or 20m
 #' @param fre_sre character. SRE or FRE products from THEIA
+#' @param Path_dir_Mask character. path for S2 mask directory
 #'
 #' @return ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution
 #' @export
 #'
-get_S2_bands <- function(Path_dir_S2, S2source = 'SAFE', resolution = 10, fre_sre = 'FRE'){
+get_S2_bands <- function(Path_dir_S2, S2source = 'SAFE', resolution = 10,
+                         fre_sre = 'FRE', Path_dir_Mask = NULL){
 
   if (S2source=='SAFE' | S2source=='Sen2Cor'){
     ListBands <- get_S2_bands_from_Sen2Cor(Path_dir_S2 = Path_dir_S2,resolution = resolution)
@@ -418,6 +424,9 @@ get_S2_bands <- function(Path_dir_S2, S2source = 'SAFE', resolution = 10, fre_sr
     ListBands <- get_S2_bands_from_LaSRC(Path_dir_S2 = Path_dir_S2,resolution = resolution)
   } else if (S2source == 'GEE'){
     ListBands <- get_S2_bands_from_RGEE(Path_dir_S2 = Path_dir_S2)
+  } else if (S2source == 'RAW'){
+    ListBands <- get_S2_bands_from_RAW(Path_dir_S2 = Path_dir_S2,
+                                       Path_dir_Mask = Path_dir_Mask)
   } else {
     message('The data source (Atmospheric correction) for Sentinel-2 image is unknown')
     message('Please provide S2 images from one of the following data sources:')
@@ -448,7 +457,7 @@ get_S2_bands_from_Sen2Cor <- function(Path_dir_S2, resolution=10){
     B20m <- c('B05','B06','B07','B8A','B11','B12')
   } else {
     B10m <- c()
-    B20m <- c('B02','B03','B04','B05','B06','B07','B08','B8A','B11','B12')
+    B20m <- c('B02','B03','B04','B05','B06','B07','B8A','B11','B12')
   }
   # get granule directory & path for corresponding metadata XML file
   granule <- list.dirs(list.dirs(Path_dir_S2,recursive = FALSE)[grep(pattern = 'GRANULE',
@@ -632,6 +641,73 @@ get_S2_bands_from_RGEE <- function(Path_dir_S2){
   ListBands <- list('S2Bands_10m' = S2Bands_10m,
                     'S2Bands_20m' = S2Bands_20m,
                     'GRANULE' = granule,
+                    'metadata' = MTDfile,
+                    'metadata_MSI' = MTD_MSI_file,
+                    'metadata_LaSRC' = NULL)
+  return(ListBands)
+}
+
+
+#' This function returns path for the spectral bands in S2 directory
+#' @param Path_dir_S2 character. Path for the SAFE directory containing S2 data
+#' @param Path_dir_Mask character. path for S2 mask directory
+#'
+#' @return ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution, as well name of as granule
+#' @export
+#'
+get_S2_bands_from_RAW <- function(Path_dir_S2, Path_dir_Mask = NULL){
+
+  # Define name corresponding to spectral bands
+  B10m <- c('B2','B3','B4','B8')
+  B20m <- c('B5','B6','B7','B8A','B11','B12')
+  # Define path for bands
+  S2Bands_20m_dir <- S2Bands_10m_dir <- Path_dir_S2
+  S2Bands_10m <- S2Bands_20m <- list()
+  for (band in B20m){
+    bfile <- list.files(S2Bands_20m_dir,pattern = band)
+    if (length(bfile)>0){
+      bandName <- file.path(S2Bands_20m_dir, bfile)
+      S2Bands_20m[[band]] <- bandName
+    } else {
+      band <- S2_band_StandardizeName(band)
+      bfile <- list.files(S2Bands_20m_dir,pattern = band)
+      if  (length(bfile)>0){
+        bandName <- file.path(S2Bands_20m_dir,list.files(S2Bands_20m_dir,pattern = band))
+        S2Bands_20m[[band]] <- bandName
+      }
+    }
+  }
+  for (band in B10m){
+    bfile <- list.files(S2Bands_10m_dir,pattern = band)[1]
+    if (length(bfile)>0){
+      bandName <- file.path(S2Bands_10m_dir, bfile)
+      S2Bands_10m[[band]] <- bandName
+    } else {
+      band <- S2_band_StandardizeName(band)
+      bfile <- list.files(S2Bands_10m_dir,pattern = band)
+      if  (length(bfile)>0){
+        bandName <- file.path(S2Bands_10m_dir,list.files(S2Bands_10m_dir,pattern = band))
+        S2Bands_10m[[band]] <- bandName
+      }
+    }
+  }
+  # adding clouds
+  Cloud_20m_dir <- Path_dir_Mask
+
+  Cloudpattern <- c('MSK_CLDPRB', 'CLM_R2')
+  for (Cloud in Cloudpattern){
+    cfile <- list.files(Cloud_20m_dir,pattern = Cloud)
+    if (length(cfile)>0){
+      S2Bands_20m[['Cloud']] <- file.path(Cloud_20m_dir,cfile)
+    }
+  }
+
+  # getting metadata files paths
+  MTDfile <- MTD_MSI_file <- NULL
+  # list outputs
+  ListBands <- list('S2Bands_10m' = S2Bands_10m,
+                    'S2Bands_20m' = S2Bands_20m,
+                    'GRANULE' = Path_dir_S2,
                     'metadata' = MTDfile,
                     'metadata_MSI' = MTD_MSI_file,
                     'metadata_LaSRC' = NULL)
@@ -1086,13 +1162,14 @@ ind2sub <- function(Raster, Image_Index) {
 #' @param Stretch boolean. Set TRUE to get 10% stretching at display for reflectance, mentioned in hdr only
 #'
 #' @return None
+#' @importFrom tools file_path_sans_ext
 #' @importFrom gdalUtils mosaic_rasters
 #' @importFrom raster hdr raster
 #' @export
-mosaic_rasters <- function(list_rasters,dst_mosaic, Stretch = FALSE){
+mosaic_rasters_preprocS2 <- function(list_rasters,dst_mosaic, Stretch = FALSE){
 
   # convert
-  R.utils::getAbsolutePath(list_rasters)
+  list_rasters <- R.utils::getAbsolutePath(list_rasters)
   # produce mosaic
   gdalUtils::mosaic_rasters(gdalfile = list_rasters, dst_dataset = dst_mosaic,
                             separate = FALSE, of="EHdr", verbose=TRUE)
@@ -1476,15 +1553,19 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
   }
   # Save cloud mask as in biodivMapR (0 = clouds, 1 = pixel ok)
   cloudmask <- stars::read_stars(S2_stars$attr[WhichCloud],proxy = FALSE)
-  if (S2source=='SAFE' | S2source=='THEIA' | S2source == 'GEE'){
+  if (S2source=='SAFE' | S2source=='THEIA' | S2source == 'GEE' | S2source == 'RAW'){
     Cloudy <- which(cloudmask[[1]]>0)
     Sunny <- which(cloudmask[[1]]==0)
   } else if (S2source=='LaSRC'){
     Cloudy <- which(is.na(cloudmask[[1]]))
     Sunny <- which(cloudmask[[1]]==1)
   }
-  cloudmask[[1]][Cloudy] <- 0
-  cloudmask[[1]][Sunny] <- 1
+  if (length(Cloudy)>0){
+    cloudmask[[1]][Cloudy] <- 0
+  }
+  if (length(Sunny)>0){
+    cloudmask[[1]][Sunny] <- 1
+  }
   Cloudbin <- file.path(Cloud_path,'CloudMask_Binary')
   stars::write_stars(cloudmask, dsn = Cloudbin, driver = "ENVI", type = 'Byte', overwrite = TRUE)
   CloudMasks <- list('BinaryMask' = Cloudbin, 'RawMask' = Cloudraw)
@@ -1521,15 +1602,29 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int
   s2mission <- check_S2mission(S2Sat = S2Sat, tile_S2 = tile_S2, dateAcq_S2 = dateAcq_S2)
 
   # define central wavelength corresponding to each spectral band
-  if (s2mission=='2A'){
-    WL_s2 <- list("B02"=496.6, "B03"=560.0, "B04"=664.5,
-                  "B05"=703.9, "B06"=740.2, "B07"=782.5, "B08"=835.1,
-                  "B8A"=864.8, "B11"=1613.7, "B12"=2202.4)
-  } else if (s2mission=='2B'){
-    WL_s2 <- list("B02"=492.1, "B03"=559.0, "B04"=665.0,
-                  "B05"=703.8, "B06"=739.1, "B07"=779.7, "B08"=833.0,
-                  "B8A"=864.0, "B11"=1610.4, "B12"=2185.7)
+  nameBands <- names(S2_stars$attr)
+  if (!is.na(match('B2',nameBands))){
+    if (s2mission=='2A'){
+      WL_s2 <- list("B2"=496.6, "B3"=560.0, "B4"=664.5,
+                    "B5"=703.9, "B6"=740.2, "B7"=782.5, "B8"=835.1,
+                    "B8A"=864.8, "B11"=1613.7, "B12"=2202.4)
+    } else if (s2mission=='2B'){
+      WL_s2 <- list("B2"=492.1, "B3"=559.0, "B4"=665.0,
+                    "B5"=703.8, "B6"=739.1, "B7"=779.7, "B8"=833.0,
+                    "B8A"=864.0, "B11"=1610.4, "B12"=2185.7)
+    }
+  } else if (!is.na(match('B02',nameBands))){
+    if (s2mission=='2A'){
+      WL_s2 <- list("B02"=496.6, "B03"=560.0, "B04"=664.5,
+                    "B05"=703.9, "B06"=740.2, "B07"=782.5, "B08"=835.1,
+                    "B8A"=864.8, "B11"=1613.7, "B12"=2202.4)
+    } else if (s2mission=='2B'){
+      WL_s2 <- list("B02"=492.1, "B03"=559.0, "B04"=665.0,
+                    "B05"=703.8, "B06"=739.1, "B07"=779.7, "B08"=833.0,
+                    "B8A"=864.0, "B11"=1610.4, "B12"=2185.7)
+    }
   }
+
   if (s2mission=='2A'){
     sensor <- 'Sentinel_2A'
   } else if (s2mission=='2B'){
@@ -1620,8 +1715,9 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int
       S2_stars2 <- stars::st_apply(X = S2_stars2,MARGIN = 'band',FUN = offsetS2)
     }
   }
-  write_Stack_S2(Stars_S2 = S2_stars2, Stars_Spectral = Stars_Spectral, Refl_path = Refl_path,
-                 Format = Format, datatype = datatype, sensor=sensor,MaxChunk = MaxChunk)
+  write_Stack_S2(Stars_S2 = S2_stars2, Stars_Spectral = Stars_Spectral,
+                 Refl_path = Refl_path, Format = Format, datatype = datatype,
+                 sensor = sensor, MaxChunk = MaxChunk)
   # save metadata file as well if available
   if (!is.null(MTD)){
     if (file.exists(MTD)){
@@ -1794,9 +1890,9 @@ write_Stack_S2 <- function(Stars_S2, Stars_Spectral, Refl_path, Format='ENVI',
   SizeObj <- 2*dim(Stars_S2)[1]*dim(Stars_S2)[2]*dim(Stars_S2)[3]/(1024**2)
   nbChunks <- ceiling(SizeObj/MaxChunk)
   stars::write_stars(obj = Stars_S2,
-                     dsn=Refl_path,
+                     dsn = Refl_path,
                      driver =  Format,
-                     type=datatype,
+                     type = datatype,
                      chunk_size = c(dim(Stars_S2)[1], ceiling(dim(Stars_S2)[2]/nbChunks)),
                      progress = TRUE)
 
