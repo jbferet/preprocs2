@@ -103,9 +103,9 @@ SensorBands <- HDR_Refl$wavelength
 # compute a set of spectral indices defined by IndexList from S2 data
 IndexList <- c('EVI','NDVI','CR_SWIR', 'MCARI','NDWI1','mNDVI705')
 # ReflFactor = 10000 when reflectance is coded as INT16
-Indices <- prosail::ComputeSpectralIndices_Raster(Refl = Refl, SensorBands = SensorBands,
-                                                  Sel_Indices = IndexList,
-                                                  ReflFactor = 10000, StackOut=F)
+Indices <- spinR::compute_S2SI_Raster(Refl = Refl, SensorBands = SensorBands,
+                                      Sel_Indices = IndexList,
+                                      ReflFactor = 10000, StackOut=F)
 
 # create directory for Spectral indices
 SI_path <- file.path(results_site_path,'SpectralIndices')
