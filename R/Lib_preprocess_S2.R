@@ -1317,7 +1317,8 @@ read_S2bands <- function(S2_Bands, path_vector = NULL,
   # nYSize <- BB_XYcoords$LR$row-BB_XYcoords$UR$row+1
   # nBufXSize <- resampling*nXSize
   # nBufYSize <- resampling*nYSize
-  Stack_S2 <- stars::read_stars(tmpfile, along = 'band',proxy = TRUE)
+  Stack_S2 <- stars::read_stars(tmpfile, along = 'band',
+                                driver =  "ENVI", proxy = TRUE)
   return(Stack_S2)
 }
 
