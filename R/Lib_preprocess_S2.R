@@ -1696,7 +1696,8 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int
   pathR <- S2_stars$attr[Reorder]
 
   names(pathR) <- NULL
-  S2_stars2 <- stars::read_stars(pathR,along='band',proxy=TRUE)
+  S2_stars2 <- stars::read_stars(pathR,along='band',
+                                 proxy=TRUE, driver = 'ENVI')
   Stars_Spectral$bandname <- Stars_Spectral$bandname[Reorder]
   Stars_Spectral$wavelength <- Stars_Spectral$wavelength[Reorder]
 
