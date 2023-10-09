@@ -15,7 +15,8 @@ save_reflectance_s2(
   MTD = NULL,
   MTD_MSI = NULL,
   MTD_LaSRC = NULL,
-  MaxChunk = 256
+  MaxChunk = 256,
+  s2mission = NULL
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ save_reflectance_s2(
 \item{MTD_LaSRC}{character. path for metadata LaSRC file}
 
 \item{MaxChunk}{numeric. Size of individual chunks to be written (in Mb)}
+
+\item{s2mission}{character. Set NULL for online check, or '2A'/'2B' if mission known (or irrelevant)}
 }
 \value{
 None

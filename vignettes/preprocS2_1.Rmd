@@ -1,0 +1,194 @@
+---
+title: "Copernicus Academy biodiv#1: download"
+author: "Jean-Baptiste Féret"
+date: "`r Sys.Date()`"
+output:
+  html_vignette:
+    number_sections: true
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+    toc_depth: 2
+vignette: >
+  \usepackage[utf8]{inputenc}
+  %\VignetteIndexEntry{Copernicus Academy biodiv#1: download}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+  
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval=FALSE
+)
+```
+
+Ce tutoriel accompagne la séquence 3 de la formation 'Cartographie de la biodiversité par imagerie satellite' de la Copernicus Academy.
+
+Il permet de télécharger puis prétraiter les données Sentinel-2 utilisées dans la suite de la formation. 
+
+# Importer l'arborescence des dossiers et fichiers
+
+Dans un premier temps, vous devez définir un répertoire de travail principal, dans lequel vous pourrez stocker vos données, vos scripts R, ainsi que les résultats des traitements que nous réaliserons ensemble. 
+
+Ce répertoire de travail doit être sur un disque ayant suffisamment d'espace disponible. Comptez au __minimum 10 Go d'espace disponible__ pour le bon déroulement de l'ensemble des tutoriels.
+
+Dans le script suivant, le chemin d'accès absolu de votre repertoire de travail est symbolisé par `your/working/directory`: 
+
+```{r set working directory}
+# define working directory
+setwd <- 'your/working/directory'
+```
+
+Le bon déroulement des tutoriels nécessite aussi d'adopter une arborescence de dossiers spécifique pour faciliter la gestion des nombreux fichiers qui seront lus et écrits par la suite.
+
+Cette arborescence, ainsi que l'ensemble des scripts utilisés durant cette formation, peuvent être téléchargés automatiquement à l'aide des instructions suivantes :
+
+```{r download directories}
+# library
+library(zip)
+# define data directory
+Path_dir <- '../../tuto'
+dir.create(Path_Data,showWarnings = F, recursive = T)
+# name zip file including plots located on the tile
+zipfile <- 'arborescence.zip'
+destzip <- file.path(Path_Data,zipfile,fsep = '\\')
+# url for the zip file
+url <- file.path('https://gitlab.com/jbferet/myshareddata/-/raw/master/COPERNICUS_ACADEMY/BIODIVERSITE', zipfile)
+download.file(url = url, destfile = destzip)
+destunz <- file.path(Path_Data,'Copernicus_Academy',fsep = '\\')
+unzip(zipfile = destzip,exdir = destunz)
+setwd(destunz)
+```
+
+Cette arborescence contient les informations suivantes: 
+
+- dossier `01_DATA`: contient le fichier `T18MZB_PeruAmazon_Subset.kml` correspondant à l'emprise de la zone d'étude
+- dossier `02_PROGRAMS` : contient les scripts R utilises lors de ce tutoriel, notamment 
+	- `Main_00_S2_availability.R` qui contient les instructions pour interroger sur les données Sentinel-2 disponibles sur la zone d’étude
+	- `Main_01_Download_S2.R` qui permet de télécharger et prétraiter les données Sentinel-2
+	- `Main_02_biodivMapR_S2.R` qui permet de produire des cartes d'indicateurs de biodiversité à partir des données d'imagerie Sentinel-2
+	
+# Télécharger les données Sentinel-2 
+
+Une fois l’arborescence téléchargée, ouvrez le script `Main_01_Download_S2.R` dans Rstudio, et exécutez les premières lignes. Celles-ci vous permettront de nettoyer votre environnement de travail et de relocaliser automatiquement votre répertoire de travail dans le dossier `01_DATA` contenant le script R.
+
+```{r clean and define WD}
+# clean working environment
+rm(list=ls(all=TRUE));gc()
+# Define working directory as the directory where the script is located
+if (rstudioapi::isAvailable()){
+  setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+}
+```
+
+
+La section suivante du script permet de télécharger les données Sentinel-2 correspondant à l’image identifiée précédemment. La requête nécessite de définir l'emprise de la zone d'étude à l’aide du fichier `T18MZB_PeruAmazon_Subset.kml`, ainsi que la date d’acquisition. L’identifiant de la tuile, `18MZB`, est aussi fourni afin d’éviter de télécharger les tuiles voisines, dans le cas où l’emprise de la zone d’étude soit à cheval sur plusieurs tuiles.
+
+Ici, l’option `GoogleCloud = TRUE` permet d’effectuer le téléchargement à partir de Google Cloud si les données Sentinel-2 au niveau L2A ne sont pas disponibles sur le Copernicus Hub, mais qu’elles le sont sur Google Cloud. 
+
+
+```{r download S2 tile}
+##____________________________________________________________________##
+##      Download Sentinel-2 image corresponding to the study area     ##
+##--------------------------------------------------------------------##
+# load preprocS2 package
+library(preprocS2)
+# define date of S2 acquisition
+dateAcq <- '2022-09-14'
+# define path for vector file defining the study area and corresponding tile
+path_vector <- '../01_DATA/T18MZB_PeruAmazon_Subset.kml'
+tile <- '18MZB'
+# define output directory where SAFE file is stored
+DirWrite <- '../01_DATA/S2_Images'
+dir.create(DirWrite,showWarnings = F, recursive = T)
+
+Path_S2 <- get_S2_L2A_Image(l2a_path = DirWrite, 
+                            spatial_extent = path_vector, tile = tile, 
+                            dateAcq = dateAcq,
+                            GoogleCloud = TRUE)
+```
+
+Une fois ces lignes exécutées, les données Sentinel-2 sont écrites dans le répertoire `01_DATA\S2_Images`. 
+
+Les données Sentinel-2 sont fournies par l’ESA sous forme d’un répertoire [`.SAFE`](https://sentinels.copernicus.eu/web/sentinel/user-guides/sentinel-2-msi/data-formats), qui contient l’ensemble des données et métadonnées associées à la tuile. 
+
+
+# prétraiter les données Sentinel-2
+
+Le prétraitement des données Sentinel-2 consiste à extraire l’ensemble des données de reflectance du répertoire SAFE, ainsi qu’un certain nombre de métadonnées, puis à effectuer les opérations suivantes : 
+-	Découpage de la tuile pour ne conserver que la zone d’étude
+-	Harmonisation de la résolution spatiale : les bandes acquises avec une résolution spatiale de 20 m sont échantillonnées à 10 m à l’aide d’une interpolation (bilinéaire par défaut). 
+-	Empilement des bandes spectrales : un stack est préparé afin de produire un fichier raster unique contenant les 10 bandes spectrales Sentinel-2
+
+```{r preprocess S2 tile}
+##____________________________________________________________________##
+##                  Extract, resample & stack data                    ##
+##--------------------------------------------------------------------##
+# define resolution
+resolution <- 10
+# define source of data
+S2source <- 'SAFE'
+S2obj <- preprocS2::extract_from_S2_L2A(Path_dir_S2 = Path_S2,
+                                        path_vector = path_vector,
+                                        S2source = S2source,
+                                        resolution = resolution)
+
+```
+
+L’exécution du script ci-dessus fournit un objet `stars_proxy`, qui contient l’ensemble des informations nécessaires à la production d’un fichier correspondant aux données Sentinel-2 prétraitées, ainsi que le masque nuage associé.
+
+L'intérêt d’utiliser un tel objet `stars_proxy` est que l’emplacement des données sources sur le disque ainsi que l’ensemble des prétraitements à réaliser sont enregistrés dans cet objet, mais les données ne sont pas lues. L’avantage est alors que les ressources nécessaires en terme de mémoire sont réduites, et que l’application des prétraitements après lecture des données, leur enchainement avec d’autres traitements et l’écriture des résultats obtenus sur un espace de stockage local peuvent alors être réalisées de manière séquentielle en découpant les données initiales en un ensemble d’éléments de taille individuelle réduite.
+
+# Ecrire les données d'imagerie Sentinel-2 dans des fichiers dédiés. 
+
+Les données contenues dans l’objet `stars_proxy` peuvent alors être sauvées sous forme de fichiers raster.
+
+Ici, par défaut les données sont enregistrées au format ‘ENVI BIL’, mais d’autres formats pris en charge par GDAL sont possibles. 
+
+
+A l’issue du script ci-dessous, 
+
+-	un fichier raster correspondant au stack des 10 bandes spectrales Sentinel-2 est écrit à l’emplacement suivant : 
+
+`03_RESULTS/L2A_T18MZB_A028851_20220914T150957/Reflectance/L2A_T18MZB_A028851_20220914T150957_Refl`
+
+-	le masque nuage correspondant est écrit à l’emplacement suivant : 
+
+`03_RESULTS/L2A_T18MZB_A028851_20220914T150957/CloudMask/CloudMask_Binary`
+
+
+
+```{r write S2 files}
+
+##____________________________________________________________________##
+##                Write reflectance and cloudmask files               ##
+##--------------------------------------------------------------------##
+# create result directory corresponding to Sentinel-2 acquisition
+result_path <- '../03_RESULTS'
+results_site_path <- file.path(result_path,basename(S2obj$S2_Bands$GRANULE))
+dir.create(path = results_site_path,showWarnings = FALSE,recursive = TRUE)
+
+# directory for Reflectance
+Refl_dir <- file.path(results_site_path,'Reflectance')
+dir.create(path = Refl_dir,showWarnings = FALSE,recursive = TRUE)
+# filename for Reflectance
+Refl_path <- file.path(Refl_dir,paste(basename(S2obj$S2_Bands$GRANULE),'_Refl',sep = ''))
+# Save Reflectance file and corresponding metadata files
+preprocS2::save_reflectance_s2(S2_stars = S2obj$S2_Stack, 
+                               Refl_path = Refl_path,
+                               MTD = S2obj$S2_Bands$metadata, 
+                               MTD_MSI = S2obj$S2_Bands$metadata_MSI)
+
+# directory for cloud mask
+Cloud_path <- file.path(results_site_path,'CloudMask')
+dir.create(path = Cloud_path,showWarnings = FALSE,recursive = TRUE)
+# Save cloud mask
+cloudmasks <- preprocS2::save_cloud_s2(S2_stars = S2obj$S2_Stack,
+                                       Cloud_path = Cloud_path,
+                                       S2source = S2source, SaveRaw = T)
+
+```
