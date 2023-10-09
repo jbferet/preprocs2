@@ -1593,7 +1593,7 @@ S2_from_L1C_to_L2A <- function(prodName, l1c_path, l2a_path, datePattern, tmp_pa
 #' @return list of CloudMasks (binary mask, and raw mask if required)
 #' @importFrom sf st_read
 #' @importFrom stars write_stars
-#' @importFrom raster raster
+#' @importFrom terra rast vect rasterize
 #' @export
 save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
                           footprint = NULL, SaveRaw = FALSE,MaxChunk = 256){
@@ -1623,18 +1623,35 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
     Cloudy <- which(is.na(cloudmask[[1]]))
     Sunny <- which(cloudmask[[1]]==1)
   }
-  if (length(Cloudy)>0){
-    cloudmask[[1]][Cloudy] <- 0
-  }
-  if (length(Sunny)>0){
-    cloudmask[[1]][Sunny] <- 1
-  }
+  if (length(Cloudy)>0) cloudmask[[1]][Cloudy] <- 0
+  if (length(Sunny)>0) cloudmask[[1]][Sunny] <- 1
   Cloudbin <- file.path(Cloud_path,'CloudMask_Binary')
-  stars::write_stars(cloudmask, dsn = Cloudbin, driver = "ENVI", type = 'Byte', overwrite = TRUE)
-  CloudMasks <- list('BinaryMask' = Cloudbin, 'RawMask' = Cloudraw)
+  stars::write_stars(obj = cloudmask,
+                     dsn = Cloudbin,
+                     driver = "ENVI",
+                     type = 'Byte',
+                     overwrite = TRUE)
   # delete temporary file
   file.remove(S2_stars$attr[WhichCloud])
   if (file.exists(paste(S2_stars$attr[WhichCloud],'.hdr',sep=''))) file.remove(paste(S2_stars$attr[WhichCloud],'.hdr',sep=''))
+
+  # apply footprint to binary mask
+  if (!is.null(footprint)){
+    footprint_Vect <- terra::vect(footprint)
+    footprint_Rast <- terra::rast(Cloudbin)
+    fp <- terra::rasterize(x = footprint_Vect,
+                           y = footprint_Rast)
+    fp[,,1] <- fp[,,1] * footprint_Rast[,,1]
+    fp[,,1][which(is.na(fp[,,1]))] <- 0
+  }
+  terra::writeRaster(x = fp,
+                     filename = Cloudbin,
+                     overwrite=TRUE,
+                     wopt= list(gdal=c("COMPRESS=NONE"),
+                                datatype='INT1U',
+                                filetype = 'ENVI'))
+  CloudMasks <- list('BinaryMask' = Cloudbin, 'RawMask' = Cloudraw)
+  rm(list = c('footprint_Rast', 'footprint_Vect', 'fp', 'cloudmask'))
   gc()
   return(CloudMasks)
 }
@@ -1652,6 +1669,7 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
 #' @param MTD_MSI character. path for metadata MSI file
 #' @param MTD_LaSRC character. path for metadata LaSRC file
 #' @param MaxChunk numeric. Size of individual chunks to be written (in Mb)
+#' @param s2mission character. Set NULL for online check, or '2A'/'2B' if mission known (or irrelevant)
 #'
 #' @return None
 #' @importFrom stars write_stars st_apply
@@ -1660,9 +1678,13 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
 save_reflectance_s2 <- function(S2_stars, Refl_path, Format='ENVI',datatype='Int16',
                                 S2Sat = NULL, tile_S2 = NULL, dateAcq_S2 = NULL,
                                 MTD = NULL, MTD_MSI = NULL, MTD_LaSRC = NULL,
-                                MaxChunk = 256){
+                                MaxChunk = 256, s2mission = NULL){
   # identify if S2A or S2B, if possible
-  s2mission <- check_S2mission(S2Sat = S2Sat, tile_S2 = tile_S2, dateAcq_S2 = dateAcq_S2)
+  if (is.null(s2mission)){
+    s2mission <- check_S2mission(S2Sat = S2Sat, tile_S2 = tile_S2, dateAcq_S2 = dateAcq_S2)
+  } else if (!s2mission== '2A' & !s2mission== '2B'){
+    s2mission <- '2A'
+  }
 
   # define central wavelength corresponding to each spectral band
   nameBands <- names(S2_stars$attr)
