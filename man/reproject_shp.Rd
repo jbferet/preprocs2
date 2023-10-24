@@ -4,12 +4,12 @@
 \alias{reproject_shp}
 \title{This function reprojects a shapefile and saves reprojected shapefile}
 \usage{
-reproject_shp(path_vector_init, newprojection, path_vector_reproj)
+reproject_shp(path_vector_init, SpatialObj, path_vector_reproj)
 }
 \arguments{
 \item{path_vector_init}{character. path for a shapefile to be reprojected}
 
-\item{newprojection}{character. projection to be applied to path_vector_init}
+\item{SpatialObj}{object. spatRaster or spatVector}
 
 \item{path_vector_reproj}{character. path for the reprojected shapefile}
 }

@@ -1,3 +1,13 @@
+# preprocS2 v1.4.0
+
+## Fix
+- remove dependency to rgdal and rgeos
+
+# preprocS2 v1.3.1
+
+## Fix
+- introduction of terra
+
 # preprocS2 v1.3.0
 
 ## Changes
