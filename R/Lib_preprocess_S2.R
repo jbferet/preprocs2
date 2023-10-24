@@ -130,7 +130,8 @@ dir_size <- function(path, recursive = TRUE) {
 #' - path for individual band files corresponding to the stack
 #' - path for vector (reprojected if needed)
 #'
-#' @importFrom raster raster
+# ' @importFrom raster raster
+#' @importFrom terra rast
 #' @importFrom tools file_path_sans_ext file_ext
 #' @export
 extract_from_S2_L2A <- function(Path_dir_S2, Path_dir_Mask = NULL,
@@ -145,16 +146,19 @@ extract_from_S2_L2A <- function(Path_dir_S2, Path_dir_Mask = NULL,
                            Path_dir_Mask = Path_dir_Mask)
 
   if (length(S2_Bands$S2Bands_10m)>0){
-    rastmp <- raster::raster(S2_Bands$S2Bands_10m[[1]])
+    SpatialObj <- terra::rast(x = S2_Bands$S2Bands_10m[[1]])
+    # rastmp <- raster::raster(S2_Bands$S2Bands_10m[[1]])
   } else if (length(S2_Bands$S2Bands_20m)>0){
-    rastmp <- raster::raster(S2_Bands$S2Bands_20m[[1]])
+    SpatialObj <- terra::rast(x = S2_Bands$S2Bands_20m[[1]])
+    # rastmp <- raster::raster(S2_Bands$S2Bands_20m[[1]])
   }
   # check if vector and raster share the same projection. if not, re-project vector
   if (!is.null(path_vector)){
-    raster_proj <- raster::projection(rastmp)
+    # raster_proj <- raster::projection(rastmp)
+    # SpatialObj <- terra::rast(x = path_raster)
     path_vector_reproj <- paste(tools::file_path_sans_ext(path_vector),'_reprojected.shp',sep = '')
     path_vector <- reproject_shp(path_vector_init = path_vector,
-                                 newprojection = raster_proj,
+                                 SpatialObj = SpatialObj,
                                  path_vector_reproj = path_vector_reproj)
   }
   # Extract data corresponding to the vector footprint (if provided) & resample data if needed
@@ -309,27 +313,41 @@ get_BB_from_fullImage <- function(path_raster){
 #'
 #' @return BB_XYcoords list. Coordinates (in pixels) of the upper/lower right/left corners of bounding box
 #' @importFrom sf st_read st_bbox st_crop
-#' @importFrom rgeos gBuffer bbox2SP
 #' @importFrom sp SpatialPoints bbox
 #' @importFrom raster projection extract extent raster
 #' @importFrom methods as
+#' @importFrom terra rast vect ext buffer intersect
+# ' @importFrom rgeos gBuffer bbox2SP
 #' @export
 get_BB_from_Vector <- function(path_raster,path_vector,Buffer = 0){
 
   Raster <- raster::raster(path_raster)
   # xmin <- xmax <- ymin <- ymax <- c()
   # extract BB coordinates from vector
-  BB_vector <- rgeos::gBuffer(spgeom = as(st_read(dsn = path_vector,quiet = T), "Spatial"),
-                              width=Buffer,byid = TRUE)
-  # extract BB coordinates from raster
-  BB_raster <- rgeos::bbox2SP(bbox = bbox(Raster))
-  # compute intersection
-  Intersect <- rgeos::gIntersection(BB_vector, BB_raster)
-  BBext <- raster::extent(Intersect)
-  xmin <- BBext[1]
-  xmax <- BBext[2]
-  ymin <- BBext[3]
-  ymax <- BBext[4]
+  # BB_vector <- rgeos::gBuffer(spgeom = as(st_read(dsn = path_vector,quiet = T), "Spatial"),
+  #                             width=Buffer,byid = TRUE)
+  # # extract BB coordinates from raster
+  # BB_raster <- rgeos::bbox2SP(bbox = bbox(Raster))
+  # # compute intersection
+  # Intersect <- rgeos::gIntersection(BB_vector, BB_raster)
+  # BBext <- raster::extent(Intersect)
+  # xmin <- BBext[1]
+  # xmax <- BBext[2]
+  # ymin <- BBext[3]
+  # ymax <- BBext[4]
+
+  # extract BB coordinates from vector
+  Vector <- terra::vect(path_vector)
+  BB_vector <- terra::buffer(x = Vector,Buffer)
+  # # extract BB coordinates from raster
+  BB_raster <- terra::ext(x = rast((path_raster)))
+  # # compute intersection
+  Intersect <- terra::intersect(x = BB_raster, y = BB_vector)
+  xmin <- Intersect[1]
+  xmax <- Intersect[2]
+  ymin <- Intersect[3]
+  ymax <- Intersect[4]
+
   # get coordinates of bounding box corresponding to vector
   Corners <- list()
   Corners[['UR']] <- sp::SpatialPoints(coords = cbind(xmax, ymax))
@@ -1443,40 +1461,65 @@ recup_name_crs <- function(crs_init){
 #' This function reprojects a shapefile and saves reprojected shapefile
 #'
 #' @param path_vector_init character. path for a shapefile to be reprojected
-#' @param newprojection character. projection to be applied to path_vector_init
+#' @param SpatialObj object. spatRaster or spatVector
 #' @param path_vector_reproj character. path for the reprojected shapefile
 #'
 #' @return path_vector character. path of the shapefile
 #' - path_vector_init if the vector did not need reprojection
 #' - path_vector_reproj if the vector needed reprojection
 #'
-#' @importFrom rgdal readOGR writeOGR
-#' @importFrom sp spTransform
-#' @importFrom raster projection
+#' @importFrom terra same.crs rast vect project writeVector
+# ' @importFrom rgdal readOGR writeOGR
+# ' @importFrom sp spTransform
+# ' @importFrom raster projection
 #' @export
-reproject_shp = function(path_vector_init,newprojection,path_vector_reproj){
+reproject_shp = function(path_vector_init,SpatialObj,path_vector_reproj){
 
-  dir_vector_init <- dirname(path_vector_init)
-  # shapefile extension
-  fileext <- file_ext(basename(path_vector_init))
-  if (fileext=='shp'){
-    name_vector_init <- file_path_sans_ext(basename(path_vector_init))
-    vector_init_OGR <- rgdal::readOGR(dir_vector_init,name_vector_init,verbose = FALSE)
-  } else if (fileext=='kml'){
-    vector_init_OGR <- rgdal::readOGR(path_vector_init,verbose = FALSE)
-  }
-  vector_init_proj <- raster::projection(vector_init_OGR)
+  # dir_vector_init <- dirname(path_vector_init)
+  # # shapefile extension
+  # fileext <- file_ext(basename(path_vector_init))
+  # if (fileext=='shp'){
+  #   name_vector_init <- file_path_sans_ext(basename(path_vector_init))
+  #   vector_init_OGR <- rgdal::readOGR(dir_vector_init,name_vector_init,verbose = FALSE)
+  # } else if (fileext=='kml'){
+  #   vector_init_OGR <- rgdal::readOGR(path_vector_init,verbose = FALSE)
+  # }
+  # vector_init_proj <- raster::projection(vector_init_OGR)
+  #
+  # if (!vector_init_proj==newprojection){
+  #   dir_vector_reproj <- dirname(path_vector_reproj)
+  #   name_vector_reproj <- file_path_sans_ext(basename(path_vector_reproj))
+  #   vector_reproj <- sp::spTransform(vector_init_OGR, newprojection)
+  #   rgdal::writeOGR(obj = vector_reproj, dsn = dir_vector_reproj,layer = name_vector_reproj,
+  #                   driver="ESRI Shapefile",overwrite_layer = TRUE)
+  #   path_vector <- path_vector_reproj
+  # } else {
+  #   path_vector <- path_vector_init
+  # }
 
-  if (!vector_init_proj==newprojection){
-    dir_vector_reproj <- dirname(path_vector_reproj)
-    name_vector_reproj <- file_path_sans_ext(basename(path_vector_reproj))
-    vector_reproj <- sp::spTransform(vector_init_OGR, newprojection)
-    rgdal::writeOGR(obj = vector_reproj, dsn = dir_vector_reproj,layer = name_vector_reproj,
-                    driver="ESRI Shapefile",overwrite_layer = TRUE)
+
+  if (!terra::same.crs(x = terra::vect(x = path_vector_init),
+                       y = SpatialObj)){
+    vector_reproj <- terra::project(x = terra::vect(x = path_vector_init),
+                                    y = SpatialObj)
+    terra::writeVector(x = vector_reproj,
+                       filename = path_vector_reproj,
+                       filetype = "ESRI Shapefile",
+                       overwrite = TRUE)
     path_vector <- path_vector_reproj
   } else {
     path_vector <- path_vector_init
   }
+
+  # vector_init_OGR <- terra::vect(x = path_vector_init)
+  # vector_init_proj <- terra::crs(x = vector_init_OGR)
+  #
+  # dir_vector_reproj <- dirname(path_vector_reproj)
+  # name_vector_reproj <- file_path_sans_ext(basename(path_vector_reproj))
+  # vector_reproj <- sp::spTransform(vector_init_OGR, newprojection)
+  # rgdal::writeOGR(obj = vector_reproj, dsn = dir_vector_reproj,layer = name_vector_reproj,
+  #                 driver="ESRI Shapefile",overwrite_layer = TRUE)
+  # path_vector <- path_vector_reproj
   return(path_vector)
 }
 
