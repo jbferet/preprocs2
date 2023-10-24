@@ -1643,13 +1643,13 @@ save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
                            y = footprint_Rast)
     fp[,,1] <- fp[,,1] * footprint_Rast[,,1]
     fp[,,1][which(is.na(fp[,,1]))] <- 0
+    terra::writeRaster(x = fp,
+                       filename = Cloudbin,
+                       overwrite=TRUE,
+                       wopt= list(gdal=c("COMPRESS=NONE"),
+                                  datatype='INT1U',
+                                  filetype = 'ENVI'))
   }
-  terra::writeRaster(x = fp,
-                     filename = Cloudbin,
-                     overwrite=TRUE,
-                     wopt= list(gdal=c("COMPRESS=NONE"),
-                                datatype='INT1U',
-                                filetype = 'ENVI'))
   CloudMasks <- list('BinaryMask' = Cloudbin, 'RawMask' = Cloudraw)
   rm(list = c('footprint_Rast', 'footprint_Vect', 'fp', 'cloudmask'))
   gc()
