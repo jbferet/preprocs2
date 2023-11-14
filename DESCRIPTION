@@ -33,6 +33,7 @@ Imports:
     utils,
     XML,
     xml2
+Remotes: github::gearslaboratory/gdalUtils
 VignetteBuilder: knitr
 URL: https://gitlab.com/jbferet/preprocS2
 BugReports: https://gitlab.com/jbferet/preprocS2/issues
