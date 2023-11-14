@@ -74,19 +74,19 @@ check_S2mission <- function(S2Sat, tile_S2, dateAcq_S2){
       s2mission <- '2A'
     }
   } else if (!is.null(tile_S2) & !is.null(dateAcq_S2)){
-    if (sen2r::check_scihub_connection()==T){
-      tileOK <- sen2r::s2_list(tile = tile_S2,time_interval = as.Date(dateAcq_S2))
-      s2mission <- sen2r::safe_getMetadata(tileOK,"mission")[[1]]
-      if (is.null(s2mission)){
-        message('Could not identify if image from Sentinel-2A or -2B')
-        message('Defining central wavelength of spectral bands based on S2A')
-        s2mission <- '2A'
-      }
-    } else {
+    # if (sen2r::check_scihub_connection()==T){
+    #   tileOK <- sen2r::s2_list(tile = tile_S2,time_interval = as.Date(dateAcq_S2))
+    #   s2mission <- sen2r::safe_getMetadata(tileOK,"mission")[[1]]
+    #   if (is.null(s2mission)){
+    #     message('Could not identify if image from Sentinel-2A or -2B')
+    #     message('Defining central wavelength of spectral bands based on S2A')
+    #     s2mission <- '2A'
+    #   }
+    # } else {
       message('Could not identify if image from Sentinel-2A or -2B')
       message('Defining central wavelength of spectral bands based on S2A')
       s2mission <- '2A'
-    }
+    # }
   } else {
     message('Could not identify if image from Sentinel-2A or -2B')
     message('Defining central wavelength of spectral bands based on S2A')
@@ -790,7 +790,7 @@ get_date <- function(prodName){
 #' @importFrom sen2r safe_is_online s2_list s2_download s2_order check_gcloud
 #' @export
 get_S2_L1C_Image <- function(list_safe,l1c_path,path_vector,time_interval,
-                             GoogleCloud=FALSE, ForceGoogle=FALSE){
+                             GoogleCloud=TRUE, ForceGoogle=TRUE){
   # Check if available from Copernicus hub first
   Copernicus_Avail <- sen2r::safe_is_online(list_safe)
   # if available: download
@@ -867,7 +867,7 @@ get_S2_L1C_Image <- function(list_safe,l1c_path,path_vector,time_interval,
 get_S2_L2A_Image <- function(l2a_path, dateAcq,
                              spatial_extent = NULL, tile = NULL,
                              DeleteL1C = FALSE, Sen2Cor = TRUE,
-                             GoogleCloud=FALSE, level = 'L2A'){
+                             GoogleCloud=TRUE, level = 'L2A'){
 
   # Needs to be updated: define path for L1c data
   l1c_path <- l2a_path
@@ -875,9 +875,13 @@ get_S2_L2A_Image <- function(l2a_path, dateAcq,
   time_interval <- as.Date(c(dateAcq, dateAcq))
   # get list S2 products corresponding to study area and date of interest using sen2r package
   if (GoogleCloud==TRUE){
-    server <- c("scihub","gcloud")
+    server <- c("gcloud")
+    # server <- c("scihub","gcloud")
   } else if (GoogleCloud==FALSE){
-    server <- "scihub"
+    # server <- "scihub"
+    message('Copernicus hub no longer available for download')
+    message('please check sen2r documentation to set up Google Cloud Sentinel-2 bucket')
+    stop()
   }
   if (!is.null(spatial_extent)){
     spatial_extent_sf <- sf::st_read(dsn = spatial_extent)
@@ -886,7 +890,8 @@ get_S2_L2A_Image <- function(l2a_path, dateAcq,
   }
   list_safe <- sen2r::s2_list(spatial_extent = spatial_extent_sf,
                               tile = tile, time_interval = time_interval,
-                              server = server, availability = 'check', level = level)
+                              server = server, availability = 'check', level = level,
+                              server = "gcloud")
   # download products
   sen2r::s2_download(list_safe, outdir=l2a_path)
   # name all products

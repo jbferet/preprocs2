@@ -62,7 +62,9 @@ Then, we use [Sentinel-hub](https://apps.sentinel-hub.com/eo-browser/?zoom=11&la
 
 Once the S2 tile and the date of acquisition are identified, we can proceed to the image download. 
 
-We then used the R package [`sen2r`](https://sen2r.ranghetti.info/) in order to identify S2 product available for a specific date of acquisition, and download the corresponding Sentinel-2 SAFE archive. Here, level-2A images (atmospherically corrected with Sen2Cor) can be downloaded directly from [SciHub](https://scihub.copernicus.eu) with sen2r.
+We then used the R package [`sen2r`](https://sen2r.ranghetti.info/) in order to identify S2 product available for a specific date of acquisition, and download the corresponding Sentinel-2 SAFE archive. 
+
+# Here, level-2A images (atmospherically corrected with Sen2Cor) can be downloaded directly from  [SciHub](https://scihub.copernicus.eu) with sen2r.
 
 ```{r download_S2_image_sen2r}
 library(sen2r)
@@ -72,7 +74,8 @@ time_window <- as.Date(c(dateAcq, dateAcq))
 # define path for study area
 path_vector <- '../../01_DATA/Study_area_Barrax/Study_area_Barrax.shp'
 # get product name corresponding to Barrax 
-list_safe <- s2_list(spatial_extent = sf::st_read(dsn = path_vector), time_interval = time_window)
+list_safe <- s2_list(spatial_extent = sf::st_read(dsn = path_vector), 
+                     time_interval = time_window, server = 'gcloud')
 # define output directory where SAFE zipfile is stored
 DirWrite <- '../../01_DATA/S2_Images'
 dir.create(DirWrite,showWarnings = F, recursive = T)
@@ -84,7 +87,9 @@ Path_S2 <- file.path(DirWrite,list.files(DirWrite,pattern = '.SAFE'))
 ```
 
 
-You can also use the function `get_S2_L2A_Image` from `preprocS2` in order to download this image. This function uses the `s2_download` from `sen2r`. If a google cloud accounbt is parameterized in `sen2r`, you can alternatively download S2 images from it by setting `GoogleCloud = TRUE`.
+You can also use the function `get_S2_L2A_Image` from `preprocS2` in order to download this image. This function uses the `s2_download` from `sen2r`. 
+
+WARNING: starting from sen2r version 1.6.0, [scihub is no longer avaibale from sen2r](https://github.com/ranghetti/sen2r/issues/464). Users are required to download S2 images from the Google Cloud Sentinel-2 bucket. `GoogleCloud = TRUE` is the default option, and `GoogleCloud = FALSE` stops the process. 
 
 ```{r download_S2_image_preprocS2}
 library(preprocS2)
@@ -102,8 +107,6 @@ Path_S2 <- get_S2_L2A_Image(l2a_path = DirWrite,
                             DeleteL1C = TRUE, 
                             Sen2Cor = TRUE,
                             GoogleCloud = TRUE)
-
-
 ```
 
 
