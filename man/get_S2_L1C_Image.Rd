@@ -9,8 +9,8 @@ get_S2_L1C_Image(
   l1c_path,
   path_vector,
   time_interval,
-  GoogleCloud = FALSE,
-  ForceGoogle = FALSE
+  GoogleCloud = TRUE,
+  ForceGoogle = TRUE
 )
 }
 \arguments{

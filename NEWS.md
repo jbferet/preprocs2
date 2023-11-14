@@ -1,3 +1,8 @@
+# preprocS2 v1.5.0
+
+## Fix
+- Copernicus hub not available from sen2r anymore. Google Cloud Sentinel-2 bucket defined as unique source for data download
+
 # preprocS2 v1.4.0
 
 ## Fix

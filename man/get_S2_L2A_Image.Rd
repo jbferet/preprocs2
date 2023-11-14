@@ -11,7 +11,7 @@ get_S2_L2A_Image(
   tile = NULL,
   DeleteL1C = FALSE,
   Sen2Cor = TRUE,
-  GoogleCloud = FALSE,
+  GoogleCloud = TRUE,
   level = "L2A"
 )
 }
