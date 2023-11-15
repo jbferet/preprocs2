@@ -875,7 +875,7 @@ get_S2_L2A_Image <- function(l2a_path, dateAcq,
   time_interval <- as.Date(c(dateAcq, dateAcq))
   # get list S2 products corresponding to study area and date of interest using sen2r package
   if (GoogleCloud==TRUE){
-    server <- c("gcloud")
+    server <- 'gcloud'
     # server <- c("scihub","gcloud")
   } else if (GoogleCloud==FALSE){
     # server <- "scihub"
@@ -890,8 +890,8 @@ get_S2_L2A_Image <- function(l2a_path, dateAcq,
   }
   list_safe <- sen2r::s2_list(spatial_extent = spatial_extent_sf,
                               tile = tile, time_interval = time_interval,
-                              server = server, availability = 'check', level = level,
-                              server = "gcloud")
+                              availability = 'check', level = level,
+                              server = server)
   # download products
   sen2r::s2_download(list_safe, outdir=l2a_path)
   # name all products
@@ -1250,8 +1250,17 @@ ind2sub <- function(Raster, Image_Index) {
 #' @importFrom tools file_path_sans_ext
 #' @importFrom gdalUtils mosaic_rasters
 #' @importFrom raster hdr raster
+#' @importFrom terra hdr raster
 #' @export
 mosaic_rasters_preprocS2 <- function(list_rasters,dst_mosaic, Stretch = FALSE){
+
+  # # alternative to gdalUtils: use terra to perform raster mosaic?
+  # # https://rdrr.io/cran/terra/man/mosaic.html
+  # # list of rasters
+  # list_rast <- list()
+  # for (rpath in list_rasters) list_rast[[rpath]] <- terra::rast(rpath)
+  # rsrc <- terra::sprc(list_rast)
+  # m <- terra::mosaic(rsrc)
 
   # convert
   list_rasters <- R.utils::getAbsolutePath(list_rasters)
