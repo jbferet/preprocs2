@@ -43,7 +43,7 @@ check:
   stage: check
   script:
   - R -e 'devtools::check(check_dir = Sys.getenv("CHECK_DIR"), error_on = "error")'
-  - R -e 'devtools::install(upgrade=F)'
+  - R -e 'devtools::install(upgrade=T)'
   only:
     - master
     - schedules
