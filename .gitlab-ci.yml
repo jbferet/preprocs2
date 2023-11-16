@@ -22,7 +22,7 @@ before_script:
   - echo '.libPaths("'${R_LIBS_USER}'")' > .Rprofile
   - apt-get update
   - apt-get install -y qpdf pandoc git libcurl4-openssl-dev libgit2-dev libudunits2-dev libnetcdf-dev libproj-dev libgeos-dev libgdal-dev netcdf-bin gdal-bin aria2 libpython2-dev libjq-dev libprotobuf-dev protobuf-compiler libv8-dev libssl-dev libcairo2-dev
-  
+
 
 stages:
   - deps
@@ -33,7 +33,7 @@ deps:
   stage: deps
   script:
   - R -e 'remotes::install_deps(dependencies = T)'
-  - R -e 'devtools::install_github("gearslaboratory/gdalUtils")'
+#  - R -e 'devtools::install_github("gearslaboratory/gdalUtils")'
   - R -e 'remotes::install_version("stars", "0.5-5")' # install_deps does not take into account the version specified in DESCRIPTION...
   only:
     - master

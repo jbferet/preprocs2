@@ -875,7 +875,7 @@ get_S2_L2A_Image <- function(l2a_path, dateAcq,
   time_interval <- as.Date(c(dateAcq, dateAcq))
   # get list S2 products corresponding to study area and date of interest using sen2r package
   if (GoogleCloud==TRUE){
-    server <- c("gcloud")
+    server <- 'gcloud'
     # server <- c("scihub","gcloud")
   } else if (GoogleCloud==FALSE){
     # server <- "scihub"
@@ -890,8 +890,8 @@ get_S2_L2A_Image <- function(l2a_path, dateAcq,
   }
   list_safe <- sen2r::s2_list(spatial_extent = spatial_extent_sf,
                               tile = tile, time_interval = time_interval,
-                              server = server, availability = 'check', level = level,
-                              server = "gcloud")
+                              availability = 'check', level = level,
+                              server = server)
   # download products
   sen2r::s2_download(list_safe, outdir=l2a_path)
   # name all products
@@ -1240,42 +1240,50 @@ ind2sub <- function(Raster, Image_Index) {
   return(my_list)
 }
 
-#' mosaicing a set of rasters
+#' #' mosaicing a set of rasters
+#' #'
+#' #' @param list_rasters character. list of paths corresponding to rasters to mosaic
+#' #' @param dst_mosaic character. path and name of mosaic produced
+#' #' @param Stretch boolean. Set TRUE to get 10% stretching at display for reflectance, mentioned in hdr only
+#' #'
+#' #' @return None
+#' #' @importFrom tools file_path_sans_ext
+#' #' @importFrom gdalUtils mosaic_rasters
+#' #' @importFrom raster hdr raster
+#' #' @export
+#' mosaic_rasters_preprocS2 <- function(list_rasters,dst_mosaic, Stretch = FALSE){
 #'
-#' @param list_rasters character. list of paths corresponding to rasters to mosaic
-#' @param dst_mosaic character. path and name of mosaic produced
-#' @param Stretch boolean. Set TRUE to get 10% stretching at display for reflectance, mentioned in hdr only
+#'   # # alternative to gdalUtils: use terra to perform raster mosaic?
+#'   # # https://rdrr.io/cran/terra/man/mosaic.html
+#'   # # list of rasters
+#'   # list_rast <- list()
+#'   # for (rpath in list_rasters) list_rast[[rpath]] <- terra::rast(rpath)
+#'   # rsrc <- terra::sprc(list_rast)
+#'   # m <- terra::mosaic(rsrc)
 #'
-#' @return None
-#' @importFrom tools file_path_sans_ext
-#' @importFrom gdalUtils mosaic_rasters
-#' @importFrom raster hdr raster
-#' @export
-mosaic_rasters_preprocS2 <- function(list_rasters,dst_mosaic, Stretch = FALSE){
-
-  # convert
-  list_rasters <- R.utils::getAbsolutePath(list_rasters)
-  # produce mosaic
-  gdalUtils::mosaic_rasters(gdalfile = list_rasters, dst_dataset = dst_mosaic,
-                            separate = FALSE, of="EHdr", verbose=TRUE)
-
-  # convert HDR to ENVI format
-  raster::hdr(raster(dst_mosaic), format = "ENVI")
-  # add info to hdr based on initial rasters
-  HDR_init <- read_ENVI_header(get_HDR_name(list_rasters[1]))
-  HDR <- read_ENVI_header(get_HDR_name(dst_mosaic))
-  HDR$`band names` <- HDR_init$`band names`
-  HDR$wavelength <- HDR_init$wavelength
-  if (Stretch==TRUE){
-    HDR$`default stretch` <- '0.000000 1000.000000 linear'
-  }
-  HDR$`z plot range` <- NULL
-  HDR$`data ignore value` <- '-Inf'
-  HDR$`sensor type` <- HDR_init$`sensor type`
-  HDR$`coordinate system string` <- read.table(paste(file_path_sans_ext(dst_mosaic), ".prj", sep = ""))
-  write_ENVI_header(HDR = HDR,HDRpath = get_HDR_name(dst_mosaic))
-  return(invisible())
-}
+#'   # convert
+#'   list_rasters <- R.utils::getAbsolutePath(list_rasters)
+#'   # produce mosaic
+#'   gdalUtils::mosaic_rasters(gdalfile = list_rasters, dst_dataset = dst_mosaic,
+#'                             separate = FALSE, of="EHdr", verbose=TRUE)
+#'
+#'   # convert HDR to ENVI format
+#'   raster::hdr(raster(dst_mosaic), format = "ENVI")
+#'   # add info to hdr based on initial rasters
+#'   HDR_init <- read_ENVI_header(get_HDR_name(list_rasters[1]))
+#'   HDR <- read_ENVI_header(get_HDR_name(dst_mosaic))
+#'   HDR$`band names` <- HDR_init$`band names`
+#'   HDR$wavelength <- HDR_init$wavelength
+#'   if (Stretch==TRUE){
+#'     HDR$`default stretch` <- '0.000000 1000.000000 linear'
+#'   }
+#'   HDR$`z plot range` <- NULL
+#'   HDR$`data ignore value` <- '-Inf'
+#'   HDR$`sensor type` <- HDR_init$`sensor type`
+#'   HDR$`coordinate system string` <- read.table(paste(file_path_sans_ext(dst_mosaic), ".prj", sep = ""))
+#'   write_ENVI_header(HDR = HDR,HDRpath = get_HDR_name(dst_mosaic))
+#'   return(invisible())
+#' }
 
 #' Reads ENVI hdr file
 #'
