@@ -2,18 +2,7 @@
 % Please edit documentation in R/Lib_preprocess_S2.R
 \name{read_ENVI_header}
 \alias{read_ENVI_header}
-\title{#' mosaicing a set of rasters
-#'
-#' @param list_rasters character. list of paths corresponding to rasters to mosaic
-#' @param dst_mosaic character. path and name of mosaic produced
-#' @param Stretch boolean. Set TRUE to get 10\% stretching at display for reflectance, mentioned in hdr only
-#'
-#' @return None
-#' @importFrom tools file_path_sans_ext
-#' @importFrom gdalUtils mosaic_rasters
-#' @importFrom raster hdr raster
-#' @export
-mosaic_rasters_preprocS2 <- function(list_rasters,dst_mosaic, Stretch = FALSE){}
+\title{Reads ENVI hdr file}
 \usage{
 read_ENVI_header(HDRpath)
 }
@@ -24,28 +13,5 @@ read_ENVI_header(HDRpath)
 list of the content of the hdr file
 }
 \description{
-# # alternative to gdalUtils: use terra to perform raster mosaic?
-  # # https://rdrr.io/cran/terra/man/mosaic.html
-  # # list of rasters
-  # list_rast <- list()
-  # for (rpath in list_rasters) list_rast[[rpath]] <- terra::rast(rpath)
-  # rsrc <- terra::sprc(list_rast)
-  # m <- terra::mosaic(rsrc)
+Reads ENVI hdr file
 }
-\section{convert}{
-list_rasters <- R.utils::getAbsolutePath(list_rasters)
-}
-
-\section{produce mosaic}{
-gdalUtils::mosaic_rasters(gdalfile = list_rasters, dst_dataset = dst_mosaic,
-separate = FALSE, of="EHdr", verbose=TRUE)
-}
-
-\section{convert HDR to ENVI format}{
-raster::hdr(raster(dst_mosaic), format = "ENVI")
-}
-
-\section{add info to hdr based on initial rasters}{
-
-}
-

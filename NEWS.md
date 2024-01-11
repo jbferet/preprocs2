@@ -1,3 +1,9 @@
+# preprocS2 v1.5.1
+
+## Fix
+- Use latest version of stars
+- update tutorial for install
+
 # preprocS2 v1.5.0
 
 ## Fix
