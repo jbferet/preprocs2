@@ -33,8 +33,9 @@ deps:
   stage: deps
   script:
   - R -e 'remotes::install_deps(dependencies = T)'
+  - R -e 'devtools::install_github("ranghetti/sen2r")'
 #  - R -e 'devtools::install_github("gearslaboratory/gdalUtils")'
-  - R -e 'remotes::install_version("stars", "0.5-5")' # install_deps does not take into account the version specified in DESCRIPTION...
+#  - R -e 'remotes::install_version("stars", "0.5-5")' # install_deps does not take into account the version specified in DESCRIPTION...
   only:
     - master
     - schedules
