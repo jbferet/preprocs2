@@ -1,3 +1,8 @@
+# preprocS2 v1.5.2
+
+## Fix
+- update tutorial
+
 # preprocS2 v1.5.1
 
 ## Fix

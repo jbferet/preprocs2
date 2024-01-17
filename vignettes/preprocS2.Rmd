@@ -43,16 +43,17 @@ The following code allows downloading the zipfile containing the vector data, an
 
 ```{r download vector data}
 # library
+# install.packages('zip')
 library(zip)
 # define data directory
-Path_Data <- '../../01_DATA'
+Path_Data <- '01_DATA'
 dir.create(Path_Data,showWarnings = F, recursive = T)
 # name zip file including plots located on the tile
-destzip <- file.path(Path_Data,'Study_area_Barrax.zip',fsep = '\\')
+destzip <- file.path(Path_Data,'Study_area_Barrax.zip')
 # url for the zip file
 url <- 'https://gitlab.com/jbferet/myshareddata/-/raw/master/preprocS2_Example/Study_area_Barrax.zip'
 download.file(url = url, destfile = destzip)
-destunz <- file.path(Path_Data,'Study_area_Barrax',fsep = '\\')
+destunz <- file.path(Path_Data,'Study_area_Barrax')
 unzip(zipfile = destzip,exdir = destunz)
 ```
 
@@ -60,55 +61,28 @@ unzip(zipfile = destzip,exdir = destunz)
 
 Then, we use [Sentinel-hub](https://apps.sentinel-hub.com/eo-browser/?zoom=11&lat=39.09836&lng=-2.01462&themeId=DEFAULT-THEME&visualizationUrl=https%3A%2F%2Fservices.sentinel-hub.com%2Fogc%2Fwms%2Fbd86bcc0-f318-402b-a145-015f85b9427e&datasetId=S2L2A&fromTime=2021-05-13T00%3A00%3A00.000Z&toTime=2021-05-13T23%3A59%3A59.999Z&layerId=1_TRUE_COLOR) in order to identify an acquisition corresponding to our requirement. 
 
-Once the S2 tile and the date of acquisition are identified, we can proceed to the image download. 
+Once the location and date of acquisition are defined, the image is downloaded.
+The function `get_S2_L2A_Image` from `preprocS2` identifies and downloads the 
+image automatically. 
+This function uses the `s2_download` from `sen2r`. 
 
-We then used the R package [`sen2r`](https://sen2r.ranghetti.info/) in order to identify S2 product available for a specific date of acquisition, and download the corresponding Sentinel-2 SAFE archive. 
-
-# Here, level-2A images (atmospherically corrected with Sen2Cor) can be downloaded directly from  [SciHub](https://scihub.copernicus.eu) with sen2r.
-
-```{r download_S2_image_sen2r}
-library(sen2r)
-# define date of S2 acquisition
-dateAcq <- '2022-05-28'
-time_window <- as.Date(c(dateAcq, dateAcq))
-# define path for study area
-path_vector <- '../../01_DATA/Study_area_Barrax/Study_area_Barrax.shp'
-# get product name corresponding to Barrax 
-list_safe <- s2_list(spatial_extent = sf::st_read(dsn = path_vector), 
-                     time_interval = time_window, server = 'gcloud')
-# define output directory where SAFE zipfile is stored
-DirWrite <- '../../01_DATA/S2_Images'
-dir.create(DirWrite,showWarnings = F, recursive = T)
-s2_download(list_safe, outdir=DirWrite)
-
-# define raster path
-Path_S2 <- file.path(DirWrite,list.files(DirWrite,pattern = '.SAFE'))
-
-```
-
-
-You can also use the function `get_S2_L2A_Image` from `preprocS2` in order to download this image. This function uses the `s2_download` from `sen2r`. 
-
-WARNING: starting from sen2r version 1.6.0, [scihub is no longer avaibale from sen2r](https://github.com/ranghetti/sen2r/issues/464). Users are required to download S2 images from the Google Cloud Sentinel-2 bucket. `GoogleCloud = TRUE` is the default option, and `GoogleCloud = FALSE` stops the process. 
+__WARNING: starting from sen2r version 1.6.0, [scihub is no longer avaibale from sen2r](https://github.com/ranghetti/sen2r/issues/464).__ 
+__Users are required to download S2 images from the Google Cloud Sentinel-2 bucket.__
 
 ```{r download_S2_image_preprocS2}
 library(preprocS2)
 # define date of S2 acquisition
 dateAcq <- '2022-05-28'
 # define path for study area
-path_vector <- '../../01_DATA/Study_area_Barrax/Study_area_Barrax.shp'
+path_vector <- '01_DATA/Study_area_Barrax/Study_area_Barrax.shp'
 # define output directory where SAFE zipfile is stored
-DirWrite <- '../../01_DATA/S2_Images'
+DirWrite <- '01_DATA/S2_Images'
 dir.create(DirWrite,showWarnings = F, recursive = T)
-
+# download Sentinel-2 image corresponding to study area and date of acquisition 
 Path_S2 <- get_S2_L2A_Image(l2a_path = DirWrite, 
                             spatial_extent = path_vector, 
-                            dateAcq = dateAcq,
-                            DeleteL1C = TRUE, 
-                            Sen2Cor = TRUE,
-                            GoogleCloud = TRUE)
+                            dateAcq = dateAcq)
 ```
-
 
 # Preprocess S2 image
 
@@ -122,7 +96,7 @@ library(preprocS2)
 ##        Define where data is stored and where to write results      ##
 ##--------------------------------------------------------------------##
 # Result directory
-result_path <- '../../03_RESULTS'
+result_path <- '03_RESULTS'
 dir.create(path = result_path,showWarnings = FALSE,recursive = TRUE)
 
 ##____________________________________________________________________##
@@ -136,7 +110,6 @@ S2obj <- preprocS2::extract_from_S2_L2A(Path_dir_S2 = Path_S2,
                                         path_vector = path_vector,
                                         S2source = S2source,
                                         resolution = resolution)
-
 # update shapefile if needed (reprojection)
 path_vector <- S2obj$path_vector
 
@@ -144,9 +117,13 @@ path_vector <- S2obj$path_vector
 
 # Write reflectance, cloud mask and metadata
 
-Once the image is read, it can be written as stacked raster file, and stored with the binary cloud mask and the metadata file.
+The image is then written as a stacked raster file, and stored with the binary 
+cloud mask and the metadata file.
 Since 2021, S2 images are provided with an [offset](https://sentinels.copernicus.eu/web/sentinel/-/copernicus-sentinel-2-major-products-upgrade-upcoming) in order to prevent from negative radiometric values. 
-In order to account for this offset when writing reflectance file (and get actual reflectance values with a multiplying factor of 10 000), the S2 metadata files (MTD and MTD_MSI) are required. The path for these files is provised as an output of `extract_from_S2_L2A`.
+the S2 metadata files (MTD and MTD_MSI) are required to account for this offset 
+when writing reflectance file (and get actual reflectance values with a multiplying 
+factor of 10 000). 
+The path for these metadata files is an output of `extract_from_S2_L2A`.
 
 ```{r write_raster}
 # create specific result directory corresponding to granule name
@@ -189,6 +166,7 @@ preprocS2::save_reflectance_s2(S2_stars = S2obj$S2_Stack,
 
 # Computation of spectral indices and biophysical variables
 
-Once reflectance data is written as a raster file, the R package [`spinr`](https://gitlab.com/jbferet/spinr) can be used for the computation of various spectral indices and biophysical variables direcrtlty from a raster stack corresponding to Level-2A reflectance. 
-
-
+Once reflectance data is written as a raster file, the R packages 
+[`spinr`](https://gitlab.com/jbferet/spinr) and [`preprocS2`](https://jbferet.gitlab.io/prosail/) 
+can be used for the computation of various spectral indices and biophysical 
+variables directly from a raster stack corresponding to Level-2A reflectance. 
