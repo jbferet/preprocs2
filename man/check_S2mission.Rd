@@ -4,7 +4,7 @@
 \alias{check_S2mission}
 \title{This function saves reflectance files}
 \usage{
-check_S2mission(S2Sat, tile_S2, dateAcq_S2)
+check_S2mission(S2Sat = NULL, tile_S2, dateAcq_S2)
 }
 \arguments{
 \item{S2Sat}{character. Sentinel-2 mission ('2A' or '2B')}

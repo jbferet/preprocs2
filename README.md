@@ -8,19 +8,35 @@
 
 # preprocS2
 
-The goal of preprocS2 is to provide a common framework for the preprocessing of Level-2A Sentinel-2 images. 
-Sentinel-2 L2A images can be produced or obtained from various data hubs or atmospheric correction methods. `preprocS2` provides a unique function to read, crop, resample the original image directory, and write it as a raster stack.
+The goal of preprocS2 is to provide a common framework for the preprocessing of 
+Level-2A Sentinel-2 images. 
+Sentinel-2 L2A images can be produced or obtained from various data hubs or 
+atmospheric correction methods. 
+`preprocS2` provides a unique function to read, crop, resample the original image 
+directory, and write it as a raster stack.
 
 ## Installation
 
-The full functionality of `preprocS2` requires installation and parameterization of various package. An important package to install is [`sen2r`](https://sen2r.ranghetti.info/), as it allows to download Sentinel-2 images. 
+The full functionality of `preprocS2` requires installation and parameterization 
+of various package. 
+An important package to install is [`sen2r`](https://sen2r.ranghetti.info/), 
+as it allows to download Sentinel-2 images. 
 
-Please refer to the `sen2r` installation guide if you want to access to atmospheric correction and Sentinel-2 download from the [Google Cloud Sentinel-2 bucket](Google Cloud https://cloud.google.com/storage/docs/public-datasets/sentinel-2).
+Please refer to the `sen2r` installation guide if you want to access to 
+atmospheric correction and Sentinel-2 download from the 
+[Google Cloud Sentinel-2 bucket](Google Cloud https://cloud.google.com/storage/docs/public-datasets/sentinel-2).
 
-Once `devtools` is installed, install the package `preprocS2` with the following command line in R session:
+the package `bigRaster` should also be used for full functionality :
 
 ```
-devtools::install_gitlab('jbferet/preprocS2')
+devtools::install_gitlab('jbferet/bigRaster')
+```
+
+Once `devtools`, `bigRaster` and `sen2r` installed, install the package `preprocS2` 
+with the following command line in R session:
+
+```
+devtools::install_github('jbferet/preprocS2')
 ```
 
 ## Example
@@ -38,8 +54,11 @@ Sentinel-2 data can be accessed via various hubs including:
 - [MAJA](https://www.theia-land.fr/en/product/sentinel-2-surface-reflectance/)
 - [LaSRC](https://www.sciencedirect.com/science/article/pii/S0034425718304139)
 
-However, it produce L2A images from L1C images with sen2cor through the R package [`sen2r`](https://sen2r.ranghetti.info/) if this package is properly parameterized.
+However, it produce L2A images from L1C images with sen2cor through the R package 
+[`sen2r`](https://sen2r.ranghetti.info/) if this package is properly parameterized.
 
 ## Acknowledgments / Fundings
 
-This research was supported by the Agence Nationale de la Recherche ([ANR](https://anr.fr/en/open-calls-and-preannouncements/), France) through the young researchers project **BioCop** (ANR-17-CE32-0001
+This research was supported by the Agence Nationale de la Recherche 
+([ANR](https://anr.fr/en/open-calls-and-preannouncements/), France) through the 
+young researchers project **BioCop** (ANR-17-CE32-0001)

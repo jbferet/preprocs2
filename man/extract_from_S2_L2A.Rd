@@ -2,8 +2,17 @@
 % Please edit documentation in R/Lib_preprocess_S2.R
 \name{extract_from_S2_L2A}
 \alias{extract_from_S2_L2A}
-\title{This function reads S2 data from L2A directories downloaded from
-various data hubs including THEIA, PEPS & SCIHUB (SAFE format & LaSRC)}
+\title{#' this function aims at computing directory size
+#' @param path character. path for directory
+#' @param recursive boolean . set T if recursive
+#'
+#' @return size_files numeric. size in bytes
+#' - image stack
+#' - path for individual band files corresponding to the stack
+#' - path for vector (reprojected if needed)
+#'
+#' @importFrom tools file_path_sans_ext file_ext
+#' @export}
 \usage{
 extract_from_S2_L2A(
   Path_dir_S2,
@@ -11,7 +20,7 @@ extract_from_S2_L2A(
   path_vector = NULL,
   S2source = "SAFE",
   resolution = 10,
-  interpolation = "bilinear",
+  interpolation = "nearest_neighbour",
   fre_sre = "FRE"
 )
 }
@@ -26,7 +35,7 @@ extract_from_S2_L2A(
 
 \item{resolution}{numeric. buffer applied to vector file (in meters)}
 
-\item{interpolation}{character. method for resampling. default = 'bilinear'}
+\item{interpolation}{character. method for resampling. default = 'nearest_neighbour'}
 
 \item{fre_sre}{character. SRE or FRE products from THEIA}
 }
@@ -39,6 +48,13 @@ ListOut list.
 }
 }
 \description{
+dir_size <- function(path, recursive = TRUE) {
+stopifnot(is.character(path))
+files <- list.files(path, full.names = T, recursive = recursive)
+vect_size <- sapply(files, function(x) file.size(x))
+size_files <- sum(vect_size)
+return(size_files)
+}
 This function reads S2 data from L2A directories downloaded from
 various data hubs including THEIA, PEPS & SCIHUB (SAFE format & LaSRC)
 }
