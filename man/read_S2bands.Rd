@@ -8,8 +8,8 @@ S2 bands are expected to have uniform spatial resolution and footprint}
 read_S2bands(
   S2_Bands,
   path_vector = NULL,
-  resampling = 1,
-  interpolation = "bilinear"
+  resolution = 10,
+  interpolation = "nearest_neighbour"
 )
 }
 \arguments{
@@ -17,9 +17,9 @@ read_S2bands(
 
 \item{path_vector}{path for a vector file}
 
-\item{resampling}{numeric. resampling factor (default = 1, set to resampling = 2 to convert 20m into 10m resolution)}
+\item{resolution}{numeric. resolution of final product}
 
-\item{interpolation}{character. method for resampling. default = 'bilinear'}
+\item{interpolation}{character. method for resampling. default = 'nearest_neighbour'}
 }
 \value{
 Stack_S2 list. contains stack of S2 bands
