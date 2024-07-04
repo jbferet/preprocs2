@@ -1,3 +1,8 @@
+# preprocS2 v1.6.1
+
+## Fix
+- replace 'funct <- wrapperBig_Stack' with 'funct <- bigRaster::wrapperBig_Stack'
+
 # preprocS2 v1.6.0
 
 ## Fix

@@ -1956,7 +1956,7 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format = 'ENVI',
   }
 
   # write stack with bigRaster
-  funct <- wrapperBig_Stack
+  funct <- bigRaster::wrapperBig_Stack
   input_rasters <- as.list(S2_stars2$attr)
   names(input_rasters) <- names_S2
   input_args <- list('datatype' = datatype,
