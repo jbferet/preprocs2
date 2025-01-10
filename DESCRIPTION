@@ -42,4 +42,3 @@ Remotes: github::jbferet/prospect,
 VignetteBuilder: knitr
 URL: https://gitlab.com/jbferet/preprocS2
 BugReports: https://gitlab.com/jbferet/preprocS2/issues
-Remotes: gitlab::jbferet/bigRaster
