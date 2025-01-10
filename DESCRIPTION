@@ -36,6 +36,9 @@ Imports:
     terra,
     magrittr,
     tibble
+Remotes: github::jbferet/prospect, 
+         github::jbferet/prosail, 
+         gitlab::jbferet/bigRaster
 VignetteBuilder: knitr
 URL: https://gitlab.com/jbferet/preprocS2
 BugReports: https://gitlab.com/jbferet/preprocS2/issues
