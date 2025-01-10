@@ -1,3 +1,8 @@
+# preprocS2 v2.0.0
+
+## Fix
+- use rstac
+
 # preprocS2 v1.6.1
 
 ## Fix

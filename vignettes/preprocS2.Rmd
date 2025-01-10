@@ -1,5 +1,5 @@
 ---
-title: "1. Preprocessing S2 images with level-2A"
+title: "1. Get Sentinel-2 iamgery from Planetary STAC catalog"
 author: "Jean-Baptiste Féret"
 date: "`r Sys.Date()`"
 output:
@@ -13,11 +13,14 @@ output:
     toc_depth: 2
 vignette: >
   \usepackage[utf8]{inputenc}
-  %\VignetteIndexEntry{1. Preprocessing S2 images with level-2A}
+  %\VignetteIndexEntry{1. Get Sentinel-2 iamgery from Planetary STAC catalog}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: sentence
 ---
-  
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -26,147 +29,96 @@ knitr::opts_chunk$set(
 )
 ```
 
-This tutorial aims at illustrating how to access and preprocess Sentinel-2 images acquired at Level-2A with the R package `preprocS2`. 
+This tutorial illustrates how to download Sentinel-2 data for a given bounding box with the R package `preprocS2`.
 
+`preprocS2` is a basic wrapper of the [`rstac`](https://brazil-data-cube.github.io/rstac/) package. 
+It aims at downloading and preparing Sentinel-2 images for further processings using R packages such as [`biodivMapR`](https://jbferet.github.io/biodivMapR/index.html) for spectral diversity mapping, [`prosail`](https://jbferet.gitlab.io/prosail/index.html) for the computation of vegetation biophysical variables, or [`spinr`](https://gitlab.com/jbferet/spinr) for the computation of vegetation biophysical variables or spectral indices.
 
-# Identifying and downloading Sentinel-2 images
+# How to use preprocS2
 
-This tutorial aims at illustrating how to use preprocS2 to download and prepare Sentinel-2 images for further processings using R packages such as [`biodivMapR`](https://jbferet.github.io/biodivMapR/index.html) for spectral diversity mapping, [`prosail`](https://jbferet.gitlab.io/prosail/index.html) for the computation of vegetation biophysical variables, or [`spinr`](https://gitlab.com/jbferet/spinr) for the computation of vegetation biophysical variables or spectral indices
+`preprocS2` will download S2 data from a STAC catalog based on spatial and temporal information.
+The default STAC collection is `sentinel-2-l2a` from the Planetary computer catalog.
 
-We are interested in downloading a unique Sentinel-2 image with no cloud cover for an illustration of the package. 
-We selected the Barrax area in Spain, as it is a well-known study area for application using remote sensing for crop monitoring. 
+Optionally, `preprocS2` can download the geometry of acquisition corresponding to the S2 acquisition.
+Access to geometry of acquisition is provided by the package [`CDSE`](https://zivankaraman.github.io/CDSE/).
 
-### Download vector files used to identify study area
+Please provide authentication for CDSE if you want to get geometry of acquisition by activating OAuth clients following [`this link`](https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings).
 
-We first define a data directory (modify following your personal taste) and download a shapefile corresponding to our study area.
-The following code allows downloading the zipfile containing the vector data, and unzipping it in the same directory as the one including the raster data.
+## Download image corresponding to a bounding box
 
-```{r download vector data}
+User can provide a bounding box as input to define the region of interest.
+User is also requested to provide a valid date of acquisition The Sentinel-2 tile corresponding to the region of interest is identified based on the S2 tiling grid system.
+User can either download the corresponding kml [`here`](https://sentiwiki.copernicus.eu/web/s2-products), or let `preprocS2` download it.
+Access online is requested to download the tiling grid system.
+
+```{r get s2 from bbox}
 # library
-# install.packages('zip')
-library(zip)
-# define data directory
-Path_Data <- '01_DATA'
-dir.create(Path_Data,showWarnings = F, recursive = T)
-# name zip file including plots located on the tile
-destzip <- file.path(Path_Data,'Study_area_Barrax.zip')
-# url for the zip file
-url <- 'https://gitlab.com/jbferet/myshareddata/-/raw/master/preprocS2_Example/Study_area_Barrax.zip'
-download.file(url = url, destfile = destzip)
-destunz <- file.path(Path_Data,'Study_area_Barrax')
-unzip(zipfile = destzip,exdir = destunz)
-```
-
-
-
-Then, we use [Sentinel-hub](https://apps.sentinel-hub.com/eo-browser/?zoom=11&lat=39.09836&lng=-2.01462&themeId=DEFAULT-THEME&visualizationUrl=https%3A%2F%2Fservices.sentinel-hub.com%2Fogc%2Fwms%2Fbd86bcc0-f318-402b-a145-015f85b9427e&datasetId=S2L2A&fromTime=2021-05-13T00%3A00%3A00.000Z&toTime=2021-05-13T23%3A59%3A59.999Z&layerId=1_TRUE_COLOR) in order to identify an acquisition corresponding to our requirement. 
-
-Once the location and date of acquisition are defined, the image is downloaded.
-The function `get_S2_L2A_Image` from `preprocS2` identifies and downloads the 
-image automatically. 
-This function uses the `s2_download` from `sen2r`. 
-
-__WARNING: starting from sen2r version 1.6.0, [scihub is no longer avaibale from sen2r](https://github.com/ranghetti/sen2r/issues/464).__ 
-__Users are required to download S2 images from the Google Cloud Sentinel-2 bucket.__
-
-```{r download_S2_image_preprocS2}
 library(preprocS2)
-# define date of S2 acquisition
-dateAcq <- '2022-05-28'
-# define path for study area
-path_vector <- '01_DATA/Study_area_Barrax/Study_area_Barrax.shp'
-# define output directory where SAFE zipfile is stored
-DirWrite <- '01_DATA/S2_Images'
-dir.create(DirWrite,showWarnings = F, recursive = T)
-# download Sentinel-2 image corresponding to study area and date of acquisition 
-Path_S2 <- get_S2_L2A_Image(l2a_path = DirWrite, 
-                            spatial_extent = path_vector, 
-                            dateAcq = dateAcq)
+library(sf)
+
+# 1- define input & output directories
+output_dir <- './RESULTS'
+datetime <- as.Date('2024-10-05')
+
+# 2- define area of interest
+bbox <- sf::st_bbox(obj = c('xmin' = -54.1, 'ymin' = 5.0, 
+                            'xmax' = -54.0, 'ymax' = 5.1))
+
+# get tiling grid kml from https://sentiwiki.copernicus.eu/web/s2-products
+path_S2tilinggrid <- 'Sentinel-2_tiling_grid.kml'
+
+# 3- get S2 acquisition and geometry of acquisition for study area
+# https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings
+id <- "sh-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+secret <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+authentication <- list('id' = id, 'pwd' = secret)
+
+get_s2_raster(bbox = bbox, datetime = datetime, output_dir = output_dir, 
+              path_S2tilinggrid = path_S2tilinggrid, 
+              overwrite = F, geomAcq = T, authentication = authentication)
 ```
 
-# Preprocess S2 image
+The output files are stored in the directory `output_dir`.
+Different subdirectories are created.
 
-Once the SAFE S2 image is downloaded, the R package [`preprocS2`](https://jbferet.gitlab.io/preprocS2/index.html) is used to stack individual bands, crop to required extent defined by the vector file, produce a binary cloud mask and save in the desired raster format.
+-   `collections` includes the item collection corresponding to the scene of interest
+-   `raster_samples` includes rasters corresponding to BOA reflectance, scene classification (SCL) and a binary mask identifying vegetated pixels after radiometric filters excluding shaded pixels, cloudy pixels and non-vegetated pixels
+-   `geomAcq_S2` includes rasters corresponding to the geometry of acquisition (SAA, SZA, VAA, VZA)
 
-The function `extract_from_S2_L2A` performs cropping and resampling to 10m if needed, and provides a stars object as output, along with file path for metadata and image full name.
+## Download image corresponding to a vector file
 
-```{r preprocess_S2}
+Alternatively, user can provide the path for a vector file defining a region of interest.
+
+```{r get s2 from vector}
+# library
 library(preprocS2)
-##____________________________________________________________________##
-##        Define where data is stored and where to write results      ##
-##--------------------------------------------------------------------##
-# Result directory
-result_path <- '03_RESULTS'
-dir.create(path = result_path,showWarnings = FALSE,recursive = TRUE)
+library(sf)
 
-##____________________________________________________________________##
-##                  Extract, resample & stack data                    ##
-##--------------------------------------------------------------------##
-# define resolution
-resolution <- 10
-# define source of data
-S2source <- 'SAFE'
-S2obj <- preprocS2::extract_from_S2_L2A(Path_dir_S2 = Path_S2,
-                                        path_vector = path_vector,
-                                        S2source = S2source,
-                                        resolution = resolution)
-# update shapefile if needed (reprojection)
-path_vector <- S2obj$path_vector
+# 1- define input & output directories
+output_dir <- './RESULTS'
+datetime <- as.Date('2024-10-05')
 
+# 2- define area of interest
+bbox <- sf::st_bbox(obj = c('xmin' = -54.1, 'ymin' = 5.0, 
+                            'xmax' = -54.0, 'ymax' = 5.1))
+aoi_path <- file.path(output_dir, 'S2_aoi.GPKG')
+sf::st_write(obj = bbox_to_poly(x = bbox), dsn = aoi_path, driver = 'GPKG')
+# get tiling grid kml from https://sentiwiki.copernicus.eu/web/s2-products
+path_S2tilinggrid <- 'Sentinel-2_tiling_grid.kml'
+
+# 3- get S2 acquisition and geometry of acquisition for study area
+# https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings
+id <- "sh-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+secret <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+authentication <- list('id' = id, 'pwd' = secret)
+
+get_s2_raster(aoi_path = aoi_path, datetime = datetime, output_dir = output_dir, 
+              path_S2tilinggrid = path_S2tilinggrid, 
+              overwrite = F, geomAcq = T, authentication = authentication)
 ```
 
-# Write reflectance, cloud mask and metadata
+## Additional functionalities
 
-The image is then written as a stacked raster file, and stored with the binary 
-cloud mask and the metadata file.
-Since 2021, S2 images are provided with an [offset](https://sentinels.copernicus.eu/web/sentinel/-/copernicus-sentinel-2-major-products-upgrade-upcoming) in order to prevent from negative radiometric values. 
-the S2 metadata files (MTD and MTD_MSI) are required to account for this offset 
-when writing reflectance file (and get actual reflectance values with a multiplying 
-factor of 10 000). 
-The path for these metadata files is an output of `extract_from_S2_L2A`.
-
-```{r write_raster}
-# create specific result directory corresponding to granule name
-results_site_path <- file.path(result_path,basename(S2obj$S2_Bands$GRANULE))
-dir.create(path = results_site_path,showWarnings = FALSE,recursive = TRUE)
-##____________________________________________________________________##
-##                        Write CLOUD MASK                            ##
-##--------------------------------------------------------------------##
-# directory for cloud mask
-Cloud_path <- file.path(results_site_path,'CloudMask')
-dir.create(path = Cloud_path,showWarnings = FALSE,recursive = TRUE)
-# Filename for cloud mask
-cloudmasks <- preprocS2::save_cloud_s2(S2_stars = S2obj$S2_Stack,
-                                       Cloud_path = Cloud_path,
-                                       S2source = S2source, SaveRaw = T)
-##____________________________________________________________________##
-##                        Write REFLECTANCE                           ##
-##--------------------------------------------------------------------##
-# directory for Reflectance
-Refl_dir <- file.path(results_site_path,'Reflectance')
-dir.create(path = Refl_dir,showWarnings = FALSE,recursive = TRUE)
-# filename for Reflectance
-Refl_path <- file.path(Refl_dir,paste(basename(S2obj$S2_Bands$GRANULE),'_Refl',sep = ''))
-
-# Save Reflectance file as ENVI image with BIL interleaves
-# metadata files are important to account for offset applied on S2 L2A products 
-tile_S2 <- get_tile(S2obj$S2_Bands$GRANULE)
-dateAcq_S2 <- get_date(S2obj$S2_Bands$GRANULE)
-preprocS2::save_reflectance_s2(S2_stars = S2obj$S2_Stack, 
-                               Refl_path = Refl_path,
-                               S2Sat = NULL, 
-                               tile_S2 = tile_S2, 
-                               dateAcq_S2 = dateAcq_S2,
-                               Format = 'ENVI', 
-                               datatype = 'Int16', 
-                               MTD = S2obj$S2_Bands$metadata, 
-                               MTD_MSI = S2obj$S2_Bands$metadata_MSI)
-```
-
-
-# Computation of spectral indices and biophysical variables
-
-Once reflectance data is written as a raster file, the R packages 
-[`spinr`](https://gitlab.com/jbferet/spinr) and [`preprocS2`](https://jbferet.gitlab.io/prosail/) 
-can be used for the computation of various spectral indices and biophysical 
-variables directly from a raster stack corresponding to Level-2A reflectance. 
+S2 images corresponding to large extents can be downloaded using aoi tiling and parallel download/process to speed it up.
+This will be documented soon.
+\`
