@@ -1,5 +1,5 @@
 ---
-title: "1. Get Sentinel-2 iamgery from Planetary STAC catalog"
+title: "1. Get Sentinel-2 imagery from Planetary STAC catalog"
 author: "Jean-Baptiste Féret"
 date: "`r Sys.Date()`"
 output:
@@ -13,7 +13,7 @@ output:
     toc_depth: 2
 vignette: >
   \usepackage[utf8]{inputenc}
-  %\VignetteIndexEntry{1. Get Sentinel-2 iamgery from Planetary STAC catalog}
+  %\VignetteIndexEntry{1. Get Sentinel-2 imagery from Planetary STAC catalog}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
