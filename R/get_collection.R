@@ -37,6 +37,17 @@ get_collection <- function(aoi, S2tiles = NULL, datetime, FileName, overwrite = 
                  && anyinteracts(datetime, interval({{startday}}, {{endday}}))
       ) %>%
       post_request()
+
+    # stop process if no image available
+    if (length(collection_plot$features)==0){
+      message('No acquisition available for area of interest at the specified dates of acquisition')
+      print(paste0('from ', datetime$from, ' to ', datetime$to))
+      message('Please check image availability on collection')
+      print(collection)
+      message('from provider')
+      print(stac_source$base_url)
+      stop_quietly()
+    }
     # select tiles which are identified as wanted (== fully contains plot)
     if (!is.null(S2tiles) & unique(!is.na(S2tiles)))
         collection_plot <- eliminate_incompleteTiles(collection_plot, S2tiles = S2tiles)
