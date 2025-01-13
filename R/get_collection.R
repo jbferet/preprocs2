@@ -38,6 +38,10 @@ get_collection <- function(aoi, S2tiles = NULL, datetime, FileName, overwrite = 
       ) %>%
       post_request()
 
+    if (collection=='sentinel2-l2a-sen2lasrc')
+      collection_plot <- collection_plot |>
+      rstactheia::items_sign_theia()
+
     # stop process if no image available
     if (length(collection_plot$features)==0){
       message('No acquisition available for area of interest at the specified dates of acquisition')

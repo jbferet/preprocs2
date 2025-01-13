@@ -37,12 +37,17 @@ get_B248_filter <- function(raster_dir, mask_path, collection_path,
   if (!is.null(band_url0)){
     rootname <- file.path(raster_dir, paste0('plot_',iChar,'_'))
     updatemask <- check_existing_mask(item_collection = item_collection,
-                                      band_url = band_url0,
+                                      band_url = band_url0, 
+                                      collection = collection, 
                                       rootname = rootname)
     collec_dl <- updatemask$collec_dl
     # if some masks still need to be updated
     if (length(updatemask$selAcq)>0){
-      band_url <- lapply(X = updatemask$selAcq, make_vsicurl_url, collection = collection)
+      if (collection=='sentinel-2-l2a'){
+        band_url <- lapply(X = updatemask$selAcq, make_vsicurl_url, collection = collection)
+      } else if (collection=='sentinel2-l2a-sen2lasrc'){
+        band_url <- lapply(X = updatemask$selAcq, make_vsicurl_theia_url)
+      }
       S2_items <- mapply(FUN = download_s2_acq,
                         acq = as.list(collec_dl$acquisitionDate),
                         band_url = band_url,
@@ -50,12 +55,19 @@ get_B248_filter <- function(raster_dir, mask_path, collection_path,
                                         plots_bbox = plots_bbox,
                                         iChar = iChar,
                                         asset_names = asset_names,
+                                        collection = collection, 
                                         skipExists = F),
                         SIMPLIFY = F)
       whichAcq2dl <- which(!unlist(lapply(X = S2_items, FUN = is.null)))
       if (length(whichAcq2dl)>0){
-        baseline <- lapply(lapply(collec_dl$features,'[[','properties'),
-                           '[[', 's2:processing_baseline')
+        if (collection == 'sentinel-2-l2a'){
+          baseline <- lapply(lapply(collec_dl$features,'[[','properties'),
+                             '[[', 's2:processing_baseline')
+        } else if (collection == 'sentinel2-l2a-sen2lasrc'){
+          baseline <- lapply(lapply(lapply(collec_dl$features,'[[','properties'),
+                             '[[', 'processing:software'), 
+                             '[[', 'sen2lasrc')
+        } 
         validity <- mapply(FUN = apply_radiometric_filter,
                            S2_items = S2_items[whichAcq2dl],
                            acq = as.list(collec_dl$acquisitionDate)[whichAcq2dl],

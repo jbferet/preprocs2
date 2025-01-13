@@ -10,7 +10,7 @@ get_s2_raster(
   datetime,
   output_dir,
   cloudcover = 100,
-  site = NULL,
+  siteName = NULL,
   path_S2tilinggrid = NULL,
   overwrite = T,
   geomAcq = F,
@@ -30,7 +30,7 @@ get_s2_raster(
 
 \item{cloudcover}{numeric. cloud cover}
 
-\item{site}{character. name of the study site}
+\item{siteName}{character. name of the study site}
 
 \item{path_S2tilinggrid}{character. path for the Sentinel-2_tiling_grid.kml file}
 

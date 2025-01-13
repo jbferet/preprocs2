@@ -17,8 +17,8 @@
 download_cloudmask <- function(aoi, raster_dir, collection_info, iChar,
                                collection = 'sentinel-2-l2a', asset_names,
                                resolution){
-
-  cloud_dl <- NULL
+  
+  cloud_dl <- out_dir <- NULL
   # if collection not empty
   if (length(collection_info$acquisitionDate)>0){
     # stac_source <- rstac::stac("https://planetarycomputer.microsoft.com/api/stac/v1")
@@ -28,9 +28,13 @@ download_cloudmask <- function(aoi, raster_dir, collection_info, iChar,
       sf::st_bbox()
     # get all SCL assets
     band_url <- rstac::assets_url(items = collection_info, asset_names = asset_names)
-    dateAcq <- get_dateAcq(band_url = band_url)
-    band_url <- as.list(make_vsicurl_url(band_url, collection = collection))
-    # define file name for SCL
+    dateAcq <- get_dateAcq(band_url = band_url, collection = collection)
+    if (collection == 'sentinel-2-l2a'){
+      band_url <- as.list(make_vsicurl_url(band_url, collection = collection))
+    } else if (collection == 'sentinel2-l2a-sen2lasrc'){
+      band_url <- as.list(make_vsicurl_theia_url(band_url))
+    }
+    # define file name for cloud mask
     filenames <- basename(paste0('plot_',iChar,'_',dateAcq,'_',asset_names,'.tiff'))
     filepath <- file.path(raster_dir,filenames)
     # check if expected files already exist
@@ -63,10 +67,8 @@ download_cloudmask <- function(aoi, raster_dir, collection_info, iChar,
       get_asset(asset_url = b02_url, out_file = out_file, plots_bbox = plots_bbox)
       temp_10m <- terra::rast(out_file)
       cloud_dl  <- lapply(X = cloud_dl, FUN = terra::resample, temp_10m, method = 'near')
-    }
+    } 
     names(cloud_dl) <- as.Date(dateAcq)
-    if (dir.exists(out_dir)) unlink(x = out_dir, recursive = T, force = T)
   }
-  return(cloud_dl)
+  return(list('cloud_dl' = cloud_dl, 'out_dir' = out_dir))
 }
-

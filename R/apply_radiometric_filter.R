@@ -43,11 +43,16 @@ apply_radiometric_filter <- function(S2_items, acq, baseline, iChar, raster_dir,
       ndvi > RadiometricFilter$NDVIMask
     # get SCL
     cloudmask <- terra::rast(cloudmask_path)
-    bin_mask <- cloudmask
-    if (asset_cloud == 'SCL') targetVal <- 4
-    if (asset_cloud == 'CLM') targetVal <- 1
-    bin_mask[which(!terra::values(cloudmask)==targetVal)] <- 0
-    bin_mask[which(terra::values(cloudmask)==targetVal)] <- 1
+    if (asset_cloud == 'SCL') {
+      bin_mask <- cloudmask
+      targetVal <- 4
+      bin_mask[which(!terra::values(cloudmask)==targetVal)] <- 0
+      bin_mask[which(terra::values(cloudmask)==targetVal)] <- 1
+    } else if (asset_cloud == 'CLM') {
+      bin_mask <- 0*cloudmask
+      selclear <- which(is.na(terra::values(cloudmask)))
+      bin_mask[selclear] <- 1
+    }
     mask_update <- bin_mask*sel*mainmask
     mask_init <- bin_mask*mainmask
     # get fCover from updated mask

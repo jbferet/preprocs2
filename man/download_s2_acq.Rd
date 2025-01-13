@@ -9,6 +9,7 @@ download_s2_acq(
   band_url,
   raster_dir,
   plots_bbox,
+  collection = "sentinel-2-l2a",
   iChar,
   asset_names,
   skipExists = T
@@ -22,6 +23,8 @@ download_s2_acq(
 \item{raster_dir}{character.}
 
 \item{plots_bbox}{sf.}
+
+\item{collection}{character.}
 
 \item{iChar}{character.}
 

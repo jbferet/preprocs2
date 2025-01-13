@@ -5,7 +5,7 @@
 #' @param datetime character or date or list defining date of acquisition or time range
 #' @param output_dir character. path for output directory
 #' @param cloudcover numeric.
-#' @param site character. name of the study site
+#' @param siteName character. name of the study site
 #' @param path_S2tilinggrid character. path for the Sentinel-2_tiling_grid.kml file
 #' @param overwrite boolean.
 #' @param collection character.
@@ -28,7 +28,7 @@
 #' @export
 
 get_s2_tiling <- function(plots, aoi_path, datetime, output_dir, cloudcover = 100,
-                          site = NULL, path_S2tilinggrid = NULL, overwrite = T,
+                          siteName = NULL, path_S2tilinggrid = NULL, overwrite = T,
                           collection = "sentinel-2-l2a", geomAcq = F, nbCPU = 1,
                           authentication = NULL, mask_path = NULL, resolution = 10,
                           fraction_vegetation = 5, stac_url = NULL, doublecheckColl = T,
@@ -47,7 +47,7 @@ get_s2_tiling <- function(plots, aoi_path, datetime, output_dir, cloudcover = 10
   path_S2tilinggrid <- check_S2tilinggrid(path_S2tilinggrid = path_S2tilinggrid)
   S2_grid <- get_s2_tiles(plots = plots,
                           dsn_bbox = aoi_path,
-                          site = site,
+                          site = siteName,
                           path_S2tilinggrid = path_S2tilinggrid,
                           overwrite = overwrite)
 
@@ -61,7 +61,6 @@ get_s2_tiling <- function(plots, aoi_path, datetime, output_dir, cloudcover = 10
                    datetime = datetime,
                    cloudcover = cloudcover,
                    authentication = authentication,
-                   collection = collection,
                    output_dir = output_dir,
                    overwrite = overwrite,
                    nbCPU = nbCPU)

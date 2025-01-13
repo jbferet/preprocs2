@@ -5,7 +5,7 @@
 #' @param datetime character or date or list defining date of acquisition or time range
 #' @param output_dir character. path for output directory
 #' @param cloudcover numeric. cloud cover
-#' @param site character. name of the study site
+#' @param siteName character. name of the study site
 #' @param path_S2tilinggrid character. path for the Sentinel-2_tiling_grid.kml file
 #' @param overwrite boolean.
 #' @param geomAcq boolean.
@@ -18,8 +18,8 @@
 #' @export
 
 get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cloudcover = 100,
-                          site = NULL, path_S2tilinggrid = NULL, overwrite = T,
-                          geomAcq = F, authentication = NULL, 
+                          siteName = NULL, path_S2tilinggrid = NULL, overwrite = T,
+                          geomAcq = F, authentication = NULL,
                           collection = "sentinel-2-l2a", stac_url = NULL){
 
   # get bounding box for aoi
@@ -57,7 +57,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
   # define s2 tiles corresponding to aoi
   message('get S2 tiles corresponding to aoi')
   path_S2tilinggrid <- check_S2tilinggrid(path_S2tilinggrid = path_S2tilinggrid)
-  S2_grid <- get_s2_tiles(plots = plots, dsn_bbox = bbox_path, site = site,
+  S2_grid <- get_s2_tiles(plots = plots, dsn_bbox = bbox_path, site = siteName,
                           path_S2tilinggrid = path_S2tilinggrid,
                           overwrite = overwrite)
 
@@ -75,9 +75,16 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
   # download S2 data
   message('download S2 collection')
   get_s2collection(plots = plots, datetime = datetime,
-                   S2tiles = S2_grid$S2tiles, output_dir = output_dir, 
+                   S2tiles = S2_grid$S2tiles, output_dir = output_dir,
                    collection = collection, stac_url = stac_url)
-  # get_s2collection(plots = plots, datetime = datetime,
-  #                  S2tiles = S2_grid$S2tiles, output_dir = output_dir)
-  return(invisible())
+  
+  # change name if siteName provided
+  raster_dir <- file.path(output_dir, 'raster_samples')
+  list_files <- list.files(path = raster_dir, pattern = 'plot_001', full.names = T)
+  if (!is.null(siteName)){
+    name_update <- gsub(pattern = 'plot_001', replacement = siteName, x = list_files)
+    file.rename(from = list_files, to = name_update)
+    list_files <- name_update
+  }
+  return(list_files)
 }

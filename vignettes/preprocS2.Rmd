@@ -57,7 +57,8 @@ library(preprocS2)
 library(sf)
 
 # 1- define input & output directories
-output_dir <- './RESULTS'
+output_dir <- './RESULTS_bbox'
+dir.create(path = output_dir, showWarnings = F, recursive = T)
 datetime <- as.Date('2024-10-05')
 
 # 2- define area of interest
@@ -74,7 +75,7 @@ secret <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 authentication <- list('id' = id, 'pwd' = secret)
 
 get_s2_raster(bbox = bbox, datetime = datetime, output_dir = output_dir, 
-              path_S2tilinggrid = path_S2tilinggrid, 
+              path_S2tilinggrid = path_S2tilinggrid, siteName = 'FrenchGuiana',
               overwrite = F, geomAcq = T, authentication = authentication)
 ```
 
@@ -95,14 +96,15 @@ library(preprocS2)
 library(sf)
 
 # 1- define input & output directories
-output_dir <- './RESULTS'
+output_dir <- './RESULTS_vector'
+dir.create(path = output_dir, showWarnings = F, recursive = T)
 datetime <- as.Date('2024-10-05')
 
 # 2- define area of interest
 bbox <- sf::st_bbox(obj = c('xmin' = -54.1, 'ymin' = 5.0, 
                             'xmax' = -54.0, 'ymax' = 5.1))
-aoi_path <- file.path(output_dir, 'S2_aoi.GPKG')
-sf::st_write(obj = bbox_to_poly(x = bbox), dsn = aoi_path, driver = 'GPKG')
+aoi_path <- file.path(output_dir, 'S2_FrenchGuiana_aoi.GPKG')
+sf::st_write(obj = bbox_to_poly(x = bbox), dsn = aoi_path, driver = 'GPKG', overwrite = T)
 # get tiling grid kml from https://sentiwiki.copernicus.eu/web/s2-products
 path_S2tilinggrid <- 'Sentinel-2_tiling_grid.kml'
 
@@ -113,7 +115,7 @@ secret <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 authentication <- list('id' = id, 'pwd' = secret)
 
 get_s2_raster(aoi_path = aoi_path, datetime = datetime, output_dir = output_dir, 
-              path_S2tilinggrid = path_S2tilinggrid, 
+              path_S2tilinggrid = path_S2tilinggrid, siteName = 'FrenchGuiana',
               overwrite = F, geomAcq = T, authentication = authentication)
 ```
 
@@ -121,4 +123,4 @@ get_s2_raster(aoi_path = aoi_path, datetime = datetime, output_dir = output_dir,
 
 S2 images corresponding to large extents can be downloaded using aoi tiling and parallel download/process to speed it up.
 This will be documented soon.
-\`
+
