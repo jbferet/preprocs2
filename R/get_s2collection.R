@@ -42,9 +42,9 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
                                      output_dir = output_dir,
                                      cloudcover = cloudcover,
                                      overwrite = overwrite,
+                                     collection = collection,
                                      nbCPU = nbCPU, stac_url = stac_url,
                                      doublecheckColl = doublecheckColl)
-  
   # define paths
   raster_dir <- file.path(output_dir, 'raster_samples')
   dir.create(raster_dir, showWarnings = F, recursive = T)

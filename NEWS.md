@@ -1,3 +1,8 @@
+# preprocS2 v2.0.1
+
+## Addition
+- added an error message when no data available on STAC catalog for the spatiotemporal request
+
 # preprocS2 v2.0.0
 
 ## Fix

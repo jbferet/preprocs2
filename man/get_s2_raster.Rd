@@ -14,7 +14,9 @@ get_s2_raster(
   path_S2tilinggrid = NULL,
   overwrite = T,
   geomAcq = F,
-  authentication = NULL
+  authentication = NULL,
+  collection = "sentinel-2-l2a",
+  stac_url = NULL
 )
 }
 \arguments{
@@ -37,6 +39,10 @@ get_s2_raster(
 \item{geomAcq}{boolean.}
 
 \item{authentication}{list. authentication to CDSE}
+
+\item{collection}{character.}
+
+\item{stac_url}{character.}
 }
 \value{
 S2tiles list of tiles corresponding to plots

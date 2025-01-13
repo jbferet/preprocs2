@@ -10,6 +10,8 @@
 #' @param overwrite boolean.
 #' @param geomAcq boolean.
 #' @param authentication list. authentication to CDSE
+#' @param collection character.
+#' @param stac_url character.
 #'
 #' @return S2tiles list of tiles corresponding to plots
 #' @importFrom sf read_sf st_intersects st_collection_extract st_write
@@ -17,7 +19,8 @@
 
 get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cloudcover = 100,
                           site = NULL, path_S2tilinggrid = NULL, overwrite = T,
-                          geomAcq = F, authentication = NULL){
+                          geomAcq = F, authentication = NULL, 
+                          collection = "sentinel-2-l2a", stac_url = NULL){
 
   # get bounding box for aoi
   if (is.null(bbox) | ! inherits(x = bbox, 'bbox')){
@@ -41,10 +44,10 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
     }
   }
   dir.create(path = input_dir, showWarnings = F, recursive = T)
-  aoi <- list('001' = bbox_to_poly(x = bbox))
+  plots <- list('001' = bbox_to_poly(x = bbox))
   bbox_path <- file.path(input_dir,'aoi_bbox.GPKG')
   if (!file.exists(bbox_path) | overwrite == T)
-    sf::st_write(obj = aoi$`001`, dsn = bbox_path,
+    sf::st_write(obj = plots$`001`, dsn = bbox_path,
                  driver = 'GPKG', delete_dsn = T)
 
   # create proper datetime if only one date provided
@@ -54,7 +57,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
   # define s2 tiles corresponding to aoi
   message('get S2 tiles corresponding to aoi')
   path_S2tilinggrid <- check_S2tilinggrid(path_S2tilinggrid = path_S2tilinggrid)
-  S2_grid <- get_s2_tiles(plots = aoi, dsn_bbox = bbox_path, site = site,
+  S2_grid <- get_s2_tiles(plots = plots, dsn_bbox = bbox_path, site = site,
                           path_S2tilinggrid = path_S2tilinggrid,
                           overwrite = overwrite)
 
@@ -71,7 +74,10 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
 
   # download S2 data
   message('download S2 collection')
-  get_s2collection(plots = aoi, datetime = datetime,
-                   S2tiles = S2_grid$S2tiles, output_dir = output_dir)
+  get_s2collection(plots = plots, datetime = datetime,
+                   S2tiles = S2_grid$S2tiles, output_dir = output_dir, 
+                   collection = collection, stac_url = stac_url)
+  # get_s2collection(plots = plots, datetime = datetime,
+  #                  S2tiles = S2_grid$S2tiles, output_dir = output_dir)
   return(invisible())
 }
