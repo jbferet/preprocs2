@@ -39,9 +39,10 @@ download_s2collection <- function(collection_path, aoi, iChar, raster_dir,
               RadiometricFilter = RadiometricFilter, overwrite = overwrite)
 
   # download S2 collection
-  download_s2(aoi = aoi, raster_dir = raster_dir,
+  download_s2(aoi = aoi, raster_dir = raster_dir, collection = collection, 
               collection_path = collection_path, iChar = iChar,
               resolution = resolution, offset = offset, offset_B2 = offset_B2,
               corr_BRF = corr_BRF, clean_bands = clean_bands)
   if (!is.null(p)) p()
+  return()
 }

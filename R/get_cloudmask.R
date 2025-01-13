@@ -28,9 +28,13 @@ get_cloudmask <- function(collection_path, aoi, iChar, raster_dir, overwrite = F
   # check cloud masks: are there already downloaded ones, are there missing ones?
   cloud_status <- list_cloud_dl(raster_dir, Acqdates, iChar, asset_names = asset_names)
   # download SCL required
-  cloud_dl <- download_cloudmask(aoi = aoi, raster_dir = raster_dir,
-                                 collection_info = item_collection, iChar = iChar,
-                                 resolution = resolution, asset_names = asset_names)
+  cloud_info <- download_cloudmask(aoi = aoi, raster_dir = raster_dir,
+                                   collection = collection, 
+                                   collection_info = item_collection, iChar = iChar,
+                                   resolution = resolution, asset_names = asset_names)
+  # get cloud data and directory where stored
+  cloud_dl <- cloud_info$cloud_dl
+  out_dir <- cloud_info$out_dir
 
   # combine list of SCL already downloaded and SCL to download
   SCL <- list()
@@ -70,5 +74,6 @@ get_cloudmask <- function(collection_path, aoi, iChar, raster_dir, overwrite = F
     }
   }
   if (!is.null(elim)) saveRDS(object = item_collection, file = collection_path)
+  if (dir.exists(out_dir)) unlink(x = out_dir, recursive = T, force = T)
   return()
 }

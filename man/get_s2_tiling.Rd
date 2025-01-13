@@ -10,7 +10,7 @@ get_s2_tiling(
   datetime,
   output_dir,
   cloudcover = 100,
-  site = NULL,
+  siteName = NULL,
   path_S2tilinggrid = NULL,
   overwrite = T,
   collection = "sentinel-2-l2a",
@@ -40,7 +40,7 @@ get_s2_tiling(
 
 \item{cloudcover}{numeric.}
 
-\item{site}{character. name of the study site}
+\item{siteName}{character. name of the study site}
 
 \item{path_S2tilinggrid}{character. path for the Sentinel-2_tiling_grid.kml file}
 

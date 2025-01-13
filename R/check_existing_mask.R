@@ -2,14 +2,14 @@
 #'
 #' @param item_collection path for collection to download
 #' @param band_url list.
+#' @param collection character.
 #' @param rootname character. directory where rasters are stored
 #'
 #' @return list of collections per plot
 #' @importFrom stringr str_detect
 #' @export
 #'
-check_existing_mask <- function(item_collection, band_url, rootname){
-  asset_names <- c('B02', 'B04', 'B08')
+check_existing_mask <- function(item_collection, band_url, collection = 'sentinel-2-l2a', rootname){
   # get bands per acquisition
   selAcq <- list()
   collec_dl <- item_collection
@@ -19,8 +19,15 @@ check_existing_mask <- function(item_collection, band_url, rootname){
   for (dateacq in item_collection$acquisitionDate){
     dateacq1 <- as.character(as.Date(dateacq))
     dateacq2 <- format(as.Date(dateacq),format = '%Y%m%d')
-    sel <- which(stringr::str_detect(string = band_url,
-                                     pattern = paste0('MSIL2A_',dateacq2)))
+    if (collection == 'sentinel-2-l2a'){
+      asset_names <- c('B02', 'B04', 'B08')
+      sel <- which(stringr::str_detect(string = band_url,
+                                       pattern = paste0('MSIL2A_',dateacq2)))
+    } else if (collection == 'sentinel2-l2a-sen2lasrc'){
+      asset_names <- c('band2', 'band4', 'band8')
+      sel <- which(stringr::str_detect(string = band_url,
+                                       pattern = paste0('MSIL2A-SEN2LASRC_',dateacq2)))
+    }
     selAcq[[dateacq1]] <- check_order_bands(acq = band_url[sel],
                                             patterns = asset_names)
     # check if mask exists and eliminate from collection to download

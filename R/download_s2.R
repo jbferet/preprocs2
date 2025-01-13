@@ -31,26 +31,49 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
   band_url0 <- rstac::assets_url(collection_info, asset_names = asset_names)
   if (!is.null(band_url0)){
     # get B2 asset as template for 10m band if needed
-    if (resolution == 10) asset_tmp <- 'B02'
-    if (resolution == 20) asset_tmp <- 'B05'
-    btmp_url <- rstac::assets_url(collection_info, asset_names = asset_tmp)
-    btmp_url <- make_vsicurl_url(btmp_url, collection = collection)[1]
-    out_file <- tempfile()
-    get_asset(asset_url = btmp_url, out_file = out_file, plots_bbox = plots_bbox)
-    template_Rast <- terra::rast(out_file)
+    if (collection == 'sentinel-2-l2a'){
+      if (resolution == 10) asset_tmp <- 'B02'
+      if (resolution == 20) asset_tmp <- 'B05'
+      btmp_url <- rstac::assets_url(collection_info, asset_names = asset_tmp)
+      btmp_url <- make_vsicurl_url(btmp_url, collection = collection)[1]
+      out_file <- tempfile()
+      get_asset(asset_url = btmp_url, out_file = out_file, plots_bbox = plots_bbox)
+      template_Rast <- terra::rast(out_file)
+    } else {
+      template_Rast <- NULL
+    }
     # get bands per acquisition
     selAcq <- list()
     for (dateacq in collection_info$acquisitionDate){
       dateacq2 <- format(as.Date(dateacq),format = '%Y%m%d')
-      sel <- which(stringr::str_detect(string = band_url0, pattern = paste0('MSIL2A_',dateacq2)))
+      if (collection == 'sentinel-2-l2a'){
+        sel <- which(stringr::str_detect(string = band_url0, pattern = paste0('MSIL2A_',dateacq2)))
+        asset_names2 <- c('B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B11', 'B12')
+      } else {
+        sel <- which(stringr::str_detect(string = band_url0, pattern = paste0('MSIL2A-SEN2LASRC_',dateacq2)))
+        asset_names2 <- c('band2.tif', 'band3.tif', 'band4.tif', 'band5.tif', 
+                          'band6.tif', 'band7.tif', 'band8.tif', 'band8a.tif', 'band11.tif', 'band12.tif')
+      }
       selAcq[[as.character(as.Date(dateacq))]] <- band_url0[sel]
       # check band order
       selAcq[[as.character(as.Date(dateacq))]] <- check_order_bands(acq = selAcq[[as.character(as.Date(dateacq))]],
-                                                                    patterns = asset_names)
+                                                                    patterns = asset_names2)
     }
-    band_url <- lapply(X = selAcq, make_vsicurl_url, collection = collection)
-    baseline <- lapply(lapply(collection_info$features,'[[','properties'),
-                       '[[', 's2:processing_baseline')
+    if (collection=='sentinel-2-l2a'){
+    	band_url <- lapply(X = selAcq, make_vsicurl_url, collection = collection)
+    } else if (collection=='sentinel2-l2a-sen2lasrc'){
+      band_url <- lapply(X = selAcq, make_vsicurl_theia_url)
+    }
+    # band_url <- lapply(X = selAcq, make_vsicurl_url, collection = collection)
+    
+    if (collection == 'sentinel-2-l2a'){
+      baseline <- lapply(lapply(collection_info$features,'[[','properties'),
+                         '[[', 's2:processing_baseline')
+    } else if (collection == 'sentinel2-l2a-sen2lasrc'){
+      baseline <- lapply(lapply(lapply(collection_info$features,'[[','properties'),
+                                '[[', 'processing:software'), 
+                         '[[', 'sen2lasrc')
+    } 
     s2_files <- mapply(FUN = download_s2_acq,
                        acq = as.list(collection_info$acquisitionDate),
                        band_url = band_url,
@@ -58,6 +81,7 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                                        plots_bbox = plots_bbox,
                                        iChar = iChar,
                                        asset_names = asset_names,
+                                       collection = collection, 
                                        skipExists = T),
                        SIMPLIFY = F)
     sel <- which(!unlist(lapply(X = s2_files, FUN = is.null)))

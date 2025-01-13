@@ -21,7 +21,8 @@ correct_s2stack <- function(s2_items, acq, raster_dir, baseline, template_Rast,
                             asset_names, iChar, aoi, offset = 1000,
                             offset_B2 = F, corr_BRF = F, clean_bands = T){
   S2_rast <- lapply(X = s2_items, FUN = terra::rast)
-  S2_rast  <- lapply(X = S2_rast, FUN = terra::resample, template_Rast, method = 'near')
+  if (!is.null(template_Rast))
+    S2_rast  <- lapply(X = S2_rast, FUN = terra::resample, template_Rast, method = 'near')
   # correct for geometry of acquisition: get correcting factors
   output_dir <- dirname(raster_dir)
   if (corr_BRF)
@@ -36,7 +37,10 @@ correct_s2stack <- function(s2_items, acq, raster_dir, baseline, template_Rast,
   S2_rast  <- terra::rast(S2_rast)
   names(S2_rast) <- asset_names
   # correct offset
-  if (as.numeric(baseline)>=4) terra::values(S2_rast) <- terra::values(S2_rast)-offset
+  if (!is.na(as.numeric(baseline))){
+    if (as.numeric(baseline)>=4)
+      terra::values(S2_rast) <- terra::values(S2_rast)-offset
+  } 
   out_S2_file <- file.path(raster_dir,paste('plot_',iChar,'_',acq, '.tiff', sep = ''))
   terra::writeRaster(x = S2_rast, filename = out_S2_file, overwrite = T)
   if (clean_bands) unlink(x = s2_items)

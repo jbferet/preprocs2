@@ -33,10 +33,12 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir,
 
   # download B02, B04 & B08 to update mask
   maskUD_out <- get_B248_filter(raster_dir = raster_dir, mask_path = mask_path,
-                                collection_path = collection_path, iChar = iChar,
-                                aoi = aoi, resolution = resolution, collection = collection, 
+                                collection_path = collection_path, 
+                                iChar = iChar, aoi = aoi, resolution = resolution, 
+                                collection = collection, 
                                 fraction_vegetation = fraction_vegetation,
-                                offset = offset, RadiometricFilter = RadiometricFilter)
+                                offset = offset, 
+                                RadiometricFilter = RadiometricFilter)
   item_collection <- maskUD_out$collection_info
 
   # combine list of SCL already downloaded and SCL to download
@@ -68,11 +70,13 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir,
         cloudmask <- cloudmask[-which(names(cloudmask) %in% as.Date(d))]
         if (file.exists(filename)) unlink(filename)
       } else if  (fcover > fraction_vegetation){
-        if (!file.exists(filename) | overwrite == T)
-          terra::writeRaster(x = cloudmask[[dd]], filename = filename, overwrite = overwrite)
+        # if (!file.exists(filename) | overwrite == T)
+        if (!file.exists(filename))
+            terra::writeRaster(x = cloudmask[[dd]], filename = filename, overwrite = overwrite)
       }
     } else if (asset_names == 'CLM'){
-      if (!file.exists(filename) | overwrite == T)
+      # if (!file.exists(filename) | overwrite == T)
+      if (!file.exists(filename))
         terra::writeRaster(x = cloudmask[[dd]], filename = filename, overwrite = overwrite)
     }
   }

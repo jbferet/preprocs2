@@ -4,12 +4,19 @@
 \alias{check_existing_mask}
 \title{downloads S2 reflectance to update the vegetation mask}
 \usage{
-check_existing_mask(item_collection, band_url, rootname)
+check_existing_mask(
+  item_collection,
+  band_url,
+  collection = "sentinel-2-l2a",
+  rootname
+)
 }
 \arguments{
 \item{item_collection}{path for collection to download}
 
 \item{band_url}{list.}
+
+\item{collection}{character.}
 
 \item{rootname}{character. directory where rasters are stored}
 }

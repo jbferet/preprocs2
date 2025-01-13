@@ -4,12 +4,14 @@
 \alias{get_dateAcq}
 \title{gets acquisition date from planetary URL}
 \usage{
-get_dateAcq(band_url = NULL, S2product = NULL)
+get_dateAcq(band_url = NULL, S2product = NULL, collection = "sentinel-2-l2a")
 }
 \arguments{
 \item{band_url}{character.}
 
 \item{S2product}{character.}
+
+\item{collection}{character.}
 }
 \value{
 DateAcq dates of acquisition

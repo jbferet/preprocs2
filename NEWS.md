@@ -1,3 +1,8 @@
+# preprocS2 v2.1.0
+
+## Addition
+- added support for THEIA & LaSRC catalogs
+
 # preprocS2 v2.0.1
 
 ## Addition
