@@ -1,3 +1,8 @@
+# preprocS2 v2.2.1
+
+## Fix
+- check if (!is.null(out_dir)) at the end of get_cloudmask
+
 # preprocS2 v2.2.0
 
 ## Fix
