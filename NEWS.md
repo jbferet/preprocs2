@@ -1,3 +1,8 @@
+# preprocS2 v2.2.0
+
+## Fix
+- systematically sign query for lasrc and planetary
+
 # preprocS2 v2.1.0
 
 ## Addition

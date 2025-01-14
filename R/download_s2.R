@@ -22,6 +22,16 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                         corr_BRF = F, clean_bands = T){
 
   collection_info <- readRDS(file = collection_path)
+  if (collection=='sentinel2-l2a-sen2lasrc'){
+    collection_info <- collection_info |>
+      rstactheia::items_sign_theia()
+  } else if (collection=='sentinel-2-l2a'){
+    collection_info <- collection_info |>
+      rstac::items_sign(
+        rstac::sign_planetary_computer()
+      )
+  }
+
   # get bounding box
   plots_bbox <- aoi |>
     sf::st_transform(sf::st_crs(4326)) |>
@@ -51,7 +61,7 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
         asset_names2 <- c('B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B11', 'B12')
       } else {
         sel <- which(stringr::str_detect(string = band_url0, pattern = paste0('MSIL2A-SEN2LASRC_',dateacq2)))
-        asset_names2 <- c('band2.tif', 'band3.tif', 'band4.tif', 'band5.tif', 
+        asset_names2 <- c('band2.tif', 'band3.tif', 'band4.tif', 'band5.tif',
                           'band6.tif', 'band7.tif', 'band8.tif', 'band8a.tif', 'band11.tif', 'band12.tif')
       }
       selAcq[[as.character(as.Date(dateacq))]] <- band_url0[sel]
@@ -65,15 +75,15 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
       band_url <- lapply(X = selAcq, make_vsicurl_theia_url)
     }
     # band_url <- lapply(X = selAcq, make_vsicurl_url, collection = collection)
-    
+
     if (collection == 'sentinel-2-l2a'){
       baseline <- lapply(lapply(collection_info$features,'[[','properties'),
                          '[[', 's2:processing_baseline')
     } else if (collection == 'sentinel2-l2a-sen2lasrc'){
       baseline <- lapply(lapply(lapply(collection_info$features,'[[','properties'),
-                                '[[', 'processing:software'), 
+                                '[[', 'processing:software'),
                          '[[', 'sen2lasrc')
-    } 
+    }
     s2_files <- mapply(FUN = download_s2_acq,
                        acq = as.list(collection_info$acquisitionDate),
                        band_url = band_url,
@@ -81,7 +91,7 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                                        plots_bbox = plots_bbox,
                                        iChar = iChar,
                                        asset_names = asset_names,
-                                       collection = collection, 
+                                       collection = collection,
                                        skipExists = T),
                        SIMPLIFY = F)
     sel <- which(!unlist(lapply(X = s2_files, FUN = is.null)))

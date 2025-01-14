@@ -20,6 +20,15 @@ get_cloudmask <- function(collection_path, aoi, iChar, raster_dir, overwrite = F
 
   # days of acquisition in ascending order
   item_collection <- readRDS(file = collection_path)
+  if (collection=='sentinel2-l2a-sen2lasrc'){
+    item_collection <- item_collection |>
+      rstactheia::items_sign_theia()
+  } else if (collection=='sentinel-2-l2a'){
+    item_collection <- item_collection |>
+      rstac::items_sign(
+        rstac::sign_planetary_computer()
+      )
+  }
   asset_names <- get_cloud_asset(item_collection, collection)
   suffix <- paste0('_',asset_names,'.tiff')
   Acqdates <- unique(rev(item_collection$acquisitionDate))
@@ -29,7 +38,7 @@ get_cloudmask <- function(collection_path, aoi, iChar, raster_dir, overwrite = F
   cloud_status <- list_cloud_dl(raster_dir, Acqdates, iChar, asset_names = asset_names)
   # download SCL required
   cloud_info <- download_cloudmask(aoi = aoi, raster_dir = raster_dir,
-                                   collection = collection, 
+                                   collection = collection,
                                    collection_info = item_collection, iChar = iChar,
                                    resolution = resolution, asset_names = asset_names)
   # get cloud data and directory where stored
