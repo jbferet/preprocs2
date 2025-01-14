@@ -55,11 +55,13 @@ get_collection <- function(aoi, S2tiles = NULL, datetime, FileName, overwrite = 
     # select tiles which are identified as wanted (== fully contains plot)
     if (!is.null(S2tiles) & unique(!is.na(S2tiles)))
         collection_plot <- eliminate_incompleteTiles(collection_plot, S2tiles = S2tiles)
-    # eliminates doublons in terms of date of acquisition
-    s2id <- unlist(lapply(collection_plot$features,'[[','id'))
-    tileID <- get_tile(s2id)
-    if  (!is.null(S2tiles) & unique(!is.na(S2tiles)))
-      collection_plot <- eliminate_doublons_dateAcq(collection_plot)
+    if (length(collection_plot$features)>0){
+      # eliminates doublons in terms of date of acquisition
+      s2id <- unlist(lapply(collection_plot$features,'[[','id'))
+      tileID <- get_tile(s2id)
+      if  (!is.null(S2tiles) & unique(!is.na(S2tiles)))
+        collection_plot <- eliminate_doublons_dateAcq(collection_plot)
+    }
   } else if (file.exists(FileName) & overwrite==F){
     # if file already exists, download it
     collection_plot <- readRDS(file = FileName)
