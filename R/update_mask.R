@@ -23,6 +23,17 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir,
 
   # days of acquisition in ascending order
   item_collection <- readRDS(file = collection_path)
+  if (collection=='sentinel2-l2a-sen2lasrc'){
+    item_collection <- item_collection |>
+      rstactheia::items_sign_theia()
+  } else if (collection=='sentinel-2-l2a'){
+    item_collection <- item_collection |>
+      rstac::items_sign(
+        rstac::sign_planetary_computer()
+      )
+  }
+
+
   # get asset name for cloud data
   asset_names <- get_cloud_asset(item_collection, collection)
   suffix <- paste0('_',asset_names,'.tiff')
@@ -33,11 +44,11 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir,
 
   # download B02, B04 & B08 to update mask
   maskUD_out <- get_B248_filter(raster_dir = raster_dir, mask_path = mask_path,
-                                collection_path = collection_path, 
-                                iChar = iChar, aoi = aoi, resolution = resolution, 
-                                collection = collection, 
+                                collection_path = collection_path,
+                                iChar = iChar, aoi = aoi, resolution = resolution,
+                                collection = collection,
                                 fraction_vegetation = fraction_vegetation,
-                                offset = offset, 
+                                offset = offset,
                                 RadiometricFilter = RadiometricFilter)
   item_collection <- maskUD_out$collection_info
 
