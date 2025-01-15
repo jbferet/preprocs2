@@ -26,11 +26,11 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir,
   if (collection=='sentinel2-l2a-sen2lasrc'){
     item_collection <- item_collection |>
       rstactheia::items_sign_theia()
-  } else if (collection=='sentinel-2-l2a'){
-    item_collection <- item_collection |>
-      rstac::items_sign(
-        rstac::sign_planetary_computer()
-      )
+  # } else if (collection=='sentinel-2-l2a'){
+  #   item_collection <- item_collection |>
+  #     rstac::items_sign(
+  #       rstac::sign_planetary_computer()
+  #     )
   }
 
 

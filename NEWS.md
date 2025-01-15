@@ -1,3 +1,9 @@
+# preprocS2 v2.2.2
+
+## Fix
+- get_s2_raster: systematically convert bbox to crs 4326
+- remove item signature for planetary
+
 # preprocS2 v2.2.1
 
 ## Fix

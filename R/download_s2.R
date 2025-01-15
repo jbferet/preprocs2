@@ -25,11 +25,11 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
   if (collection=='sentinel2-l2a-sen2lasrc'){
     collection_info <- collection_info |>
       rstactheia::items_sign_theia()
-  } else if (collection=='sentinel-2-l2a'){
-    collection_info <- collection_info |>
-      rstac::items_sign(
-        rstac::sign_planetary_computer()
-      )
+  # } else if (collection=='sentinel-2-l2a'){
+  #   collection_info <- collection_info |>
+  #     rstac::items_sign(
+  #       rstac::sign_planetary_computer()
+  #     )
   }
 
   # get bounding box

@@ -22,11 +22,12 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
                           geomAcq = F, authentication = NULL,
                           collection = "sentinel-2-l2a", stac_url = NULL){
 
+  input_dir <- NULL
   # get bounding box for aoi
   if (is.null(bbox) | ! inherits(x = bbox, 'bbox')){
     if (is.null(aoi_path)){
       message('provide path for valid vector file as "aoi_path", or "bbox" sf object as input for "get_s2_raster"')
-      stop()
+      stop_quietly()
     } else if (file.exists(aoi_path)){
       bbox <- sf::st_bbox(sf::st_read(aoi_path))
       input_dir <- dirname(aoi_path)
@@ -43,6 +44,12 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
       input_dir <- output_dir
     }
   }
+  if (is.null(input_dir)){
+    message('Please provide valid "aoi_path" and "bbox" as input for "get_s2_raster"')
+    stop_quietly()
+  }
+  bbox <- bbox |>
+    sf::st_transform(4326)
   dir.create(path = input_dir, showWarnings = F, recursive = T)
   plots <- list('001' = bbox_to_poly(x = bbox))
   bbox_path <- file.path(input_dir,'aoi_bbox.GPKG')
@@ -77,7 +84,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
   get_s2collection(plots = plots, datetime = datetime,
                    S2tiles = S2_grid$S2tiles, output_dir = output_dir,
                    collection = collection, stac_url = stac_url)
-  
+
   # change name if siteName provided
   raster_dir <- file.path(output_dir, 'raster_samples')
   list_files <- list.files(path = raster_dir, pattern = 'plot_001', full.names = T)
