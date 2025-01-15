@@ -45,7 +45,7 @@ get_s2_raster(
 \item{stac_url}{character.}
 }
 \value{
-S2tiles list of tiles corresponding to plots
+list of path corresponding to output files
 }
 \description{
 return S2 tiles intersecting with the footprint of a vector file

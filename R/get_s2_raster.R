@@ -13,7 +13,7 @@
 #' @param collection character.
 #' @param stac_url character.
 #'
-#' @return S2tiles list of tiles corresponding to plots
+#' @return list of path corresponding to output files
 #' @importFrom sf read_sf st_intersects st_collection_extract st_write
 #' @export
 
@@ -93,5 +93,9 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
     file.rename(from = list_files, to = name_update)
     list_files <- name_update
   }
-  return(list_files)
+  files_out <- list('Refl_L2A' = list_files[1],
+                    'Binary_mask' = list_files[2],
+                    'vegetation_mask' = list_files[3],
+                    'provider_mask' = list_files[4])
+  return(files_out)
 }

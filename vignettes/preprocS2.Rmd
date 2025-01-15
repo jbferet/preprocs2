@@ -64,6 +64,7 @@ datetime <- as.Date('2024-10-05')
 # 2- define area of interest
 bbox <- sf::st_bbox(obj = c('xmin' = -54.1, 'ymin' = 5.0, 
                             'xmax' = -54.0, 'ymax' = 5.1))
+sf::st_crs(x = bbox) <- 4326
 
 # get tiling grid kml from https://sentiwiki.copernicus.eu/web/s2-products
 path_S2tilinggrid <- 'Sentinel-2_tiling_grid.kml'
@@ -74,9 +75,18 @@ id <- "sh-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 secret <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 authentication <- list('id' = id, 'pwd' = secret)
 
-get_s2_raster(bbox = bbox, datetime = datetime, output_dir = output_dir, 
-              path_S2tilinggrid = path_S2tilinggrid, siteName = 'FrenchGuiana',
-              overwrite = F, geomAcq = T, authentication = authentication)
+list_files <- get_s2_raster(bbox = bbox, datetime = datetime, 
+                            output_dir = output_dir, 
+                            path_S2tilinggrid = path_S2tilinggrid, 
+                            siteName = 'FrenchGuiana',
+                            overwrite = F, geomAcq = T, 
+                            authentication = authentication)
+# Sentinel-2 L2A reflectance
+Refl_L2A <- list_files$Refl_L2A
+# Sentinel-2 binary mask identifying vegetation, discarding clouds & shadows
+vegetation_mask <- list_files$vegetation_mask
+# Sentinel-2 mask from provider ( = SCL from ESA products)
+SCL <- list_files$provider_mask
 ```
 
 The output files are stored in the directory `output_dir`.
@@ -103,6 +113,7 @@ datetime <- as.Date('2024-10-05')
 # 2- define area of interest
 bbox <- sf::st_bbox(obj = c('xmin' = -54.1, 'ymin' = 5.0, 
                             'xmax' = -54.0, 'ymax' = 5.1))
+sf::st_crs(x = bbox) <- 4326
 aoi_path <- file.path(output_dir, 'S2_FrenchGuiana_aoi.GPKG')
 sf::st_write(obj = bbox_to_poly(x = bbox), dsn = aoi_path, driver = 'GPKG', overwrite = T)
 # get tiling grid kml from https://sentiwiki.copernicus.eu/web/s2-products
@@ -114,9 +125,18 @@ id <- "sh-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 secret <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 authentication <- list('id' = id, 'pwd' = secret)
 
-get_s2_raster(aoi_path = aoi_path, datetime = datetime, output_dir = output_dir, 
-              path_S2tilinggrid = path_S2tilinggrid, siteName = 'FrenchGuiana',
-              overwrite = F, geomAcq = T, authentication = authentication)
+list_files <- get_s2_raster(aoi_path = aoi_path, datetime = datetime, 
+                            output_dir = output_dir, 
+                            path_S2tilinggrid = path_S2tilinggrid, 
+                            siteName = 'FrenchGuiana',
+                            overwrite = F, geomAcq = T, 
+                            authentication = authentication)
+# Sentinel-2 L2A reflectance
+Refl_L2A <- list_files$Refl_L2A
+# Sentinel-2 binary mask identifying vegetation, discarding clouds & shadows
+vegetation_mask <- list_files$vegetation_mask
+# Sentinel-2 mask from provider ( = SCL from ESA products)
+SCL <- list_files$provider_mask
 ```
 
 ## Additional functionalities

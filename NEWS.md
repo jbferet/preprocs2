@@ -1,3 +1,8 @@
+# preprocS2 v2.2.3
+
+## addition
+- added names for outputs rasters from get_s2_raster
+
 # preprocS2 v2.2.2
 
 ## Fix
