@@ -23,11 +23,11 @@ get_cloudmask <- function(collection_path, aoi, iChar, raster_dir, overwrite = F
   if (collection=='sentinel2-l2a-sen2lasrc'){
     item_collection <- item_collection |>
       rstactheia::items_sign_theia()
-  } else if (collection=='sentinel-2-l2a'){
-    item_collection <- item_collection |>
-      rstac::items_sign(
-        rstac::sign_planetary_computer()
-      )
+  # } else if (collection=='sentinel-2-l2a'){
+  #   item_collection <- item_collection |>
+  #     rstac::items_sign(
+  #       rstac::sign_planetary_computer()
+  #     )
   }
   asset_names <- get_cloud_asset(item_collection, collection)
   suffix <- paste0('_',asset_names,'.tiff')
