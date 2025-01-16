@@ -5,7 +5,7 @@
 #' @param aoiplot geometry corresponding to aoi
 #'
 #' @return list of collections per plot
-#' @importFrom terra crop rast project crs
+#' @importFrom terra crop rast project crs rasterize
 #' @importFrom methods as
 #' @export
 #'
@@ -22,7 +22,7 @@ get_mainmask <- function(mask_path, S2_dl, aoiplot){
         mainmask <- terra::crop(x = mainmask, y = as(aoiplot, "Spatial"))
       }
       if (inherits(x = mainmask, what = 'SpatVector')){
-        mainmask <- rasterize(x = mainmask, y = S2_dl, background=0)
+        mainmask <- terra::rasterize(x = mainmask, y = S2_dl, background=0)
       }
       mainmask[mainmask>0] <- 1
       names(mainmask) <- 'binary mask'
