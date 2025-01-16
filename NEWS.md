@@ -1,3 +1,8 @@
+# preprocS2 v2.2.4
+
+## addition
+- accounts for vector files as masks in function "get_mainmask"
+
 # preprocS2 v2.2.3
 
 ## addition

@@ -24,7 +24,6 @@
 #' @param clean_bands boolean
 #'
 #' @return S2tiles list of tiles corresponding to plots
-#' @importFrom sf read_sf st_intersects st_collection_extract st_write
 #' @export
 
 get_s2_tiling <- function(plots, aoi_path, datetime, output_dir, cloudcover = 100,
