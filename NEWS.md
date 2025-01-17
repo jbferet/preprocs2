@@ -1,3 +1,9 @@
+# preprocS2 v2.2.5
+
+## fix
+- properly signing for planetary collections
+- deleting vignette #1
+
 # preprocS2 v2.2.4
 
 ## addition

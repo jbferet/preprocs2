@@ -25,11 +25,11 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
   if (collection=='sentinel2-l2a-sen2lasrc'){
     collection_info <- collection_info |>
       rstactheia::items_sign_theia()
-  # } else if (collection=='sentinel-2-l2a'){
-  #   collection_info <- collection_info |>
-  #     rstac::items_sign(
-  #       rstac::sign_planetary_computer()
-  #     )
+  } else if (collection=='sentinel-2-l2a'){
+    collection_info <- collection_info |>
+      rstac::items_sign(
+        rstac::sign_planetary_computer()
+      )
   }
 
   # get bounding box
@@ -44,8 +44,11 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
     if (collection == 'sentinel-2-l2a'){
       if (resolution == 10) asset_tmp <- 'B02'
       if (resolution == 20) asset_tmp <- 'B05'
-      btmp_url <- rstac::assets_url(collection_info, asset_names = asset_tmp)
-      btmp_url <- make_vsicurl_url(btmp_url, collection = collection)[1]
+      btmp_url <- rstac::assets_url(items = collection_info,
+                                    asset_names = asset_tmp,
+                                    append_gdalvsi = T)
+      # btmp_url <- rstac::assets_url(collection_info, asset_names = asset_tmp)
+      # btmp_url <- make_vsicurl_url(btmp_url, collection = collection)[1]
       out_file <- tempfile()
       get_asset(asset_url = btmp_url, out_file = out_file, plots_bbox = plots_bbox)
       template_Rast <- terra::rast(out_file)
@@ -70,7 +73,16 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                                                                     patterns = asset_names2)
     }
     if (collection=='sentinel-2-l2a'){
-    	band_url <- lapply(X = selAcq, make_vsicurl_url, collection = collection)
+      stac_query <- collection_info |>
+        rstac::items_sign(
+          rstac::sign_planetary_computer())
+      band_url <- lapply(X = stac_query$features, FUN = rstac::assets_url,
+                         asset_names = asset_names,
+                         append_gdalvsi = T)
+#       band_url <- rstac::assets_url(items = collection_info,
+#                                     asset_names = asset_names,
+#                                     append_gdalvsi = T)
+    	# band_url <- lapply(X = selAcq, make_vsicurl_url, collection = collection)
     } else if (collection=='sentinel2-l2a-sen2lasrc'){
       band_url <- lapply(X = selAcq, make_vsicurl_theia_url)
     }

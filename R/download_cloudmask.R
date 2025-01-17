@@ -17,7 +17,7 @@
 download_cloudmask <- function(aoi, raster_dir, collection_info, iChar,
                                collection = 'sentinel-2-l2a', asset_names,
                                resolution){
-  
+
   cloud_dl <- out_dir <- NULL
   # if collection not empty
   if (length(collection_info$acquisitionDate)>0){
@@ -30,7 +30,13 @@ download_cloudmask <- function(aoi, raster_dir, collection_info, iChar,
     band_url <- rstac::assets_url(items = collection_info, asset_names = asset_names)
     dateAcq <- get_dateAcq(band_url = band_url, collection = collection)
     if (collection == 'sentinel-2-l2a'){
-      band_url <- as.list(make_vsicurl_url(band_url, collection = collection))
+      stac_query <- collection_info |>
+        rstac::items_sign(
+          rstac::sign_planetary_computer())
+      band_url <- rstac::assets_url(items = stac_query,
+                                    asset_names = asset_names,
+                                    append_gdalvsi = T)
+      # band_url <- as.list(make_vsicurl_url(band_url, collection = collection))
     } else if (collection == 'sentinel2-l2a-sen2lasrc'){
       band_url <- as.list(make_vsicurl_theia_url(band_url))
     }
@@ -61,13 +67,18 @@ download_cloudmask <- function(aoi, raster_dir, collection_info, iChar,
     # get B2 asset as template for 10m band if needed
     if (resolution == 10 & asset_names == 'SCL') {
       asset_b2 <- 'B02'
-      b02_url <- rstac::assets_url(items = collection_info, asset_names = asset_b2)
-      b02_url <- make_vsicurl_url(b02_url, collection = collection)[1]
+      stac_query <- collection_info |>
+        rstac::items_sign(
+          rstac::sign_planetary_computer())
+      b02_url <- rstac::assets_url(items = stac_query,
+                                   asset_names = asset_b2,
+                                   append_gdalvsi = T)
+      # b02_url <- make_vsicurl_url(b02_url, collection = collection)[1]
       out_file <- tempfile()
       get_asset(asset_url = b02_url, out_file = out_file, plots_bbox = plots_bbox)
       temp_10m <- terra::rast(out_file)
       cloud_dl  <- lapply(X = cloud_dl, FUN = terra::resample, temp_10m, method = 'near')
-    } 
+    }
     names(cloud_dl) <- as.Date(dateAcq)
   }
   return(list('cloud_dl' = cloud_dl, 'out_dir' = out_dir))

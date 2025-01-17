@@ -81,8 +81,9 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
 
   # download S2 data
   message('download S2 collection')
+  S2tiles <- S2_grid$S2tiles
   get_s2collection(plots = plots, datetime = datetime,
-                   S2tiles = S2_grid$S2tiles, output_dir = output_dir,
+                   S2tiles = S2tiles, output_dir = output_dir,
                    collection = collection, stac_url = stac_url)
 
   # change name if siteName provided
