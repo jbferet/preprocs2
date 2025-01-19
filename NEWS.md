@@ -3,6 +3,7 @@
 ## addition
 - add geometry files as outputs for get_s2_raster when available
 - updated vignettes
+- add function get_s2_angles to get geometry of acquisition for an aoi
 
 # preprocS2 v2.2.5
 
