@@ -30,12 +30,13 @@ download_GeomAcq_s2 <- function(aoi, authentication, geom_dir,
   script_geom <- system.file("extdata", "S2L2A_geometry.js", package = "preprocS2")
 
   DatesofAcq <- unique(get_dateAcq(S2product = collection_GeomAcq_S2$sourceId))
-  fileName <- list()
+  fileName <- fileNameAll <- list()
   if (nbCPU==1){
     for (i in seq_len(length(DatesofAcq))){
       for (ang in angle)
         fileName[[ang]] <- file.path(geom_dir,
                                      paste0(ang, '_', DatesofAcq[i], '.tiff'))
+      fileNameAll[[as.character(DatesofAcq[i])]] <- fileName
       # check if angles already exist
       if (FALSE %in% file.exists(unlist(fileName))){
         if (Sys.time() >= attr(x = OAuthToken, which = 'expires')-30)
@@ -62,7 +63,7 @@ download_GeomAcq_s2 <- function(aoi, authentication, geom_dir,
         DatesofAcq <- DatesofAcq[-which(DatesofAcq %in% dd)]
     }
     # define list of output names
-    fileName_geom <- list()
+    # fileName_geom <- list()
     i <- 0
     for (d in as.Date(DatesofAcq)){
       dd <- as.character(as.Date(d))
@@ -70,7 +71,7 @@ download_GeomAcq_s2 <- function(aoi, authentication, geom_dir,
       for (ang in angle)
         fileName[[ang]] <- file.path(geom_dir,
                                      paste0(ang, '_', DatesofAcq[i], '.tiff'))
-      fileName_geom[[i]] <- fileName
+      fileNameAll[[as.character(DatesofAcq[i])]] <- fileName
     }
     if (length(DatesofAcq)>0){
       # check token
@@ -85,7 +86,8 @@ download_GeomAcq_s2 <- function(aoi, authentication, geom_dir,
       with_progress({
         p <- progressr::progressor(steps = length(DatesofAcq))
         s2_file <- future.apply::future_mapply(FUN = GetImages_par,
-                                               fileName = fileName_geom,
+                                               fileName = fileNameAll,
+                                               # fileName = fileName_geom,
                                                time_range = DatesofAcq,
                                                MoreArgs = list(bbox = bbox,
                                                                collection = collection,
@@ -101,5 +103,5 @@ download_GeomAcq_s2 <- function(aoi, authentication, geom_dir,
       plan(sequential)
     }
   }
-  return()
+  return(fileNameAll)
 }

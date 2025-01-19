@@ -68,15 +68,19 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
                           path_S2tilinggrid = path_S2tilinggrid,
                           overwrite = overwrite)
 
+  path_geomfiles <- 'No geometry files requested'
   if (geomAcq & is.null(authentication)){
     message('Please provide authentication for CDSE if you want to get geometry of acquisition')
     message('Activate OAuth clients following this link')
     message('https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings')
   } else if (geomAcq & !is.null(authentication)){
     message('get S2 geometry of acquisition of tiles overlapping with aoi')
-    get_GeomAcq_s2(dsn_S2tiles = S2_grid$dsn_S2tiles, datetime = datetime,
-                   cloudcover = cloudcover, authentication = authentication,
-                   output_dir = output_dir, overwrite = overwrite)
+    path_geomfiles <- get_GeomAcq_s2(dsn_S2tiles = S2_grid$dsn_S2tiles,
+                                     datetime = datetime,
+                                     cloudcover = cloudcover,
+                                     authentication = authentication,
+                                     output_dir = output_dir,
+                                     overwrite = overwrite)
   }
 
   # download S2 data
@@ -97,6 +101,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
   files_out <- list('Refl_L2A' = list_files[1],
                     'Binary_mask' = list_files[2],
                     'vegetation_mask' = list_files[3],
-                    'provider_mask' = list_files[4])
+                    'provider_mask' = list_files[4],
+                    'geometryAcquisition' = path_geomfiles)
   return(files_out)
 }
