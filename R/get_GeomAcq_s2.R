@@ -34,10 +34,11 @@ get_GeomAcq_s2 <- function(dsn_S2tiles, datetime, cloudcover = 100, authenticati
                                                output_dir = output_dir,
                                                overwrite = overwrite)
   # download geometry of acquisition corresponding to the aoi stored in collection
-  download_GeomAcq_s2(aoi = aoi, authentication = authentication,
-                      geom_dir = geom_dir,
-                      collection_GeomAcq_S2 = collection_GeomAcq_S2,
-                      nbCPU = nbCPU)
-  return(invisible())
+  path_geomfiles <- download_GeomAcq_s2(aoi = aoi,
+                                        authentication = authentication,
+                                        geom_dir = geom_dir,
+                                        collection_GeomAcq_S2 = collection_GeomAcq_S2,
+                                        nbCPU = nbCPU)
+  return(path_geomfiles)
 }
 

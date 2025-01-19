@@ -1,3 +1,9 @@
+# preprocS2 v2.2.6
+
+## addition
+- add geometry files as outputs for get_s2_raster when available
+- updated vignettes
+
 # preprocS2 v2.2.5
 
 ## fix

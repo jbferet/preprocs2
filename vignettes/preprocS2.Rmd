@@ -31,7 +31,7 @@ knitr::opts_chunk$set(
 
 This tutorial illustrates how to download Sentinel-2 data for a given bounding box with the R package `preprocS2`.
 
-`preprocS2` is a basic wrapper of the [`rstac`](https://brazil-data-cube.github.io/rstac/) package. 
+`preprocS2` is a basic wrapper of the [`rstac`](https://brazil-data-cube.github.io/rstac/) package.
 It aims at downloading and preparing Sentinel-2 images for further processings using R packages such as [`biodivMapR`](https://jbferet.github.io/biodivMapR/index.html) for spectral diversity mapping, [`prosail`](https://jbferet.gitlab.io/prosail/index.html) for the computation of vegetation biophysical variables, or [`spinr`](https://gitlab.com/jbferet/spinr) for the computation of vegetation biophysical variables or spectral indices.
 
 # How to use preprocS2
@@ -75,18 +75,31 @@ id <- "sh-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 secret <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 authentication <- list('id' = id, 'pwd' = secret)
 
+# tip to save credential on your computer: run the following command : 
+# > file.edit("~/.Renviron")
+# add ID and password for CDSE as well as CURL_SSL_BACKEND using this template
+# > CDSE_ID="sh-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+# > CDSE_SECRET="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+# > CURL_SSL_BACKEND="openssl"
+# save .Renviron file and restart R session then load your credential this way: 
+# > id <- Sys.getenv("CDSE_ID")
+# > secret <- Sys.getenv("CDSE_SECRET")
+
 list_files <- get_s2_raster(bbox = bbox, datetime = datetime, 
                             output_dir = output_dir, 
                             path_S2tilinggrid = path_S2tilinggrid, 
                             siteName = 'FrenchGuiana',
                             overwrite = F, geomAcq = T, 
                             authentication = authentication)
+
 # Sentinel-2 L2A reflectance
 Refl_L2A <- list_files$Refl_L2A
 # Sentinel-2 binary mask identifying vegetation, discarding clouds & shadows
 vegetation_mask <- list_files$vegetation_mask
 # Sentinel-2 mask from provider ( = SCL from ESA products)
 SCL <- list_files$provider_mask
+# Sentinel-2 geometry of acquisition (if requested from CDSE)
+geometryAcquisition <- list_files$geometryAcquisition
 ```
 
 The output files are stored in the directory `output_dir`.
@@ -125,6 +138,16 @@ id <- "sh-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 secret <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 authentication <- list('id' = id, 'pwd' = secret)
 
+# tip to save credential on your computer: run the following command : 
+# > file.edit("~/.Renviron")
+# add ID and password for CDSE as well as CURL_SSL_BACKEND using this template
+# > CDSE_ID="sh-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+# > CDSE_SECRET="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+# > CURL_SSL_BACKEND="openssl"
+# save .Renviron file and restart R session then load your credential this way: 
+# > id <- Sys.getenv("CDSE_ID")
+# > secret <- Sys.getenv("CDSE_SECRET")
+
 list_files <- get_s2_raster(aoi_path = aoi_path, datetime = datetime, 
                             output_dir = output_dir, 
                             path_S2tilinggrid = path_S2tilinggrid, 
@@ -137,10 +160,11 @@ Refl_L2A <- list_files$Refl_L2A
 vegetation_mask <- list_files$vegetation_mask
 # Sentinel-2 mask from provider ( = SCL from ESA products)
 SCL <- list_files$provider_mask
+# Sentinel-2 geometry of acquisition (if requested from CDSE)
+geometryAcquisition <- list_files$geometryAcquisition
 ```
 
 ## Additional functionalities
 
 S2 images corresponding to large extents can be downloaded using aoi tiling and parallel download/process to speed it up.
 This will be documented soon.
-
