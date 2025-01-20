@@ -8,3 +8,5 @@
 ^pkgdown
 ^doc$
 ^Meta$
+^README.html
+^examples

@@ -13,6 +13,7 @@
 #' @importFrom rstac stac ext_filter items_intersects post_request
 #' @importFrom sf st_transform
 #' @importFrom stringr str_split
+#' @importFrom magrittr %>%
 #' @export
 #'
 get_collection <- function(aoi, S2tiles = NULL, datetime, FileName, overwrite = T,
@@ -30,6 +31,8 @@ get_collection <- function(aoi, S2tiles = NULL, datetime, FileName, overwrite = 
     # define start and end days
     startday <- as.character(datetime$from)
     endday <- as.character(datetime$to)
+	# avoid notes when building package
+	`eo:cloud_cover` <- s_intersects <- geometry <- anyinteracts <- interval <- s_intersects <- NULL
     # download collection
     collection_plot <- stac_source %>%
       ext_filter(collection == {{collection}} && `eo:cloud_cover` <= {{cloudcover}}

@@ -2,6 +2,7 @@
 
 ## addition
 - added input variable keepCRS in function get_s2_raster to preserve native projection provided by aoi_path or bbox
+- modifications to avoid notes when building package
 
 
 # preprocS2 v2.2.6
