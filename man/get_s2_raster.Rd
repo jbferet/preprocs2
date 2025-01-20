@@ -17,7 +17,7 @@ get_s2_raster(
   authentication = NULL,
   collection = "sentinel-2-l2a",
   stac_url = NULL,
-  keepCRS = F
+  keepCRS = T
 )
 }
 \arguments{

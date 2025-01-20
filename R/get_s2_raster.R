@@ -102,6 +102,9 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
   # change name if siteName provided
   raster_dir <- file.path(output_dir, 'raster_samples')
   list_files <- list.files(path = raster_dir, pattern = 'plot_001', full.names = T)
+
+  rm(list=setdiff(ls(),c('siteName', 'list_files', 'path_geomfiles')))
+  gc()
   if (!is.null(siteName)){
     name_update <- gsub(pattern = 'plot_001', replacement = siteName, x = list_files)
     file.rename(from = list_files, to = name_update)
