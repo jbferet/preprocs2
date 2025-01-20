@@ -12,6 +12,7 @@
 #' @param authentication list. authentication to CDSE
 #' @param collection character.
 #' @param stac_url character.
+#' @param keepCRS boolean.
 #'
 #' @return list of path corresponding to output files
 #' @importFrom sf read_sf st_intersects st_collection_extract st_write
@@ -20,7 +21,8 @@
 get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cloudcover = 100,
                           siteName = NULL, path_S2tilinggrid = NULL, overwrite = T,
                           geomAcq = F, authentication = NULL,
-                          collection = "sentinel-2-l2a", stac_url = NULL){
+                          collection = "sentinel-2-l2a", stac_url = NULL,
+                          keepCRS = T){
 
   input_dir <- NULL
   # get bounding box for aoi
@@ -48,10 +50,15 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
     message('Please provide valid "aoi_path" and "bbox" as input for "get_s2_raster"')
     stop_quietly()
   }
-  bbox <- bbox |>
-    sf::st_transform(4326)
   dir.create(path = input_dir, showWarnings = F, recursive = T)
-  plots <- list('001' = bbox_to_poly(x = bbox))
+  if (keepCRS == F){
+    crs_final <- 4326
+  } else if (!is.null(aoi_path)){
+    crs_final <- sf::st_crs(sf::st_read(aoi_path))
+  }
+  bbox <- bbox |>
+    sf::st_transform(crs_final)
+  plots <- list('001' = bbox_to_poly(x = bbox, crs = crs_final))
   bbox_path <- file.path(input_dir,'aoi_bbox.GPKG')
   if (!file.exists(bbox_path) | overwrite == T)
     sf::st_write(obj = plots$`001`, dsn = bbox_path,
@@ -64,7 +71,9 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
   # define s2 tiles corresponding to aoi
   message('get S2 tiles corresponding to aoi')
   path_S2tilinggrid <- check_S2tilinggrid(path_S2tilinggrid = path_S2tilinggrid)
-  S2_grid <- get_s2_tiles(plots = plots, dsn_bbox = bbox_path, site = siteName,
+  S2_grid <- get_s2_tiles(plots = plots,
+                          dsn_bbox = bbox_path,
+                          site = siteName,
                           path_S2tilinggrid = path_S2tilinggrid,
                           overwrite = overwrite)
 

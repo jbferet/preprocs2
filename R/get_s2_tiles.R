@@ -22,6 +22,9 @@ get_s2_tiles <- function(plots, dsn_bbox, site = NULL, overwrite = T,
     footprint <- get_s2_footprint(dsn = dsn_bbox)
     # identify S2 tiles fully including plots
     S2tilingGrid <- sf::read_sf(path_S2tilinggrid)
+    if (! sf::st_crs(S2tilingGrid) == sf::st_crs(footprint))
+      footprint <- sf::st_transform(x = footprint, crs = sf::st_crs(S2tilingGrid))
+
     intersection <- sf::st_intersects(x = footprint, y = S2tilingGrid$geometry)
     S2tilingGridsub <- S2tilingGrid[intersection[[1]],]
     # identify S2 tiles corresponding to each plot
