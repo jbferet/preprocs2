@@ -10,6 +10,9 @@
 #'
 get_plot_tile <- function(aoi, S2_footprint){
   # get intersecting S2 tiles
+  if (! sf::st_crs(S2_footprint) == sf::st_crs(aoi))
+    aoi <- sf::st_transform(x = aoi, crs = sf::st_crs(S2_footprint))
+
   intersection <- sf::st_intersects(x = aoi, y = S2_footprint$geometry)
   subs2 <- list('Name' = S2_footprint$Name[intersection[[1]]],
                 'geometry' = S2_footprint$geometry[intersection[[1]]])

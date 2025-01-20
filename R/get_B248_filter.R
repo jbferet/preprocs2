@@ -27,7 +27,7 @@ get_B248_filter <- function(raster_dir, mask_path, collection_path,
   suffix <- paste0('_',asset_cloud,'.tiff')
   # get bounding box
   plots_bbox <- aoi |>
-    sf::st_transform(sf::st_crs(4326)) |>
+    # sf::st_transform(sf::st_crs(4326)) |>
     sf::st_bbox()
   # get assets
   asset_names <- c('B02', 'B04', 'B08')

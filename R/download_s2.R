@@ -34,7 +34,7 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
 
   # get bounding box
   plots_bbox <- aoi |>
-    sf::st_transform(sf::st_crs(4326)) |>
+    # sf::st_transform(sf::st_crs(4326)) |>
     sf::st_bbox()
   # get all SCL assets
   asset_names <- c('B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B11', 'B12')

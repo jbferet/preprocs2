@@ -24,7 +24,7 @@ download_cloudmask <- function(aoi, raster_dir, collection_info, iChar,
     # stac_source <- rstac::stac("https://planetarycomputer.microsoft.com/api/stac/v1")
     # get bounding box
     plots_bbox <- aoi |>
-      sf::st_transform(4326) |>
+      # sf::st_transform(4326) |>
       sf::st_bbox()
     # get all SCL assets
     band_url <- rstac::assets_url(items = collection_info, asset_names = asset_names)

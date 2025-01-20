@@ -3,7 +3,8 @@
 #' @param path_angles character path for raster angles of acquisition dowloaded with preprocS2
 #' @param path_bbox character path for GPKG defining bounding box of study site
 #' @param dateAcq date. date of aquisition
-#' @return
+#'
+#' @return list
 #' @importFrom terra rast crop values
 #' @export
 

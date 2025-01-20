@@ -16,7 +16,8 @@ get_s2_raster(
   geomAcq = F,
   authentication = NULL,
   collection = "sentinel-2-l2a",
-  stac_url = NULL
+  stac_url = NULL,
+  keepCRS = F
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ get_s2_raster(
 \item{collection}{character.}
 
 \item{stac_url}{character.}
+
+\item{keepCRS}{boolean.}
 }
 \value{
 list of path corresponding to output files
