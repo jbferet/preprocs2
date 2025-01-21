@@ -53,8 +53,12 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
   dir.create(path = input_dir, showWarnings = F, recursive = T)
   if (keepCRS == F){
     crs_final <- 4326
-  } else if (!is.null(aoi_path)){
-    crs_final <- sf::st_crs(sf::st_read(aoi_path))
+  } else {
+    if (!is.null(aoi_path)){
+      crs_final <- sf::st_crs(sf::st_read(aoi_path))
+    } else if (!is.null(bbox)){
+      crs_final <- sf::st_crs(bbox)
+    }
   }
   bbox <- bbox |>
     sf::st_transform(crs_final)
