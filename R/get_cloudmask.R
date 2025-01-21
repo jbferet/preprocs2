@@ -86,5 +86,7 @@ get_cloudmask <- function(collection_path, aoi, iChar, raster_dir, overwrite = F
   if (!is.null(out_dir)){
     if (dir.exists(out_dir)) unlink(x = out_dir, recursive = T, force = T)
   }
+  # rm(list=ls())
+  gc()
   return()
 }

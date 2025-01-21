@@ -110,5 +110,7 @@ get_B248_filter <- function(raster_dir, mask_path, collection_path,
       saveRDS(object = item_collection, file = collection_path)
     }
   }
+  # rm(list=setdiff(ls(),c('cloudmask', 'item_collection')))
+  gc()
   return(list('cloudmask'= cloudmask, 'collection_info' = item_collection))
 }

@@ -111,7 +111,13 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
   gc()
   if (!is.null(siteName)){
     name_update <- gsub(pattern = 'plot_001', replacement = siteName, x = list_files)
-    file.rename(from = list_files, to = name_update)
+    suppress <- suppressWarnings(file.rename(from = list_files, to = name_update))
+    if (FALSE %in% suppress){
+      for (ii in seq_len(length(suppress))){
+        if (suppress[ii] ==F)
+          file.copy(from = list_files[ii], to = name_update[ii])
+      }
+    }
     list_files <- name_update
   }
   files_out <- list('Refl_L2A' = list_files[1],

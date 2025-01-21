@@ -91,6 +91,7 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir,
     }
   }
   if (!is.null(elim)) saveRDS(object = item_collection, file = collection_path)
-  rm(cloudmask)
+  # rm(list = c('maskUD_out', 'item_collection', 'cloudmask'))
+  gc()
   return(invisible())
 }
