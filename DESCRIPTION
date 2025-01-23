@@ -36,7 +36,8 @@ Imports:
     stringr,
     terra,
     magrittr,
-    tibble
+    tibble,
+    curl
 Remotes: github::jbferet/prospect, 
          github::jbferet/prosail, 
          gitlab::jbferet/bigRaster

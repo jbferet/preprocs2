@@ -5,6 +5,8 @@
 - modifications to avoid notes when building package
 - adjust crs for aoi and bbox
 - suppress warning when tmp files cannot be suppressed
+- check online access to guarantee data download when S2 download required
+- added message when downloading S2 tiling grid
 
 # preprocS2 v2.2.6
 
