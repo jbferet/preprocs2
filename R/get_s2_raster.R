@@ -15,7 +15,7 @@
 #' @param keepCRS boolean.
 #'
 #' @return list of path corresponding to output files
-#' @importFrom sf read_sf st_intersects st_collection_extract st_write
+#' @importFrom sf st_write st_bbox st_read st_crs st_transform
 #' @export
 
 get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cloudcover = 100,

@@ -12,7 +12,7 @@
 #' @param clean_bands boolean.
 #'
 #' @return list of collections per plot
-#' @importFrom terra rast writeRaster
+#' @importFrom terra rast
 #' @importFrom sf st_transform st_bbox st_crs
 #' @importFrom rstac assets_url
 #' @export

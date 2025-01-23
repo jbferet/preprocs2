@@ -6,7 +6,7 @@
 #' @param acq date of acquisition
 #'
 #' @return list of collections per plot
-#' @importFrom terra rast writeRaster values na.omit crop buffer
+#' @importFrom terra rast values na.omit crop buffer
 #' @import prosail
 #' @importFrom methods as
 #' @export

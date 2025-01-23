@@ -6,7 +6,6 @@
 #' @param Stretch boolean. Set TRUE to get 10% stretching at display for reflectance, mentioned in hdr only
 #'
 #' @return None
-#' @importFrom utils read.table
 #' @export
 
 adjust_ENVI_hdr <- function(dsn, Bands, sensor = 'Unknown', Stretch = FALSE){

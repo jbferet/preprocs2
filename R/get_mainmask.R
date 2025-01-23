@@ -5,7 +5,7 @@
 #' @param aoiplot geometry corresponding to aoi
 #'
 #' @return list of collections per plot
-#' @importFrom terra crop rast project crs rasterize
+#' @importFrom terra crop project crs rasterize
 #' @importFrom methods as
 #' @export
 #'

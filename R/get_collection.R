@@ -10,7 +10,7 @@
 #' @param stac_url character. URL for STAC endpoint
 
 #' @return list of collections per plot
-#' @importFrom rstac stac ext_filter items_intersects post_request
+#' @importFrom rstac stac ext_filter post_request
 #' @importFrom sf st_transform
 #' @importFrom stringr str_split
 #' @importFrom magrittr %>%

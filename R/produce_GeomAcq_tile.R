@@ -6,7 +6,6 @@
 #' @param nbCPU numeric.
 #'
 #' @return list of collections per plot
-#' @importFrom terra rast writeRaster values
 #' @importFrom progressr progressor with_progress handlers
 #' @importFrom parallel makeCluster stopCluster
 #' @importFrom future plan sequential

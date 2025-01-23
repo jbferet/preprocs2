@@ -10,7 +10,7 @@
 #' @param overwrite boolean. should collection and S2 data be overwritten?
 #'
 #' @return list of collections per plot
-#' @importFrom CDSE SearchCatalog GetOAuthToken GetImage
+#' @importFrom CDSE GetOAuthToken
 #' @importFrom sf st_read
 #' @export
 
