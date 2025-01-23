@@ -37,17 +37,18 @@ It aims at downloading and preparing Sentinel-2 images for further processings u
 # How to use preprocS2
 
 `preprocS2` will download S2 data from a STAC catalog based on spatial and temporal information.
-The default STAC collection is `sentinel-2-l2a` from the Planetary computer catalog.
+The default STAC collection is `sentinel-2-l2a` from the [`Planetary computer`](https://planetarycomputer.microsoft.com/dataset/sentinel-2-l2a) catalog.
 
 Optionally, `preprocS2` can download the geometry of acquisition corresponding to the S2 acquisition.
 Access to geometry of acquisition is provided by the package [`CDSE`](https://zivankaraman.github.io/CDSE/).
 
 Please provide authentication for CDSE if you want to get geometry of acquisition by activating OAuth clients following [`this link`](https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings).
 
-## Download image corresponding to a bounding box
+## Download S2 subset from a STAC catalog based on a bounding box
 
 User can provide a bounding box as input to define the region of interest.
-User is also requested to provide a valid date of acquisition The Sentinel-2 tile corresponding to the region of interest is identified based on the S2 tiling grid system.
+User is also requested to provide a valid date of acquisition.
+The Sentinel-2 tile corresponding to the region of interest is identified based on the S2 tiling grid system.
 User can either download the corresponding kml [`here`](https://sentiwiki.copernicus.eu/web/s2-products), or let `preprocS2` download it.
 Access online is requested to download the tiling grid system.
 
@@ -113,7 +114,7 @@ Different subdirectories are created.
 -   `raster_samples` includes rasters corresponding to BOA reflectance, scene classification (SCL) and a binary mask identifying vegetated pixels after radiometric filters excluding shaded pixels, cloudy pixels and non-vegetated pixels
 -   `geomAcq_S2` includes rasters corresponding to the geometry of acquisition (SAA, SZA, VAA, VZA)
 
-## Download S2 subset from a vector footprint: STAC catalog
+## Download S2 subset from a STAC catalog based on a vector footprint
 
 Alternatively, user can provide the path for a vector file defining a region of interest.
 
