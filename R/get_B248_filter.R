@@ -12,7 +12,7 @@
 #' @param RadiometricFilter list. list of radiometric filters for shade, clouds and vegetation
 #'
 #' @return list of collections per plot
-#' @importFrom terra writeRaster values
+#' @importFrom terra rast
 #' @importFrom sf st_transform st_bbox
 #' @importFrom rstac assets_url
 #' @export

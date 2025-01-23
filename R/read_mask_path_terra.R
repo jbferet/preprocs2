@@ -4,7 +4,6 @@
 #'
 #' @return spatRaster or spatVector
 #' @importFrom terra vect rast
-#' @importFrom methods as
 #' @export
 #'
 read_mask_path_terra <- function(mask_path) {

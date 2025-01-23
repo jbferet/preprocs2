@@ -113,7 +113,7 @@ Different subdirectories are created.
 -   `raster_samples` includes rasters corresponding to BOA reflectance, scene classification (SCL) and a binary mask identifying vegetated pixels after radiometric filters excluding shaded pixels, cloudy pixels and non-vegetated pixels
 -   `geomAcq_S2` includes rasters corresponding to the geometry of acquisition (SAA, SZA, VAA, VZA)
 
-## Download image corresponding to a vector file
+## Download S2 subset from a vector footprint: STAC catalog
 
 Alternatively, user can provide the path for a vector file defining a region of interest.
 
@@ -171,6 +171,68 @@ vegetation_mask <- list_files$vegetation_mask
 SCL <- list_files$provider_mask
 # Sentinel-2 geometry of acquisition (if requested from CDSE)
 geometryAcquisition <- list_files$geometryAcquisition
+```
+
+## Extract S2 subset from a vector footprint and a SAFE S2 product
+
+`preprocS2` can be used to crop and stack reflectance data from a __L2A SAFE__ archive provided by ESA.
+First, download a SAFE file corresponding to your area of interest and unzipped it. 
+The function `extract_from_S2_L2A` will then provide all information required to crop and stack the reflectance data. 
+The L2A reflectance corresponding to the vector footprint is saved with `save_reflectance_s2`
+The corresponding cloud mask is saved with `save_cloud_s2`. 
+The code below illustrates the full process. 
+
+```{r extract from SAFE}
+library(preprocS2)
+safe_path <- 'path/to/SAFE/S2A_MSIL2A_XXXXXXXXX.SAFE'
+path_vector <- 'path/to/VectorFootprint'
+
+output_dir <- '../S2_crop'
+# define resolution
+resolution <- 10
+# define source of data
+S2source <- 'SAFE'
+S2obj <- extract_from_S2_L2A(Path_dir_S2 = safe_path,
+                             path_vector = path_vector,
+                             S2source = S2source,
+                             resolution = resolution)
+
+
+# create specific result directory corresponding to granule name
+results_site_path <- file.path(output_dir,basename(S2obj$S2_Bands$GRANULE))
+dir.create(path = results_site_path,showWarnings = FALSE,recursive = TRUE)
+##____________________________________________________________________##
+##                        Write CLOUD MASK                            ##
+##--------------------------------------------------------------------##
+# directory for cloud mask
+Cloud_path <- file.path(results_site_path,'CloudMask')
+dir.create(path = Cloud_path,showWarnings = FALSE,recursive = TRUE)
+# Filename for cloud mask
+cloudmasks <- save_cloud_s2(S2_stars = S2obj$S2_Stack,
+                            Cloud_path = Cloud_path,
+                            S2source = S2source, SaveRaw = T)
+##____________________________________________________________________##
+##                        Write REFLECTANCE                           ##
+##--------------------------------------------------------------------##
+# directory for Reflectance
+Refl_dir <- file.path(results_site_path,'Reflectance')
+dir.create(path = Refl_dir,showWarnings = FALSE,recursive = TRUE)
+# filename for Reflectance
+Refl_path <- file.path(Refl_dir,paste(basename(S2obj$S2_Bands$GRANULE),'_Refl',sep = ''))
+
+# Save Reflectance file as ENVI image with BIL interleaves
+# metadata files are important to account for offset applied on S2 L2A products 
+tile_S2 <- preprocS2::get_tile(S2obj$S2_Bands$GRANULE)
+dateAcq_S2 <- preprocS2::get_dateAcq(S2product = dirname(dirname(S2obj$S2_Bands$GRANULE)))
+save_reflectance_s2(S2_stars = S2obj$S2_Stack, 
+                    Refl_path = Refl_path,
+                    S2Sat = NULL, 
+                    tile_S2 = tile_S2, 
+                    dateAcq_S2 = dateAcq_S2,
+                    Format = 'ENVI', 
+                    datatype = 'Int16', 
+                    MTD = S2obj$S2_Bands$metadata, 
+                    MTD_MSI = S2obj$S2_Bands$metadata_MSI)
 ```
 
 ## Additional functionalities

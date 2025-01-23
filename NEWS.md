@@ -1,3 +1,8 @@
+# preprocS2 v2.3.0
+
+## addition
+- added support to extract information from SAFE and THEIA data, as provided in v1
+
 # preprocS2 v2.2.7
 
 ## addition

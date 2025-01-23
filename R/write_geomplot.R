@@ -7,7 +7,7 @@
 #' @param p list.
 #'
 #' @return list of collections per plot
-#' @importFrom terra rast writeRaster values
+#' @importFrom terra rast writeRaster
 #' @importFrom methods as
 #' @export
 #'
