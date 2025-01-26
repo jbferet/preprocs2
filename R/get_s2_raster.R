@@ -31,7 +31,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
       message('provide path for valid vector file as "aoi_path", or "bbox" sf object as input for "get_s2_raster"')
       stop_quietly()
     } else if (file.exists(aoi_path)){
-      bbox <- sf::st_bbox(sf::st_read(aoi_path))
+      bbox <- sf::st_bbox(sf::st_read(aoi_path, quiet= T))
       input_dir <- dirname(aoi_path)
     }
   } else if (inherits(x = bbox, 'bbox')){
@@ -40,7 +40,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
     } else if (file.exists(aoi_path)){
       message('both "aoi_path" and "bbox" defined as input for "get_s2_raster"')
       message('"aoi_path" will be used')
-      bbox <- sf::st_bbox(sf::st_read(aoi_path))
+      bbox <- sf::st_bbox(sf::st_read(aoi_path, quiet= T))
       input_dir <- dirname(aoi_path)
     } else {
       input_dir <- output_dir
@@ -55,7 +55,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
     crs_final <- 4326
   } else {
     if (!is.null(aoi_path)){
-      crs_final <- sf::st_crs(sf::st_read(aoi_path))
+      crs_final <- sf::st_crs(sf::st_read(aoi_path, quiet= T))
     } else if (!is.null(bbox)){
       crs_final <- sf::st_crs(bbox)
     }
@@ -110,6 +110,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
   rm(list=setdiff(ls(),c('siteName', 'list_files', 'path_geomfiles')))
   gc()
   if (!is.null(siteName)){
+    message(paste('renaming files with rootname:', siteName))
     name_update <- gsub(pattern = 'plot_001', replacement = siteName, x = list_files)
     suppress <- suppressWarnings(file.rename(from = list_files, to = name_update))
     if (FALSE %in% suppress){

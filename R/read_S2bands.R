@@ -8,7 +8,7 @@
 #' @return Stack_S2 list. contains stack of S2 bands
 #'
 #' @importFrom stars read_stars write_stars
-#' @importFrom sf st_bbox st_read st_crop
+#' @importFrom sf st_bbox st_crop
 #' @export
 
 read_S2bands <- function(S2_Bands,

@@ -1,3 +1,8 @@
+# preprocS2 v2.3.1
+
+## change
+- add quiet = T when calling sf::st_read
+
 # preprocS2 v2.3.0
 
 ## addition

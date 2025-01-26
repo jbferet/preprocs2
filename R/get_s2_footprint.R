@@ -7,9 +7,9 @@
 #' @export
 
 get_s2_footprint <- function(dsn){
-  plots_sf <- sf::st_read(dsn = dsn)[[1]]
+  plots_sf <- sf::st_read(dsn = dsn, quiet = T)[[1]]
   if (inherits(x = plots_sf, what = 'character'))
-    plots_sf <- sf::st_read(dsn = dsn)
+    plots_sf <- sf::st_read(dsn = dsn, quiet = T)
   crs_plots <- sf::st_crs(plots_sf)
   footprint <- bbox_to_poly(x = sf::st_bbox(plots_sf), crs = crs_plots)
   return(footprint)

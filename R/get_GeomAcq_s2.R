@@ -22,7 +22,7 @@ get_GeomAcq_s2 <- function(dsn_S2tiles, datetime, cloudcover = 100, authenticati
   geom_dir <- file.path(output_dir, 'geomAcq_S2')
   dir.create(geom_dir, showWarnings = F, recursive = T)
   # read aoi
-  aoi <- sf::st_read(dsn = dsn_S2tiles, as_tibble = F)
+  aoi <- sf::st_read(dsn = dsn_S2tiles, as_tibble = F, quiet = T)
   # get token for CDSE
   OAuthToken <- CDSE::GetOAuthToken(id = authentication$id,
                                     secret = authentication$pwd)
