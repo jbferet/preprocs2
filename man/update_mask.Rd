@@ -9,13 +9,15 @@ update_mask(
   collection_path,
   iChar,
   raster_dir,
+  cloudmasks,
   mask_path = NULL,
   fraction_vegetation = 10,
   collection = "sentinel-2-l2a",
   resolution = 10,
   offset = 1000,
   overwrite = F,
-  RadiometricFilter = NULL
+  RadiometricFilter = NULL,
+  siteName = NULL
 )
 }
 \arguments{
@@ -26,6 +28,8 @@ update_mask(
 \item{iChar}{plot ID}
 
 \item{raster_dir}{directory where rasters are stored}
+
+\item{cloudmasks}{spatial raster}
 
 \item{mask_path}{directory where mask is}
 
@@ -40,6 +44,8 @@ update_mask(
 \item{overwrite}{boolean.}
 
 \item{RadiometricFilter}{list.}
+
+\item{siteName}{character. name of the study site}
 }
 \value{
 list of collections per plot

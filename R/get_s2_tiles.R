@@ -25,6 +25,7 @@ get_s2_tiles <- function(plots, dsn_bbox, site = NULL, overwrite = T,
     if (! sf::st_crs(S2tilingGrid) == sf::st_crs(footprint))
       footprint <- sf::st_transform(x = footprint, crs = sf::st_crs(S2tilingGrid))
 
+    S2tilingGrid$geometry <- sf::st_zm(S2tilingGrid$geometry)
     intersection <- sf::st_intersects(x = footprint, y = S2tilingGrid$geometry)
     S2tilingGridsub <- S2tilingGrid[intersection[[1]],]
     # identify S2 tiles corresponding to each plot
@@ -40,7 +41,8 @@ get_s2_tiles <- function(plots, dsn_bbox, site = NULL, overwrite = T,
     saveRDS(object = S2tiles, file = S2tiles_path)
     # save S2 tiles intersecting with aoi as gpkg
     tilefp <- sf::st_collection_extract(x = S2tilingGridsub, type = "POLYGON")
-    sf::st_write(obj = tilefp, dsn = dsn_S2tiles_footprint, driver = 'GPKG', delete_dsn = T)
+    sf::st_write(obj = tilefp, dsn = dsn_S2tiles_footprint, driver = 'GPKG', 
+                 delete_dsn = T, quiet = T)
   }
   return(list('S2tiles' = S2tiles,
               'dsn_S2tiles' = dsn_S2tiles_footprint))

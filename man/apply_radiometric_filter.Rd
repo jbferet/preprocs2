@@ -5,29 +5,29 @@
 \title{updates vegetation mask based on initial SCL and readiometric thresholds}
 \usage{
 apply_radiometric_filter(
-  S2_items,
+  S2_item,
   acq,
-  baseline,
   iChar,
   raster_dir,
+  cloudmask,
   mask_path = NULL,
   aoiplot,
   fraction_vegetation,
-  offset = 1000,
+  siteName = NULL,
   RadiometricFilter = NULL,
   asset_cloud
 )
 }
 \arguments{
-\item{S2_items}{path for spectral bands required}
+\item{S2_item}{path for spectral bands required}
 
 \item{acq}{date of acquisition}
-
-\item{baseline}{processing baseeline for acquisition to account for offset}
 
 \item{iChar}{plot ID}
 
 \item{raster_dir}{directory where rasters are stored}
+
+\item{cloudmask}{spatial raster}
 
 \item{mask_path}{path for binary mask}
 
@@ -35,7 +35,7 @@ apply_radiometric_filter(
 
 \item{fraction_vegetation}{minimum fraction of vegetation required to keep the acquisition}
 
-\item{offset}{value of the offset to apply to the S2 bands}
+\item{siteName}{character. name of the study site}
 
 \item{RadiometricFilter}{list. criterions for cloud, shade, non vegetation}
 

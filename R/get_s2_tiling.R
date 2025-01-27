@@ -21,7 +21,7 @@
 #' @param offset_B2 boolean.
 #' @param corr_BRF boolean.
 #' @param RadiometricFilter list.
-#' @param clean_bands boolean
+#' @param additional_process additional process to be applied to S2_items once downloaded
 #'
 #' @return S2tiles list of tiles corresponding to plots
 #' @export
@@ -32,7 +32,7 @@ get_s2_tiling <- function(plots, aoi_path, datetime, output_dir, cloudcover = 10
                           authentication = NULL, mask_path = NULL, resolution = 10,
                           fraction_vegetation = 5, stac_url = NULL, doublecheckColl = T,
                           offset = 1000, offset_B2 = F, corr_BRF = F,
-                          RadiometricFilter = NULL, clean_bands = T){
+                          RadiometricFilter = NULL, additional_process = NULL){
   # create proper datetime if only one date provided
   individualAcq <- F
   if (inherits(x = datetime, what = 'Date') |
@@ -66,23 +66,25 @@ get_s2_tiling <- function(plots, aoi_path, datetime, output_dir, cloudcover = 10
   }
   # download S2 data
   message('download S2 collection')
-  get_s2collection(plots = plots,
-                   datetime = datetime,
-                   nbCPU = nbCPU,
-                   S2tiles = S2_grid$S2tiles,
-                   output_dir = output_dir,
-                   cloudcover = cloudcover,
-                   mask_path = mask_path,
-                   fraction_vegetation = fraction_vegetation,
-                   resolution = resolution,
-                   collection = collection,
-                   stac_url = stac_url,
-                   overwrite = overwrite,
-                   doublecheckColl = doublecheckColl,
-                   offset = offset,
-                   offset_B2 = offset_B2,
-                   corr_BRF = corr_BRF,
-                   RadiometricFilter = RadiometricFilter,
-                   clean_bands = clean_bands)
+  S2tiles <- S2_grid$S2tiles
+  S2_items <- get_s2collection(plots = plots,
+                               datetime = datetime,
+                               nbCPU = nbCPU,
+                               S2tiles = S2tiles,
+                               output_dir = output_dir,
+                               cloudcover = cloudcover,
+                               mask_path = mask_path,
+                               fraction_vegetation = fraction_vegetation,
+                               resolution = resolution,
+                               collection = collection,
+                               stac_url = stac_url,
+                               overwrite = overwrite,
+                               doublecheckColl = doublecheckColl,
+                               offset = offset,
+                               offset_B2 = offset_B2,
+                               corr_BRF = corr_BRF,
+                               RadiometricFilter = RadiometricFilter,
+                               rast_out = F, 
+                               additional_process = additional_process)
   return(invisible())
 }

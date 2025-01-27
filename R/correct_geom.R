@@ -19,7 +19,10 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq){
   mean_angle <- list()
   for (jj in 1:4){
     fileName <- file.path(geom_dir, paste0(angle[jj], '_', as.character(acq), '.tiff'))
-    geom <- terra::crop(x = terra::rast(fileName), y = as(aoi, "Spatial"))
+    anglerast <- terra::rast(fileName)
+    if (!terra::same.crs(anglerast, aoi))
+      aoi <- sf::st_transform(x = aoi, terra::crs(anglerast))
+    geom <- terra::crop(x = anglerast, y = aoi)
     if (!length(terra::na.omit(terra::values(geom)))==0){
       geom <- terra::project(x = geom, y = S2_rast[[1]])
     } else {
@@ -73,11 +76,13 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq){
   colnames(BRF_LUT) <- colnames(BRF_LUT_standard) <- SRF$Spectral_Bands
   ratioBRF <- 1+(BRF_LUT_standard-BRF_LUT)/BRF_LUT
   ratioCorr <- colMeans(ratioBRF)
+  originalnames <- names(S2_rast)
   names(S2_rast) <- SRF$Spectral_Bands
   bands2correct <- c('B8A', 'B11', 'B12')
   for (band in bands2correct){
     S2_rast[[band]] <- ratioCorr[band] * S2_rast[[band]]
     terra::values(S2_rast[[band]]) <- round(terra::values(S2_rast[[band]]))
   }
+  names(S2_rast) <- originalnames
   return(S2_rast)
 }

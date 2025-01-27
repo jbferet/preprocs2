@@ -2,22 +2,10 @@
 % Please edit documentation in R/correct_s2stack.R
 \name{correct_s2stack}
 \alias{correct_s2stack}
-\title{produce S2 stack and correct it if needed (BRDF or B2)}
+\title{produce S2 stack and correct it if needed (BRDF or B2)
+These are very experimental corrections}
 \usage{
-correct_s2stack(
-  s2_items,
-  acq,
-  raster_dir,
-  baseline,
-  template_Rast,
-  asset_names,
-  iChar,
-  aoi,
-  offset = 1000,
-  offset_B2 = F,
-  corr_BRF = F,
-  clean_bands = T
-)
+correct_s2stack(s2_items, acq, raster_dir, aoi, offset_B2 = F, corr_BRF = F)
 }
 \arguments{
 \item{s2_items}{path for spectral bands required}
@@ -26,27 +14,16 @@ correct_s2stack(
 
 \item{raster_dir}{directory where rasters are stored}
 
-\item{baseline}{processing baseeline for acquisition to account for offset}
-
-\item{template_Rast}{spatRaster template raster}
-
-\item{asset_names}{character.}
-
-\item{iChar}{plot ID}
-
 \item{aoi}{sf.}
-
-\item{offset}{value of the offset to apply to the S2 bands}
 
 \item{offset_B2}{boolean. value of the offset to apply to the S2 band B2}
 
 \item{corr_BRF}{boolean.}
-
-\item{clean_bands}{boolean.}
 }
 \value{
 list of collections per plot
 }
 \description{
 produce S2 stack and correct it if needed (BRDF or B2)
+These are very experimental corrections
 }

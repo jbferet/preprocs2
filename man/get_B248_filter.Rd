@@ -7,14 +7,16 @@
 get_B248_filter(
   raster_dir,
   mask_path,
-  collection_path,
+  item_collection,
+  cloudmasks,
   iChar,
   aoi,
   resolution,
   collection = "sentinel-2-l2a",
   fraction_vegetation,
   offset = 1000,
-  RadiometricFilter = NULL
+  RadiometricFilter = NULL,
+  siteName
 )
 }
 \arguments{
@@ -22,7 +24,9 @@ get_B248_filter(
 
 \item{mask_path}{directory where rasters are stored}
 
-\item{collection_path}{path for collection to download}
+\item{item_collection}{path for collection to download}
+
+\item{cloudmasks}{spatial raster}
 
 \item{iChar}{plot ID}
 
@@ -37,6 +41,8 @@ get_B248_filter(
 \item{offset}{numeric. value of S2 offset}
 
 \item{RadiometricFilter}{list. list of radiometric filters for shade, clouds and vegetation}
+
+\item{siteName}{character. name of the study site}
 }
 \value{
 list of collections per plot

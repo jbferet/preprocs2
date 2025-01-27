@@ -14,7 +14,9 @@
 #' @param p list.
 #' @param RadiometricFilter list. values for radiometric filter shade cloud vegetation
 #' @param overwrite boolean.
-#' @param clean_bands boolean.
+#' @param siteName character. name of the study site
+#' @param rast_out boolean. should S2 SpatRaster be obtained as output?
+#' @param additional_process additional process to be applied to S2_items once downloaded
 #'
 #' @return list of collections per plot
 #' @export
@@ -24,25 +26,35 @@ download_s2collection <- function(collection_path, aoi, iChar, raster_dir,
                                   collection = 'sentinel-2-l2a', resolution = 10,
                                   offset = 1000, offset_B2 = F, corr_BRF = F,
                                   p = NULL, RadiometricFilter = NULL,
-                                  overwrite = T, clean_bands = T){
+                                  overwrite = T, siteName = NULL, rast_out = T,
+                                  additional_process = NULL){
   # get collection cloud masks
-  get_cloudmask(collection_path = collection_path, aoi = aoi,
-                iChar = iChar, raster_dir = raster_dir, overwrite = overwrite,
-                fraction_vegetation = fraction_vegetation,
-                collection = collection, resolution = resolution)
+  cloudmasks <- get_cloudmask(collection_path = collection_path, aoi = aoi,
+                              iChar = iChar, raster_dir = raster_dir,
+                              overwrite = overwrite, siteName = siteName,
+                              fraction_vegetation = fraction_vegetation,
+                              collection = collection, resolution = resolution)
 
   # update collection cloud masks
-  update_mask(aoi = aoi, collection_path = collection_path, iChar = iChar,
-              raster_dir = raster_dir, mask_path = mask_path,
-              fraction_vegetation = fraction_vegetation,
-              offset = offset, collection = collection, resolution = resolution,
-              RadiometricFilter = RadiometricFilter, overwrite = overwrite)
+  S2data <- update_mask(aoi = aoi, collection_path = collection_path,
+                        iChar = iChar, raster_dir = raster_dir,
+                        mask_path = mask_path, cloudmasks = cloudmasks,
+                        fraction_vegetation = fraction_vegetation,
+                        siteName = siteName, offset = offset,
+                        collection = collection, resolution = resolution,
+                        RadiometricFilter = RadiometricFilter,
+                        overwrite = overwrite)
 
   # download S2 collection
-  download_s2(aoi = aoi, raster_dir = raster_dir, collection = collection, 
-              collection_path = collection_path, iChar = iChar,
-              resolution = resolution, offset = offset, offset_B2 = offset_B2,
-              corr_BRF = corr_BRF, clean_bands = clean_bands)
+  S2_items <- download_s2(aoi = aoi, raster_dir = raster_dir, iChar = iChar,
+                          collection = collection, collection_path = collection_path,
+                          S2_items = S2data$S2_items, resolution = resolution,
+                          offset = offset, offset_B2 = offset_B2,
+                          corr_BRF = corr_BRF, siteName = siteName)
+
+  if (!is.null(additional_process))
+    lapply(X = S2_items, FUN = additional_process)
   if (!is.null(p)) p()
-  return()
+  if (!rast_out) S2_items <- NULL
+  return(S2_items)
 }

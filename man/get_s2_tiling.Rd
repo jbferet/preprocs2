@@ -26,7 +26,7 @@ get_s2_tiling(
   offset_B2 = F,
   corr_BRF = F,
   RadiometricFilter = NULL,
-  clean_bands = T
+  additional_process = NULL
 )
 }
 \arguments{
@@ -72,7 +72,7 @@ get_s2_tiling(
 
 \item{RadiometricFilter}{list.}
 
-\item{clean_bands}{boolean}
+\item{additional_process}{additional process to be applied to S2_items once downloaded}
 }
 \value{
 S2tiles list of tiles corresponding to plots

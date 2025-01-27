@@ -2,7 +2,8 @@
 #'
 #' @param raster_dir directory where rasters are stored
 #' @param mask_path directory where rasters are stored
-#' @param collection_path path for collection to download
+#' @param item_collection path for collection to download
+#' @param cloudmasks spatial raster
 #' @param iChar plot ID
 #' @param aoi geometry corresponding to one point
 #' @param resolution numeric. spatial resolution (10 or 20)
@@ -10,6 +11,7 @@
 #' @param fraction_vegetation numeric. minimum % of vegetatiomn to have on plot footprint
 #' @param offset numeric. value of S2 offset
 #' @param RadiometricFilter list. list of radiometric filters for shade, clouds and vegetation
+#' @param siteName character. name of the study site
 #'
 #' @return list of collections per plot
 #' @importFrom terra rast
@@ -17,100 +19,63 @@
 #' @importFrom rstac assets_url
 #' @export
 #'
-get_B248_filter <- function(raster_dir, mask_path, collection_path,
+get_B248_filter <- function(raster_dir, mask_path, item_collection, cloudmasks,
                             iChar, aoi, resolution, collection = 'sentinel-2-l2a',
                             fraction_vegetation, offset = 1000,
-                            RadiometricFilter = NULL){
-  # read collection
-  item_collection <- readRDS(file = collection_path)
+                            RadiometricFilter = NULL, siteName){
+  
   asset_cloud <- get_cloud_asset(item_collection, collection)
   suffix <- paste0('_',asset_cloud,'.tiff')
-  # get bounding box
-  plots_bbox <- aoi |>
-    # sf::st_transform(sf::st_crs(4326)) |>
-    sf::st_bbox()
-  # get assets
+  acq2keep <- NULL
   asset_names <- c('B02', 'B04', 'B08')
-  cloudmask <- keepit <- acq2keep <- NULL
-  band_url0 <- rstac::assets_url(item_collection, asset_names = asset_names)
-  # if bands available
-  if (!is.null(band_url0)){
-    rootname <- file.path(raster_dir, paste0('plot_',iChar,'_'))
-    updatemask <- check_existing_mask(item_collection = item_collection,
-                                      band_url = band_url0,
-                                      collection = collection,
-                                      rootname = rootname)
-    collec_dl <- updatemask$collec_dl
-    # if some masks still need to be updated
-    if (length(updatemask$selAcq)>0){
-      if (collection=='sentinel-2-l2a'){
-        stac_query <- updatemask$collec_dl |>
-          rstac::items_sign(
-            rstac::sign_planetary_computer())
-        band_url <- lapply(X = stac_query$features, FUN = rstac::assets_url,
-                           asset_names = asset_names,
-                           append_gdalvsi = T)
-        # band_url <- lapply(X = updatemask$selAcq, make_vsicurl_url, collection = collection)
-      } else if (collection=='sentinel2-l2a-sen2lasrc'){
-        band_url <- lapply(X = updatemask$selAcq, make_vsicurl_theia_url)
-      }
-      S2_items <- mapply(FUN = download_s2_acq,
-                        acq = as.list(collec_dl$acquisitionDate),
-                        band_url = band_url,
-                        MoreArgs = list(raster_dir = raster_dir,
-                                        plots_bbox = plots_bbox,
-                                        iChar = iChar,
-                                        asset_names = asset_names,
-                                        collection = collection,
-                                        skipExists = F),
-                        SIMPLIFY = F)
-      whichAcq2dl <- which(!unlist(lapply(X = S2_items, FUN = is.null)))
-      if (length(whichAcq2dl)>0){
-        if (collection == 'sentinel-2-l2a'){
-          baseline <- lapply(lapply(collec_dl$features,'[[','properties'),
-                             '[[', 's2:processing_baseline')
-        } else if (collection == 'sentinel2-l2a-sen2lasrc'){
-          baseline <- lapply(lapply(lapply(collec_dl$features,'[[','properties'),
-                             '[[', 'processing:software'),
-                             '[[', 'sen2lasrc')
-        }
-        validity <- mapply(FUN = apply_radiometric_filter,
-                           S2_items = S2_items[whichAcq2dl],
-                           acq = as.list(collec_dl$acquisitionDate)[whichAcq2dl],
-                           baseline = baseline[whichAcq2dl],
-                           MoreArgs = list(raster_dir = raster_dir,
-                                           mask_path = mask_path,
-                                           iChar = iChar,
-                                           aoiplot = aoi,
-                                           fraction_vegetation = fraction_vegetation,
-                                           offset = offset,
-                                           RadiometricFilter = RadiometricFilter,
-                                           asset_cloud = asset_cloud),
-                           SIMPLIFY = F)
-        keepit <- which(unlist(validity))
-        if (length(keepit)>0) acq2keep <- collec_dl$acquisitionDate[keepit]
-      }
-    }
-    if (!is.null(acq2keep)) {
-      selacq <- match(acq2keep, updatemask$df_acq$acq)
-      updatemask$df_acq$already[selacq] <- T
-      keepit2 <- which(updatemask$df_acq$already)
-      item_collection$acquisitionDate <- item_collection$acquisitionDate[keepit2]
-      item_collection$features <- item_collection$features[keepit2]
-      saveRDS(object = item_collection, file = collection_path)
-      cloud_file <-  as.list(file.path(raster_dir,
-                                       paste0('plot_', iChar, '_',
-                                              item_collection$acquisitionDate, suffix)))
-      cloudmask <- lapply(X = cloud_file, FUN = terra::rast)
-      names(cloudmask) <- as.Date(item_collection$acquisitionDate)
-    } else {
-      keepit2 <- which(updatemask$df_acq$already)
-      item_collection$acquisitionDate <- item_collection$acquisitionDate[keepit2]
-      item_collection$features <- item_collection$features[keepit2]
-      saveRDS(object = item_collection, file = collection_path)
-    }
+  S2_items <- lapply(X = item_collection$features, 
+                     FUN = get_asset_terra, 
+                     asset_names = asset_names, 
+                     collection = collection, 
+                     aoi = aoi)
+  names(S2_items) <- names(cloudmasks)
+  
+  if (collection == 'sentinel-2-l2a'){
+    baseline <- lapply(lapply(item_collection$features,'[[','properties'),
+                       '[[', 's2:processing_baseline')
+  } else if (collection == 'sentinel2-l2a-sen2lasrc'){
+    baseline <- lapply(lapply(lapply(item_collection$features,'[[','properties'),
+                              '[[', 'processing:software'),
+                       '[[', 'sen2lasrc')
   }
-  # rm(list=setdiff(ls(),c('cloudmask', 'item_collection')))
-  gc()
-  return(list('cloudmask'= cloudmask, 'collection_info' = item_collection))
+  for (i in seq_len(length(baseline))){
+    if (as.numeric(baseline[[i]])>=4 & asset_cloud == 'SCL')
+      S2_items[[i]] <- lapply(X = S2_items[[i]], FUN = function(x, offset){x - offset}, offset)
+  }
+  
+  validity <- mapply(FUN = apply_radiometric_filter,
+                     S2_item = S2_items,
+                     cloudmask = cloudmasks, 
+                     acq = as.list(item_collection$acquisitionDate),
+                     MoreArgs = list(raster_dir = raster_dir,
+                                     mask_path = mask_path,
+                                     iChar = iChar,
+                                     aoiplot = aoi,
+                                     fraction_vegetation = fraction_vegetation,
+                                     RadiometricFilter = RadiometricFilter,
+                                     asset_cloud = asset_cloud, 
+                                     siteName = siteName),
+                     SIMPLIFY = F)
+  keepit <- which(unlist(validity))
+  if (length(keepit)>0) acq2keep <- item_collection$acquisitionDate[keepit]
+  
+  if (!is.null(acq2keep)) {
+    selacq <- match(acq2keep, item_collection$acquisitionDate)
+    item_collection$acquisitionDate <- item_collection$acquisitionDate[selacq]
+    item_collection$features <- item_collection$features[selacq]
+    cloudmasks <- cloudmasks[selacq]
+    S2_items <- S2_items[selacq]
+  } else {
+    item_collection$acquisitionDate <- NULL
+    item_collection$features <- NULL
+    cloudmasks <- NULL
+    S2_items <- NULL
+  }
+  return(list('cloudmask'= cloudmasks, 'S2_items' = S2_items, 
+              'collection_info' = item_collection))
 }
