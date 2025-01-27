@@ -9,6 +9,7 @@
 #' @param overwrite boolean. should collection and S2 data be overwritten?
 #'
 #' @return list of collections per plot
+#' @importFrom sf st_zm
 #' @importFrom CDSE SearchCatalog
 #' @export
 
@@ -19,7 +20,7 @@ get_GeomAcq_s2_coll <- function(aoi, datetime, collection = "sentinel-2-l2a",
   dir.create(collection_dir_geom, showWarnings = F, recursive = T)
   FileName <- file.path(collection_dir_geom,'collection_CDSE_geometry.rds')
   if (! file.exists(FileName) | overwrite==T){
-    collection_GeomAcq_S2 <- CDSE::SearchCatalog(aoi = aoi,
+    collection_GeomAcq_S2 <- CDSE::SearchCatalog(aoi = sf::st_zm(aoi),
                                                  from = datetime$from, to = datetime$to,
                                                  collection = collection,
                                                  filter = paste0("eo:cloud_cover < ",cloudcover),

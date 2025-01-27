@@ -13,7 +13,7 @@
 
 get_grid_aoi <- function(aoi_path, cellsize = 10000, crs_target = 4326,
                          dsn_grid = NULL, dsn_centroid = NULL){
-  aoi <- sf::read_sf(aoi_path)
+  aoi <- sf::read_sf(aoi_path, quiet = T)
   # transform vector into crs applicable for metric system
   crs_current <- crsuggest::suggest_crs(input = aoi)[1,]
   aoi_grid <- sf::st_transform(aoi, crs=crs_current$crs_proj4) |>
@@ -32,14 +32,14 @@ get_grid_aoi <- function(aoi_path, cellsize = 10000, crs_target = 4326,
     dsn_grid <- file.path(data_path,'aoi_grid.gpkg')
   sf::st_write(obj = aoi_grid_init, dsn = dsn_grid,
                overwrite = T, append = F,
-               driver = 'GPKG')
+               driver = 'GPKG', quiet = T)
   # save grid centroid for each cell
   if (is.null(dsn_centroid))
     dsn_centroid <- file.path(data_path,'aoi_grid_centroid.gpkg')
   aoi_grid_centroids <- sf::st_centroid(x = aoi_grid_init)
   sf::st_write(obj = aoi_grid_centroids, dsn = dsn_centroid,
                overwrite = T, append = F,
-               driver = 'GPKG')
+               driver = 'GPKG', quiet = T)
   return(list('dsn_grid' = dsn_grid,
               'dsn_centroid' = dsn_centroid))
 }

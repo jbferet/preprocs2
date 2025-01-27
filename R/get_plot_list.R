@@ -8,7 +8,7 @@
 #' @export
 
 get_plot_list <- function(dsn, nbdigits = 3){
-  plots_sf <- sf::st_read(dsn = dsn)[[1]]
+  plots_sf <- sf::st_read(dsn = dsn, quiet = T)[[1]]
   nbPlots <- length(plots_sf)
   plots <- list()
   for (i in seq_len(nbPlots))

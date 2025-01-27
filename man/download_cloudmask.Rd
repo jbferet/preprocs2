@@ -7,11 +7,12 @@
 download_cloudmask(
   aoi,
   raster_dir,
-  collection_info,
+  item_collection,
   iChar,
   collection = "sentinel-2-l2a",
   asset_names,
-  resolution
+  resolution,
+  siteName = NULL
 )
 }
 \arguments{
@@ -19,7 +20,7 @@ download_cloudmask(
 
 \item{raster_dir}{directory where rasters are stored}
 
-\item{collection_info}{description of collection to download}
+\item{item_collection}{description of collection to download}
 
 \item{iChar}{plot ID}
 
@@ -28,6 +29,8 @@ download_cloudmask(
 \item{asset_names}{character.}
 
 \item{resolution}{numeric. spatial resolution (10 or 20)}
+
+\item{siteName}{character. name of the study site}
 }
 \value{
 list of collections per plot

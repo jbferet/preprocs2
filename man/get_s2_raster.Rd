@@ -17,7 +17,7 @@ get_s2_raster(
   authentication = NULL,
   collection = "sentinel-2-l2a",
   stac_url = NULL,
-  keepCRS = T
+  additional_process = NULL
 )
 }
 \arguments{
@@ -45,7 +45,7 @@ get_s2_raster(
 
 \item{stac_url}{character.}
 
-\item{keepCRS}{boolean.}
+\item{additional_process}{additional process to be applied to S2_items once downloaded}
 }
 \value{
 list of path corresponding to output files

@@ -13,7 +13,8 @@ get_cloudmask(
   fraction_vegetation = 10,
   collection = "sentinel-2-l2a",
   resolution = 10,
-  nbCPU = 1
+  nbCPU = 1,
+  siteName = NULL
 )
 }
 \arguments{
@@ -34,9 +35,11 @@ get_cloudmask(
 \item{resolution}{numeric. spatial resolution (10 or 20)}
 
 \item{nbCPU}{numeric. number of CPU}
+
+\item{siteName}{character. name of the study site}
 }
 \value{
-list of collections per plot
+list of cloudmasks
 }
 \description{
 downloads cloud mask

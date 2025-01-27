@@ -1,3 +1,17 @@
+# preprocS2 v2.4.0
+
+## changes
+- use package terra instead of sf::gdal_utils to download STAC data
+- terra provides 10m/20m original bands with no reprojection
+- writes raster data once all the process is finished to save reading / writing time
+- added quiet = T when handling sf objects
+- applied sf::st_zm to avoid warnings with XYZ vector files (s2 tiles)
+
+# preprocS2 v2.3.1
+
+## change
+- add quiet = T when calling sf::st_read
+
 # preprocS2 v2.3.0
 
 ## addition

@@ -22,7 +22,9 @@ get_s2collection(
   offset_B2 = F,
   corr_BRF = F,
   RadiometricFilter = NULL,
-  clean_bands = T
+  siteName = NULL,
+  rast_out = T,
+  additional_process = NULL
 )
 }
 \arguments{
@@ -60,7 +62,11 @@ get_s2collection(
 
 \item{RadiometricFilter}{list.}
 
-\item{clean_bands}{boolean.}
+\item{siteName}{character. name of the study site}
+
+\item{rast_out}{boolean. should S2 SpatRaster be obtained as output?}
+
+\item{additional_process}{additional process to be applied to S2_items once downloaded}
 }
 \value{
 list of collections per plot

@@ -12,7 +12,7 @@
 #' @param authentication list. authentication to CDSE
 #' @param collection character.
 #' @param stac_url character.
-#' @param keepCRS boolean.
+#' @param additional_process additional process to be applied to S2_items once downloaded
 #'
 #' @return list of path corresponding to output files
 #' @importFrom sf st_write st_bbox st_read st_crs st_transform
@@ -22,7 +22,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
                           siteName = NULL, path_S2tilinggrid = NULL, overwrite = T,
                           geomAcq = F, authentication = NULL,
                           collection = "sentinel-2-l2a", stac_url = NULL,
-                          keepCRS = T){
+                          additional_process = NULL){
 
   input_dir <- NULL
   # get bounding box for aoi
@@ -31,7 +31,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
       message('provide path for valid vector file as "aoi_path", or "bbox" sf object as input for "get_s2_raster"')
       stop_quietly()
     } else if (file.exists(aoi_path)){
-      bbox <- sf::st_bbox(sf::st_read(aoi_path))
+      bbox <- sf::st_bbox(sf::st_read(aoi_path, quiet= T))
       input_dir <- dirname(aoi_path)
     }
   } else if (inherits(x = bbox, 'bbox')){
@@ -40,7 +40,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
     } else if (file.exists(aoi_path)){
       message('both "aoi_path" and "bbox" defined as input for "get_s2_raster"')
       message('"aoi_path" will be used')
-      bbox <- sf::st_bbox(sf::st_read(aoi_path))
+      bbox <- sf::st_bbox(sf::st_read(aoi_path, quiet= T))
       input_dir <- dirname(aoi_path)
     } else {
       input_dir <- output_dir
@@ -51,22 +51,19 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
     stop_quietly()
   }
   dir.create(path = input_dir, showWarnings = F, recursive = T)
-  if (keepCRS == F){
-    crs_final <- 4326
-  } else {
-    if (!is.null(aoi_path)){
-      crs_final <- sf::st_crs(sf::st_read(aoi_path))
-    } else if (!is.null(bbox)){
-      crs_final <- sf::st_crs(bbox)
-    }
+  if (!is.null(aoi_path)){
+    crs_final <- sf::st_crs(sf::st_read(aoi_path, quiet= T))
+  } else if (!is.null(bbox)){
+    crs_final <- sf::st_crs(bbox)
   }
   bbox <- bbox |>
     sf::st_transform(crs_final)
   plots <- list('001' = bbox_to_poly(x = bbox, crs = crs_final))
+  plots <- lapply(X = plots, FUN = sf::st_zm)
   bbox_path <- file.path(input_dir,'aoi_bbox.GPKG')
   if (!file.exists(bbox_path) | overwrite == T)
     sf::st_write(obj = plots$`001`, dsn = bbox_path,
-                 driver = 'GPKG', delete_dsn = T)
+                 driver = 'GPKG', delete_dsn = T, quiet = T)
 
   # create proper datetime if only one date provided
   if (inherits(x = datetime, what = 'Date') | inherits(x = datetime, what = 'character'))
@@ -99,31 +96,26 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
   # download S2 data
   message('download S2 collection')
   S2tiles <- S2_grid$S2tiles
-  get_s2collection(plots = plots, datetime = datetime,
-                   S2tiles = S2tiles, output_dir = output_dir,
-                   collection = collection, stac_url = stac_url)
+  S2_items <- get_s2collection(plots = plots,
+                               datetime = datetime,
+                               S2tiles = S2tiles,
+                               output_dir = output_dir,
+                               collection = collection,
+                               stac_url = stac_url,
+                               siteName = siteName,
+                               additional_process = additional_process)
 
-  # change name if siteName provided
   raster_dir <- file.path(output_dir, 'raster_samples')
-  list_files <- list.files(path = raster_dir, pattern = 'plot_001', full.names = T)
+  dir.create(path = raster_dir, showWarnings = F, recursive = T)
+  if (is.null(siteName)) prefix <- file.path(raster_dir, paste0('plot_001_',names(S2_items$`001`)))
+  if (!is.null(siteName)) prefix <- file.path(raster_dir, paste0(siteName,'_001_',names(S2_items$`001`)))
 
-  rm(list=setdiff(ls(),c('siteName', 'list_files', 'path_geomfiles')))
-  gc()
-  if (!is.null(siteName)){
-    name_update <- gsub(pattern = 'plot_001', replacement = siteName, x = list_files)
-    suppress <- suppressWarnings(file.rename(from = list_files, to = name_update))
-    if (FALSE %in% suppress){
-      for (ii in seq_len(length(suppress))){
-        if (suppress[ii] ==F)
-          file.copy(from = list_files[ii], to = name_update[ii])
-      }
-    }
-    list_files <- name_update
-  }
-  files_out <- list('Refl_L2A' = list_files[1],
-                    'Binary_mask' = list_files[2],
-                    'vegetation_mask' = list_files[3],
-                    'provider_mask' = list_files[4],
+  if (collection =='sentinel-2-l2a') provider_mask <- 'SCL'
+  if (collection =='sentinel2-l2a-sen2lasrc') provider_mask <- 'CLM'
+  files_out <- list('Refl_L2A' = paste0(prefix, '.tiff'),
+                    'Binary_mask' = paste0(prefix, '_BIN.tiff'),
+                    'vegetation_mask' = paste0(prefix, '_BIN_v2.tiff'),
+                    'provider_mask' = paste0(prefix, '_',provider_mask,'.tiff'),
                     'geometryAcquisition' = path_geomfiles)
   return(files_out)
 }

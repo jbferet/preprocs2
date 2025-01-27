@@ -17,7 +17,9 @@
 #' @param offset_B2 boolean. should an offset be applied to normalize B2?
 #' @param corr_BRF boolean.
 #' @param RadiometricFilter list.
-#' @param clean_bands boolean.
+#' @param siteName character. name of the study site
+#' @param rast_out boolean. should S2 SpatRaster be obtained as output?
+#' @param additional_process additional process to be applied to S2_items once downloaded
 #'
 #' @return list of collections per plot
 #' @importFrom parallel makeCluster stopCluster
@@ -32,7 +34,8 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
                              collection = "sentinel-2-l2a", stac_url = NULL,
                              overwrite = F, nbCPU = 1, doublecheckColl = T,
                              offset = 1000, offset_B2 = F, corr_BRF = F,
-                             RadiometricFilter = NULL, clean_bands = T){
+                             RadiometricFilter = NULL, siteName = NULL, 
+                             rast_out = T, additional_process = NULL){
   
   # get collection for each plot
   if (length(plots)<nbCPU) nbCPU <- length(plots)
@@ -53,21 +56,21 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
   nbPlots <- length(plots)
   ID_aoi <- names(plots)
   if (nbCPU==1){
-    s2_file <- mapply(FUN = download_s2collection,
-                      collection_path = collection_path,
-                      aoi = plots,
-                      iChar = ID_aoi,
-                      MoreArgs = list(raster_dir = raster_dir,
-                                      mask_path = mask_path,
-                                      fraction_vegetation = fraction_vegetation,
-                                      collection = collection,
-                                      resolution = resolution,
-                                      offset = offset,
-                                      offset_B2 = offset_B2,
-                                      corr_BRF = corr_BRF,
-                                      RadiometricFilter = RadiometricFilter,
-                                      clean_bands = clean_bands,
-                                      overwrite = overwrite), SIMPLIFY = F)
+    S2_items <- mapply(FUN = download_s2collection,
+                       collection_path = collection_path,
+                       aoi = plots,
+                       iChar = ID_aoi,
+                       MoreArgs = list(raster_dir = raster_dir,
+                                       mask_path = mask_path,
+                                       fraction_vegetation = fraction_vegetation,
+                                       collection = collection,
+                                       resolution = resolution,
+                                       offset = offset,
+                                       offset_B2 = offset_B2,
+                                       corr_BRF = corr_BRF,
+                                       RadiometricFilter = RadiometricFilter,
+                                       overwrite = overwrite, 
+                                       siteName = siteName), SIMPLIFY = F)
   } else if (nbCPU>1){
     cl <- parallel::makeCluster(nbCPU)
     plan("cluster", workers = cl)
@@ -75,26 +78,27 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
     handlers("cli")
     with_progress({
       p <- progressr::progressor(steps = nbPlots)
-      s2_file <- future.apply::future_mapply(FUN = download_s2collection,
-                                             collection_path = collection_path,
-                                             aoi = plots,
-                                             iChar = ID_aoi,
-                                             MoreArgs = list(raster_dir = raster_dir,
-                                                             mask_path = mask_path,
-                                                             fraction_vegetation = fraction_vegetation,
-                                                             collection = collection,
-                                                             resolution = resolution,
-                                                             offset = offset,
-                                                             offset_B2 = offset_B2,
-                                                             corr_BRF = corr_BRF,
-                                                             RadiometricFilter = RadiometricFilter,
-                                                             clean_bands = clean_bands,
-                                                             overwrite = overwrite,
-                                                             p = p),
-                                             future.seed = T, SIMPLIFY = F)
+      S2_items <- future.apply::future_mapply(FUN = download_s2collection,
+                                              collection_path = collection_path,
+                                              aoi = plots,
+                                              iChar = ID_aoi,
+                                              MoreArgs = list(raster_dir = raster_dir,
+                                                              mask_path = mask_path,
+                                                              fraction_vegetation = fraction_vegetation,
+                                                              collection = collection,
+                                                              resolution = resolution,
+                                                              offset = offset,
+                                                              offset_B2 = offset_B2,
+                                                              corr_BRF = corr_BRF,
+                                                              RadiometricFilter = RadiometricFilter,
+                                                              overwrite = overwrite,
+                                                              p = p, rast_out = rast_out,
+                                                              additional_process = additional_process),
+                                              future.seed = T, SIMPLIFY = F)
     })
     parallel::stopCluster(cl)
     plan(sequential)
   }
-  return()
+  if (length(plots)>1) S2_items <- NULL
+  return(S2_items)
 }

@@ -18,9 +18,5 @@ get_asset <- function(asset_url, out_file, plots_bbox) {
       "-te", sf::st_bbox(plots_bbox)
     )
   )
-  # vsp <- as(aoi, "Spatial")
-  # v <- terra::vect(vsp)
-  # terra::rast(x = asset_url, vsi = TRUE, extent = terra::ext(v))
-
   return(invisible())
 }

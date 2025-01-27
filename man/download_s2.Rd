@@ -10,11 +10,12 @@ download_s2(
   collection_path,
   iChar,
   resolution,
+  S2_items = NULL,
   offset = 1000,
   offset_B2 = F,
   collection = "sentinel-2-l2a",
   corr_BRF = F,
-  clean_bands = T
+  siteName = NULL
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ download_s2(
 
 \item{resolution}{numeric. spatial resolution (10 or 20)}
 
+\item{S2_items}{list. S2 items already downloaded}
+
 \item{offset}{numeric. S2 offset value}
 
 \item{offset_B2}{boolean.}
@@ -36,7 +39,7 @@ download_s2(
 
 \item{corr_BRF}{boolean.}
 
-\item{clean_bands}{boolean.}
+\item{siteName}{character. name of the study site}
 }
 \value{
 list of collections per plot

@@ -1,28 +1,29 @@
 #' updates vegetation mask based on initial SCL and readiometric thresholds
 #'
-#' @param S2_items path for spectral bands required
+#' @param S2_item path for spectral bands required
 #' @param acq date of acquisition
-#' @param baseline processing baseeline for acquisition to account for offset
 #' @param iChar plot ID
 #' @param raster_dir directory where rasters are stored
+#' @param cloudmask spatial raster
 #' @param mask_path path for binary mask
 #' @param aoiplot sf.
 #' @param fraction_vegetation minimum fraction of vegetation required to keep the acquisition
-#' @param offset value of the offset to apply to the S2 bands
 #' @param RadiometricFilter list. criterions for cloud, shade, non vegetation
 #' @param asset_cloud character. asset name for cloud mask
+#' @param siteName character. name of the study site
 #'
 #' @return list of collections per plot
 #' @importFrom terra rast writeRaster values
 #' @export
 #'
-apply_radiometric_filter <- function(S2_items, acq, baseline, iChar, raster_dir,
-                                     mask_path = NULL, aoiplot, fraction_vegetation,
-                                     offset = 1000, RadiometricFilter = NULL,
-                                     asset_cloud){
+apply_radiometric_filter <- function(S2_item, acq, iChar, raster_dir,
+                                     cloudmask, mask_path = NULL, aoiplot, 
+                                     fraction_vegetation, siteName = NULL, 
+                                     RadiometricFilter = NULL, asset_cloud){
 
   # define root path for output files
-  prefix <- file.path(raster_dir, paste0('plot_',iChar,'_',acq))
+  if (is.null(siteName)) prefix <- file.path(raster_dir, paste0('plot_',iChar,'_',acq))
+  if (!is.null(siteName)) prefix <- file.path(raster_dir, paste0(siteName,'_',iChar,'_',acq))
   bin_mask_file <- paste0(prefix, '_BIN.tiff')
   bin_mask_filtered <- paste0(prefix, '_BIN_v2.tiff')
   cloudmask_path <- paste0(prefix, '_',asset_cloud,'.tiff')
@@ -33,16 +34,12 @@ apply_radiometric_filter <- function(S2_items, acq, baseline, iChar, raster_dir,
 
   validity <- T
   if (!file.exists(bin_mask_file) & !file.exists(bin_mask_filtered)){
-    S2_dl <- terra::rast(S2_items)
-    mainmask <- get_mainmask(mask_path, S2_dl, aoiplot)
-    if (as.numeric(baseline)>=4 & asset_cloud == 'SCL')
-      terra::values(S2_dl) <- terra::values(S2_dl)-offset
-    ndvi <- (S2_dl[[3]]-S2_dl[[2]])/(S2_dl[[3]]+S2_dl[[2]])
-    sel <- S2_dl[[1]] < RadiometricFilter$cloudMask &
-      S2_dl[[3]] > RadiometricFilter$shadeMask &
+    mainmask <- get_mainmask(mask_path, S2_item, aoiplot)
+    ndvi <- (S2_item$B08-S2_item$B04)/(S2_item$B08+S2_item$B04)
+    sel <- S2_item$B02 < RadiometricFilter$cloudMask &
+      S2_item$B08 > RadiometricFilter$shadeMask &
       ndvi > RadiometricFilter$NDVIMask
     # get SCL
-    cloudmask <- terra::rast(cloudmask_path)
     if (asset_cloud == 'SCL') {
       bin_mask <- cloudmask
       targetVal <- 4
@@ -64,12 +61,11 @@ apply_radiometric_filter <- function(S2_items, acq, baseline, iChar, raster_dir,
       # save files
       terra::writeRaster(x = bin_mask, filename = bin_mask_file, overwrite = T)
       terra::writeRaster(x = mask_update, filename = bin_mask_filtered, overwrite = T)
+      terra::writeRaster(x = cloudmask, filename = cloudmask_path, overwrite = T)
       validity <- T
     } else {
-      # remove spectral bands
-      unlink(x = S2_items)
       # remove original SCL file
-      unlink(x = cloudmask_path)
+      if (file.exists(cloudmask_path)) unlink(x = cloudmask_path)
       validity <- F
     }
   }
