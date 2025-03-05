@@ -20,6 +20,10 @@
 #' @param siteName character. name of the study site
 #' @param rast_out boolean. should S2 SpatRaster be obtained as output?
 #' @param additional_process additional process to be applied to S2_items once downloaded
+#' @param crs_target numeric.
+#' @param original_clouds should original cloud mask be used or not?
+#' @param argsin list
+#' @param writeoutput boolean. should output file be saved?
 #'
 #' @return list of collections per plot
 #' @importFrom parallel makeCluster stopCluster
@@ -34,14 +38,16 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
                              collection = "sentinel-2-l2a", stac_url = NULL,
                              overwrite = F, nbCPU = 1, doublecheckColl = T,
                              offset = 1000, offset_B2 = F, corr_BRF = F,
-                             RadiometricFilter = NULL, siteName = NULL, 
-                             rast_out = T, additional_process = NULL){
-  
+                             RadiometricFilter = NULL, siteName = NULL,
+                             rast_out = T, additional_process = NULL,
+                             crs_target = NULL, original_clouds = TRUE,
+                             argsin = NULL, writeoutput = T){
+
   # get collection for each plot
   if (length(plots)<nbCPU) nbCPU <- length(plots)
-  collection_path <- get_collections(list_aoi = plots, 
+  collection_path <- get_collections(list_aoi = plots,
                                      S2tiles = S2tiles,
-                                     datetime = datetime, 
+                                     datetime = datetime,
                                      output_dir = output_dir,
                                      cloudcover = cloudcover,
                                      overwrite = overwrite,
@@ -51,10 +57,12 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
   # define paths
   raster_dir <- file.path(output_dir, 'raster_samples')
   dir.create(raster_dir, showWarnings = F, recursive = T)
-  
+
   # identify plots and discard first ones if needed
   nbPlots <- length(plots)
-  ID_aoi <- names(plots)
+  nbdigits = nchar(as.character(nbPlots))
+  ID_aoi <- num2char(seq_len(nbPlots),
+                     nbdigits = nbdigits)
   if (nbCPU==1){
     S2_items <- mapply(FUN = download_s2collection,
                        collection_path = collection_path,
@@ -69,8 +77,11 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
                                        offset_B2 = offset_B2,
                                        corr_BRF = corr_BRF,
                                        RadiometricFilter = RadiometricFilter,
-                                       overwrite = overwrite, 
-                                       siteName = siteName), SIMPLIFY = F)
+                                       overwrite = overwrite,
+                                       siteName = siteName, crs_target = crs_target,
+                                       original_clouds = original_clouds,
+                                       argsin = argsin, writeoutput = writeoutput),
+                       SIMPLIFY = F)
   } else if (nbCPU>1){
     cl <- parallel::makeCluster(nbCPU)
     plan("cluster", workers = cl)
@@ -92,9 +103,17 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
                                                               corr_BRF = corr_BRF,
                                                               RadiometricFilter = RadiometricFilter,
                                                               overwrite = overwrite,
+                                                              siteName = siteName,
                                                               p = p, rast_out = rast_out,
-                                                              additional_process = additional_process),
-                                              future.seed = T, SIMPLIFY = F)
+                                                              additional_process = additional_process,
+                                                              crs_target = crs_target,
+                                                              original_clouds = original_clouds,
+                                                              argsin = argsin,
+                                                              writeoutput = writeoutput),
+                                              future.seed = T,
+                                              future.chunk.size = NULL,
+                                              future.scheduling = structure(TRUE, ordering = "random"),
+                                              SIMPLIFY = F)
     })
     parallel::stopCluster(cl)
     plan(sequential)

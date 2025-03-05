@@ -8,6 +8,7 @@
 #' @param asset_names character.
 #' @param resolution numeric. spatial resolution (10 or 20)
 #' @param siteName character. name of the study site
+#' @param crs_target numeric.
 #'
 #' @return list of collections per plot
 #' @importFrom rstac assets_url
@@ -17,7 +18,7 @@
 #'
 download_cloudmask <- function(aoi, raster_dir, item_collection, iChar,
                                collection = 'sentinel-2-l2a', asset_names,
-                               resolution, siteName = NULL){
+                               resolution, siteName = NULL, crs_target = NULL){
 
   # if collection not empty
   if (length(item_collection$acquisitionDate)>0){
@@ -46,7 +47,8 @@ download_cloudmask <- function(aoi, raster_dir, item_collection, iChar,
                             FUN = get_asset_terra, 
                             asset_names = asset_names, 
                             collection = collection, 
-                            aoi = aoi)
+                            aoi = aoi, 
+                            crs_target = crs_target)
       names(features_dl) <- keep_dateAcq
       for (i in seq_len(length(features_dl)))
         features_dl[[i]] <- features_dl[[i]][[1]]
@@ -68,7 +70,7 @@ download_cloudmask <- function(aoi, raster_dir, item_collection, iChar,
       features_b2 <- get_asset_terra(item = item_collection[[1]], 
                                      asset_names = asset_b2, 
                                      collection = collection, 
-                                     aoi = aoi)
+                                     aoi = aoi, crs_target = crs_target)
       cloudmask  <- lapply(X = cloudmask, 
                           FUN = terra::resample, 
                           y = features_b2[[1]], 

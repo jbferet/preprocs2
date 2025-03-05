@@ -79,6 +79,8 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq){
   originalnames <- names(S2_rast)
   names(S2_rast) <- SRF$Spectral_Bands
   bands2correct <- c('B8A', 'B11', 'B12')
+  bands2correct <- names(S2_rast)
+  
   for (band in bands2correct){
     S2_rast[[band]] <- ratioCorr[band] * S2_rast[[band]]
     terra::values(S2_rast[[band]]) <- round(terra::values(S2_rast[[band]]))

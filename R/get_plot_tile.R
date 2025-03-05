@@ -28,7 +28,7 @@ get_plot_tile <- function(aoi, S2_footprint){
     message('please specify the tile of interest or ajust aoi')
     message('selecting tile with maximum overlapping area')
     int <- tibble::as_tibble(sf::st_intersection(x = aoi, y = subs2$geometry))
-    int$area <- st_area(int$geometry)
+    int$area <- sf::st_area(int$geometry)
     sel <- which(int$area==max(int$area))
     iscovered[[sel]] <- 1
     tileselect <- names(which(unlist(iscovered)==1))

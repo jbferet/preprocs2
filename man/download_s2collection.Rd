@@ -21,7 +21,11 @@ download_s2collection(
   overwrite = T,
   siteName = NULL,
   rast_out = T,
-  additional_process = NULL
+  additional_process = NULL,
+  crs_target = NULL,
+  original_clouds = TRUE,
+  argsin = NULL,
+  writeoutput = T
 )
 }
 \arguments{
@@ -58,6 +62,14 @@ download_s2collection(
 \item{rast_out}{boolean. should S2 SpatRaster be obtained as output?}
 
 \item{additional_process}{additional process to be applied to S2_items once downloaded}
+
+\item{crs_target}{numeric.}
+
+\item{original_clouds}{boolean}
+
+\item{argsin}{list}
+
+\item{writeoutput}{boolean. should output file be saved?}
 }
 \value{
 list of collections per plot

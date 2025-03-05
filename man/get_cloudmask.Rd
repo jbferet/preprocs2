@@ -14,7 +14,8 @@ get_cloudmask(
   collection = "sentinel-2-l2a",
   resolution = 10,
   nbCPU = 1,
-  siteName = NULL
+  siteName = NULL,
+  crs_target = NULL
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ get_cloudmask(
 \item{nbCPU}{numeric. number of CPU}
 
 \item{siteName}{character. name of the study site}
+
+\item{crs_target}{numeric.}
 }
 \value{
 list of cloudmasks

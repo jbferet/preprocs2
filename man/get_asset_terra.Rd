@@ -4,7 +4,13 @@
 \alias{get_asset_terra}
 \title{get asset from planetary using gdal}
 \usage{
-get_asset_terra(item, asset_names, aoi, collection = "sentinel-2-l2a")
+get_asset_terra(
+  item,
+  asset_names,
+  aoi,
+  crs_target = NULL,
+  collection = "sentinel-2-l2a"
+)
 }
 \arguments{
 \item{item}{character.}
@@ -12,6 +18,8 @@ get_asset_terra(item, asset_names, aoi, collection = "sentinel-2-l2a")
 \item{asset_names}{character.}
 
 \item{aoi}{sf.}
+
+\item{crs_target}{numeric.}
 
 \item{collection}{character.}
 }

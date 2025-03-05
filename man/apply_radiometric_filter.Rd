@@ -15,7 +15,10 @@ apply_radiometric_filter(
   fraction_vegetation,
   siteName = NULL,
   RadiometricFilter = NULL,
-  asset_cloud
+  asset_cloud,
+  original_clouds = TRUE,
+  overwrite = T,
+  writeoutput = T
 )
 }
 \arguments{
@@ -40,9 +43,15 @@ apply_radiometric_filter(
 \item{RadiometricFilter}{list. criterions for cloud, shade, non vegetation}
 
 \item{asset_cloud}{character. asset name for cloud mask}
+
+\item{original_clouds}{boolean}
+
+\item{overwrite}{boolean}
+
+\item{writeoutput}{boolean. should output file be saved?}
 }
 \value{
-list of collections per plot
+list of updated masks and valid dates of acquisition
 }
 \description{
 updates vegetation mask based on initial SCL and readiometric thresholds

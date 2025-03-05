@@ -1,3 +1,15 @@
+# preprocS2 v2.5.0
+
+## addition
+- added function get_s2_tiling to download S2 image from STAC catalog using tiles for multithread process
+- added function get_quicklook to produce quicklooks from raster data
+- added functions print_error_message_preprocS2 and get_HDR_name
+
+## changes
+- add crs_target as input to get_s2_tiling : possibility to define CRS for products saved (useful when downloading over large regions)
+- add original_clouds as input to get_s2_tiling : possibility to bypass provider cloud mask
+- radiometric filtering applied after reflectance correction (BRDF, B2)
+
 # preprocS2 v2.4.0
 
 ## changes

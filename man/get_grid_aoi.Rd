@@ -4,24 +4,16 @@
 \alias{get_grid_aoi}
 \title{return vector grid corresponding to an area of interest}
 \usage{
-get_grid_aoi(
-  aoi_path,
-  cellsize = 10000,
-  crs_target = 4326,
-  dsn_grid = NULL,
-  dsn_centroid = NULL
-)
+get_grid_aoi(aoi_path, cellsize = 10000, output_dir, crs_target = NULL)
 }
 \arguments{
 \item{aoi_path}{character. path for vector file defining aoi}
 
 \item{cellsize}{numeric. square cell size in meters}
 
-\item{crs_target}{numeric. CRS corresponding to the output grid cell}
+\item{output_dir}{character. output path}
 
-\item{dsn_grid}{character. path corresponding to grid}
-
-\item{dsn_centroid}{character. path corresponding to centroids of grid}
+\item{crs_target}{crs to be applied to data collected}
 }
 \value{
 dsn_grid path for grid of aoi

@@ -11,15 +11,20 @@
 #' @param RadiometricFilter list. criterions for cloud, shade, non vegetation
 #' @param asset_cloud character. asset name for cloud mask
 #' @param siteName character. name of the study site
+#' @param original_clouds boolean
+#' @param overwrite boolean
+#' @param writeoutput boolean. should output file be saved?
 #'
-#' @return list of collections per plot
+#' @return list of updated masks and valid dates of acquisition
 #' @importFrom terra rast writeRaster values
 #' @export
 #'
 apply_radiometric_filter <- function(S2_item, acq, iChar, raster_dir,
-                                     cloudmask, mask_path = NULL, aoiplot, 
-                                     fraction_vegetation, siteName = NULL, 
-                                     RadiometricFilter = NULL, asset_cloud){
+                                     cloudmask, mask_path = NULL, aoiplot,
+                                     fraction_vegetation, siteName = NULL,
+                                     RadiometricFilter = NULL, asset_cloud,
+                                     original_clouds = TRUE, overwrite = T, 
+                                     writeoutput = T){
 
   # define root path for output files
   if (is.null(siteName)) prefix <- file.path(raster_dir, paste0('plot_',iChar,'_',acq))
@@ -30,10 +35,10 @@ apply_radiometric_filter <- function(S2_item, acq, iChar, raster_dir,
 
   # radiometric filter
   if (is.null(RadiometricFilter))
-    RadiometricFilter <- list('cloudMask' = 500, 'shadeMask' = 1500, 'NDVIMask' = 0.65)
+    RadiometricFilter <- list('cloudMask' = 350, 'shadeMask' = 1500, 'NDVIMask' = 0.65)
 
   validity <- T
-  if (!file.exists(bin_mask_file) & !file.exists(bin_mask_filtered)){
+  if (overwrite | (!file.exists(bin_mask_file) & !file.exists(bin_mask_filtered))){
     mainmask <- get_mainmask(mask_path, S2_item, aoiplot)
     ndvi <- (S2_item$B08-S2_item$B04)/(S2_item$B08+S2_item$B04)
     sel <- S2_item$B02 < RadiometricFilter$cloudMask &
@@ -50,6 +55,9 @@ apply_radiometric_filter <- function(S2_item, acq, iChar, raster_dir,
       selclear <- which(is.na(terra::values(cloudmask)))
       bin_mask[selclear] <- 1
     }
+    if (!original_clouds)
+      bin_mask <- 0*bin_mask+1
+
     mask_update <- bin_mask*sel*mainmask
     mask_init <- bin_mask*mainmask
     # get fCover from updated mask
@@ -59,15 +67,19 @@ apply_radiometric_filter <- function(S2_item, acq, iChar, raster_dir,
       names(mask_update) <- 'binary mask update'
       names(bin_mask) <- 'binary mask'
       # save files
-      terra::writeRaster(x = bin_mask, filename = bin_mask_file, overwrite = T)
-      terra::writeRaster(x = mask_update, filename = bin_mask_filtered, overwrite = T)
-      terra::writeRaster(x = cloudmask, filename = cloudmask_path, overwrite = T)
+      if (writeoutput){
+        terra::writeRaster(x = bin_mask, filename = bin_mask_file, overwrite = T)
+        terra::writeRaster(x = mask_update, filename = bin_mask_filtered, overwrite = T)
+        terra::writeRaster(x = cloudmask, filename = cloudmask_path, overwrite = T)
+      }
       validity <- T
     } else {
       # remove original SCL file
       if (file.exists(cloudmask_path)) unlink(x = cloudmask_path)
+      mask_update <- NULL
       validity <- F
     }
   }
-  return(validity)
+  updatedMasks <- list('validity' = validity, 'mask_update' = mask_update)
+  return(updatedMasks)
 }

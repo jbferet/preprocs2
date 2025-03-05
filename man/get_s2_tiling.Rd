@@ -5,28 +5,35 @@
 \title{return S2 tiles intersecting with the footprint of a vector file}
 \usage{
 get_s2_tiling(
-  plots,
+  plots = NULL,
   aoi_path,
   datetime,
   output_dir,
-  cloudcover = 100,
-  siteName = NULL,
-  path_S2tilinggrid = NULL,
+  cloudcover = 99,
   overwrite = T,
+  siteName = NULL,
+  path_S2tilinggrid = "Sentinel-2_tiling_grid.kml",
   collection = "sentinel-2-l2a",
   geomAcq = F,
   nbCPU = 1,
   authentication = NULL,
   mask_path = NULL,
   resolution = 10,
-  fraction_vegetation = 5,
+  fraction_vegetation = 0,
   stac_url = NULL,
   doublecheckColl = T,
   offset = 1000,
   offset_B2 = F,
   corr_BRF = F,
+  crs_target = NULL,
   RadiometricFilter = NULL,
-  additional_process = NULL
+  additional_process = NULL,
+  original_clouds = T,
+  cellsize = 10000,
+  pursue_existing = T,
+  argsin = NULL,
+  writeoutput = T,
+  bypassDL = F
 )
 }
 \arguments{
@@ -40,11 +47,11 @@ get_s2_tiling(
 
 \item{cloudcover}{numeric.}
 
+\item{overwrite}{boolean.}
+
 \item{siteName}{character. name of the study site}
 
 \item{path_S2tilinggrid}{character. path for the Sentinel-2_tiling_grid.kml file}
-
-\item{overwrite}{boolean.}
 
 \item{collection}{character.}
 
@@ -70,12 +77,26 @@ get_s2_tiling(
 
 \item{corr_BRF}{boolean.}
 
+\item{crs_target}{numeric.}
+
 \item{RadiometricFilter}{list.}
 
 \item{additional_process}{additional process to be applied to S2_items once downloaded}
+
+\item{original_clouds}{boolean. should original cloud mask be used or not?}
+
+\item{cellsize}{numeric. cell size}
+
+\item{pursue_existing}{boolean. should previously downloaded data be accounted for?}
+
+\item{argsin}{list. list of arguments for additional_process}
+
+\item{writeoutput}{boolean. should output file be saved?}
+
+\item{bypassDL}{boolean. the download of S2 data is not performed}
 }
 \value{
-S2tiles list of tiles corresponding to plots
+plots list of plots
 }
 \description{
 return S2 tiles intersecting with the footprint of a vector file
