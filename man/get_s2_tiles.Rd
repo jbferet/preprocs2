@@ -7,7 +7,8 @@
 get_s2_tiles(
   plots,
   dsn_bbox,
-  site = NULL,
+  output_dir,
+  siteName = NULL,
   overwrite = T,
   path_S2tilinggrid = "Sentinel-2_tiling_grid.kml"
 )
@@ -17,7 +18,9 @@ get_s2_tiles(
 
 \item{dsn_bbox}{character. path for vector file corresponding to bbox}
 
-\item{site}{character. name of the study site}
+\item{output_dir}{character. output path}
+
+\item{siteName}{character. name of the study site}
 
 \item{overwrite}{boolean.}
 

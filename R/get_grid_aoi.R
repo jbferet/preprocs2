@@ -2,44 +2,47 @@
 #'
 #' @param aoi_path character. path for vector file defining aoi
 #' @param cellsize numeric. square cell size in meters
-#' @param crs_target numeric. CRS corresponding to the output grid cell
-#' @param dsn_grid character. path corresponding to grid
-#' @param dsn_centroid character. path corresponding to centroids of grid
+#' @param output_dir character. output path
+#' @param crs_target crs to be applied to data collected
 #'
 #' @return dsn_grid path for grid of aoi
 #' @importFrom sf read_sf st_transform st_make_grid st_intersects st_buffer st_write st_centroid
 #' @importFrom crsuggest suggest_crs
 #' @export
 
-get_grid_aoi <- function(aoi_path, cellsize = 10000, crs_target = 4326,
-                         dsn_grid = NULL, dsn_centroid = NULL){
-  aoi <- sf::read_sf(aoi_path, quiet = T)
-  # transform vector into crs applicable for metric system
-  crs_current <- crsuggest::suggest_crs(input = aoi)[1,]
-  aoi_grid <- sf::st_transform(aoi, crs=crs_current$crs_proj4) |>
-    st_make_grid(cellsize = cellsize, square = TRUE)
-  # select grid celles intersecting with initial aoi
-  intersect <- as.data.frame(st_intersects(x = aoi_grid,
-                                           st_transform(aoi, crs=crs_current$crs_proj4)))
-  aoi_grid <- aoi_grid[intersect$row.id]
-  # add buffer to avoid border effects
-  aoi_grid <- sf::st_buffer(x = aoi_grid, dist = 100)
-  # transform vector into crs_target
-  aoi_grid_init <- sf::st_transform(aoi_grid, crs=crs_target)
-  data_path <- dirname(aoi_path)
-  # save grid
-  if (is.null(dsn_grid))
-    dsn_grid <- file.path(data_path,'aoi_grid.gpkg')
-  sf::st_write(obj = aoi_grid_init, dsn = dsn_grid,
-               overwrite = T, append = F,
-               driver = 'GPKG', quiet = T)
-  # save grid centroid for each cell
-  if (is.null(dsn_centroid))
-    dsn_centroid <- file.path(data_path,'aoi_grid_centroid.gpkg')
-  aoi_grid_centroids <- sf::st_centroid(x = aoi_grid_init)
-  sf::st_write(obj = aoi_grid_centroids, dsn = dsn_centroid,
-               overwrite = T, append = F,
-               driver = 'GPKG', quiet = T)
-  return(list('dsn_grid' = dsn_grid,
-              'dsn_centroid' = dsn_centroid))
+get_grid_aoi <- function(aoi_path, cellsize = 10000, output_dir, crs_target = NULL){
+
+  # define grid
+  dsn_grid <- file.path(output_dir, paste0('aoi_grid_',cellsize,'.gpkg'))
+  # read aoi and get crs corresponding to S2 acquisitions
+  if (file.exists(dsn_grid)){
+    message('Reading grid')
+    aoi_grid <- sf::st_read(dsn = dsn_grid, quiet = T)
+    if (is.null(crs_target))
+      crs_target <- suppressMessages(crsuggest::suggest_top_crs(input = aoi_grid,
+                                                                units = 'm'))
+  } else {
+    message('Reading aoi')
+    aoi <- sf::read_sf(aoi_path, quiet = T)
+    if (is.null(crs_target))
+      crs_target <- suppressMessages(crsuggest::suggest_top_crs(input = aoi,
+                                                                units = 'm'))
+    aoi <- sf::st_transform(aoi, crs = crs_target)
+    # transform vector into crs applicable for metric system if needed
+    aoi_grid <- aoi |> sf::st_make_grid(cellsize = cellsize, square = TRUE)
+    # select grid cells intersecting with initial aoi
+    intersect <- as.data.frame(sf::st_intersects(x = aoi_grid, aoi))
+    aoi_grid <- aoi_grid[intersect$row.id]
+    # add buffer to avoid border effects
+    aoi_grid <- sf::st_buffer(x = aoi_grid, dist = 100)
+    # save grid
+    dir.create(path = output_dir, showWarnings = F, recursive = T)
+    sf::st_write(obj = aoi_grid, dsn = dsn_grid,
+                 overwrite = T, append = F,
+                 driver = 'GPKG', quiet = T)
+  }
+  message(paste('the crs of the output products will be', crs_target))
+  plots <- get_plot_list(dsn = dsn_grid,
+                         nbdigits = nchar(as.character(length(aoi_grid$geom))))
+  return(list('dsn_grid' = dsn_grid, 'plots' = plots, 'crs_target' = crs_target))
 }

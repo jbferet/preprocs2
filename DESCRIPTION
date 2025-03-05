@@ -1,6 +1,6 @@
 Package: preprocS2
 Title: preprocessing of Sentinel-2 data downloaded from various data hubs / produced from various atmospheric correction methods
-Version: 2.4.0
+Version: 2.5.0
 Authors@R: c(person(given = "Jean-Baptiste", 
 					    family = "Feret", 
 					    email = "jb.feret@teledetection.fr", 
@@ -23,9 +23,11 @@ Suggests:
 Imports: 
     CDSE,
     crsuggest,
+    curl,
     future,
     future.apply,
     lubridate,
+    magrittr,
     methods,
     parallel,
     progressr,
@@ -33,15 +35,15 @@ Imports:
     prosail,
     rstac,
     sf,
+    spinR,
+    stars,
     stringr,
     terra,
-    magrittr,
     tibble,
-    curl,
-    XML,
-    stars
+    XML
 Remotes: github::jbferet/prospect, 
          github::jbferet/prosail, 
+         github::jbferet/spinR, 
          gitlab::jbferet/bigRaster
 VignetteBuilder: knitr
 URL: https://gitlab.com/jbferet/preprocS2

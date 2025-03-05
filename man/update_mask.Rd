@@ -17,7 +17,11 @@ update_mask(
   offset = 1000,
   overwrite = F,
   RadiometricFilter = NULL,
-  siteName = NULL
+  siteName = NULL,
+  crs_target = NULL,
+  original_clouds = TRUE,
+  S2_items = NULL,
+  writeoutput = T
 )
 }
 \arguments{
@@ -46,6 +50,14 @@ update_mask(
 \item{RadiometricFilter}{list.}
 
 \item{siteName}{character. name of the study site}
+
+\item{crs_target}{numeric.}
+
+\item{original_clouds}{boolean}
+
+\item{S2_items}{list}
+
+\item{writeoutput}{boolean. should output file be saved?}
 }
 \value{
 list of collections per plot

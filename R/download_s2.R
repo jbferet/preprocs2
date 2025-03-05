@@ -11,6 +11,8 @@
 #' @param collection character.
 #' @param corr_BRF boolean.
 #' @param siteName character. name of the study site
+#' @param crs_target numeric.
+#' @param writeoutput boolean. should output file be saved?
 #'
 #' @return list of collections per plot
 #' @importFrom terra rast
@@ -21,7 +23,7 @@
 download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                         S2_items = NULL, offset = 1000, offset_B2 = F,
                         collection = 'sentinel-2-l2a', corr_BRF = F,
-                        siteName = NULL){
+                        siteName = NULL, crs_target = NULL, writeoutput = T){
 
   item_collection <- readRDS(file = collection_path)
   if (collection == 'sentinel-2-l2a'){
@@ -45,7 +47,8 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                             item = item_collection$features,
                             asset_names = asset_names_list,
                             MoreArgs = list(collection = collection,
-                                            aoi = aoi),
+                                            aoi = aoi, 
+                                            crs_target = crs_target),
                             SIMPLIFY = F)
   names(S2_items_update) <- item_collection$acquisitionDate
 
@@ -67,7 +70,7 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
   for (i in seq_len(length(item_collection$acquisitionDate))){
     resitems <- lapply(lapply(S2_items_final[[i]], terra::res), '[[', 1)
     # harmonize spatial resolution
-    template_Rast <- S2_items_final[[i]][which(resitems==resolution)[1]]
+    template_Rast <- S2_items_final[[i]][which(round(unlist(resitems))==resolution)[1]]
     S2_items_final[[i]]  <- lapply(X = S2_items_final[[i]],
                                    FUN = terra::resample,
                                    template_Rast[[1]], method = 'near')
@@ -77,9 +80,11 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                                        aoi = aoi, offset_B2 = offset_B2,
                                        corr_BRF = corr_BRF)
     # save reflectance file
-    if (is.null(siteName)) filename <- file.path(raster_dir, paste0('plot_',iChar,'_',acq, '.tiff'))
-    if (!is.null(siteName)) filename <- file.path(raster_dir, paste0(siteName,'_',iChar,'_',acq, '.tiff'))
-    terra::writeRaster(x = s2_items[[acq]], filename = filename, overwrite = T)
+    if (writeoutput){
+      if (is.null(siteName)) filename <- file.path(raster_dir, paste0('plot_',iChar,'_',acq, '.tiff'))
+      if (!is.null(siteName)) filename <- file.path(raster_dir, paste0(siteName,'_',iChar,'_',acq, '.tiff'))
+      terra::writeRaster(x = s2_items[[acq]], filename = filename, overwrite = T)
+    }
   }
   return(s2_items)
 }

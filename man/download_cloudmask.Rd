@@ -12,7 +12,8 @@ download_cloudmask(
   collection = "sentinel-2-l2a",
   asset_names,
   resolution,
-  siteName = NULL
+  siteName = NULL,
+  crs_target = NULL
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ download_cloudmask(
 \item{resolution}{numeric. spatial resolution (10 or 20)}
 
 \item{siteName}{character. name of the study site}
+
+\item{crs_target}{numeric.}
 }
 \value{
 list of collections per plot

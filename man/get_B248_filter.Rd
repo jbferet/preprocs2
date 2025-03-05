@@ -16,7 +16,12 @@ get_B248_filter(
   fraction_vegetation,
   offset = 1000,
   RadiometricFilter = NULL,
-  siteName
+  siteName,
+  crs_target = NULL,
+  original_clouds = original_clouds,
+  overwrite = F,
+  S2_items = NULL,
+  writeoutput = T
 )
 }
 \arguments{
@@ -43,6 +48,16 @@ get_B248_filter(
 \item{RadiometricFilter}{list. list of radiometric filters for shade, clouds and vegetation}
 
 \item{siteName}{character. name of the study site}
+
+\item{crs_target}{numeric.}
+
+\item{original_clouds}{boolean}
+
+\item{overwrite}{boolean}
+
+\item{S2_items}{list}
+
+\item{writeoutput}{boolean. should output file be saved?}
 }
 \value{
 list of collections per plot

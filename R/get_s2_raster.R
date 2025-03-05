@@ -18,8 +18,8 @@
 #' @importFrom sf st_write st_bbox st_read st_crs st_transform
 #' @export
 
-get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cloudcover = 100,
-                          siteName = NULL, path_S2tilinggrid = NULL, overwrite = T,
+get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
+                          cloudcover = 100, siteName = NULL, path_S2tilinggrid = NULL, overwrite = T,
                           geomAcq = F, authentication = NULL,
                           collection = "sentinel-2-l2a", stac_url = NULL,
                           additional_process = NULL){
@@ -74,7 +74,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir, cl
   path_S2tilinggrid <- check_S2tilinggrid(path_S2tilinggrid = path_S2tilinggrid)
   S2_grid <- get_s2_tiles(plots = plots,
                           dsn_bbox = bbox_path,
-                          site = siteName,
+                          siteName = siteName,
                           path_S2tilinggrid = path_S2tilinggrid,
                           overwrite = overwrite)
 

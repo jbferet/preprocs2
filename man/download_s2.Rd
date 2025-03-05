@@ -15,7 +15,9 @@ download_s2(
   offset_B2 = F,
   collection = "sentinel-2-l2a",
   corr_BRF = F,
-  siteName = NULL
+  siteName = NULL,
+  crs_target = NULL,
+  writeoutput = T
 )
 }
 \arguments{
@@ -40,6 +42,10 @@ download_s2(
 \item{corr_BRF}{boolean.}
 
 \item{siteName}{character. name of the study site}
+
+\item{crs_target}{numeric.}
+
+\item{writeoutput}{boolean. should output file be saved?}
 }
 \value{
 list of collections per plot
