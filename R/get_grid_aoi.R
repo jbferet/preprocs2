@@ -21,6 +21,7 @@ get_grid_aoi <- function(aoi_path, cellsize = 10000, output_dir, crs_target = NU
     if (is.null(crs_target))
       crs_target <- suppressMessages(crsuggest::suggest_top_crs(input = aoi_grid,
                                                                 units = 'm'))
+    nbcells <- length(aoi_grid$geom)
   } else {
     message('Reading aoi')
     aoi <- sf::read_sf(aoi_path, quiet = T)
@@ -40,9 +41,9 @@ get_grid_aoi <- function(aoi_path, cellsize = 10000, output_dir, crs_target = NU
     sf::st_write(obj = aoi_grid, dsn = dsn_grid,
                  overwrite = T, append = F,
                  driver = 'GPKG', quiet = T)
+    nbcells <- length(aoi_grid)
   }
   message(paste('the crs of the output products will be', crs_target))
-  plots <- get_plot_list(dsn = dsn_grid,
-                         nbdigits = nchar(as.character(length(aoi_grid$geom))))
+  plots <- get_plot_list(dsn = dsn_grid, nbdigits = nchar(nbcells))
   return(list('dsn_grid' = dsn_grid, 'plots' = plots, 'crs_target' = crs_target))
 }
