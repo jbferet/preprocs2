@@ -25,7 +25,7 @@ check_SI_computed <- function(dsn_grid, output_SI, SI_list){
   }
   ID_all <- unlist(ID)
   already_computed <- names(which(table(ID_all)==length(SI_list)))
-  if (!is.null(sel)){
+  if (!is.null(already_computed)){
     to_compute <- setdiff(x = names(plots), y = already_computed)
     plots <- plots[to_compute]
   }
