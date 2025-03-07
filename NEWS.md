@@ -1,3 +1,8 @@
+# preprocS2 v2.5.1
+
+## addition
+- function testing if spectral indices already computed when using get_s2_tiling
+
 # preprocS2 v2.5.0
 
 ## addition

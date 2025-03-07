@@ -50,19 +50,21 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
 
   # define grid of tiles
   path_grid <- NULL
+  if (cellsize>11000){
+    message('cellsize > 11000 m will not ensure full acquisitions')
+    message('reducing to "cellsize = 11000"')
+    cellsize <- 11000
+  }
+  dsn_grid <- file.path(output_dir, paste0('aoi_grid_',cellsize,'.gpkg'))
   if (is.null(plots)){
     message('tiling area of interest')
-    if (cellsize>11000){
-      message('cellsize > 11000 m will not ensure full acquisitions')
-      message('reducing to "cellsize = 11000"')
-      cellsize <- 11000
-    }
     path_grid <- get_grid_aoi(aoi_path = aoi_path,
                               cellsize = cellsize,
                               output_dir = output_dir,
                               crs_target = crs_target)
     crs_target <- path_grid$crs_target
     plots <- path_grid$plots
+    dsn_grid <- path_grid$dsn_grid
   }
 
   if (!bypassDL){
