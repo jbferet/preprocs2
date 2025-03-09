@@ -60,9 +60,7 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
 
   # identify plots and discard first ones if needed
   nbPlots <- length(plots)
-  nbdigits = nchar(as.character(nbPlots))
-  ID_aoi <- num2char(seq_len(nbPlots),
-                     nbdigits = nbdigits)
+  ID_aoi <- names(plots)
   if (nbCPU==1){
     S2_items <- mapply(FUN = download_s2collection,
                        collection_path = collection_path,

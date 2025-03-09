@@ -2,14 +2,15 @@
 #'
 #' @param dsn_grid list.
 #' @param output_SI character. path for output directory for SI
-#' @param SI_list character list of SI
+#' @param SI_list character. list of SI
+#' @param siteName character. site name
 #'
 #' @return plots list of plots
 #' @importFrom sf st_read
 #' @importFrom crsuggest suggest_crs
 #' @export
 
-check_SI_computed <- function(dsn_grid, output_SI, SI_list){
+check_SI_computed <- function(dsn_grid, output_SI, SI_list, siteName){
 
   message('Reading grid')
   aoi_grid <- sf::st_read(dsn = dsn_grid, quiet = T)
@@ -17,6 +18,7 @@ check_SI_computed <- function(dsn_grid, output_SI, SI_list){
   crs_target <- suppressMessages(crsuggest::suggest_top_crs(input = aoi_grid,
                                                             units = 'm'))
   plots <- get_plot_list(dsn = dsn_grid, nbdigits = nchar(nbcells))
+  plotID <- names(plots)
   listSI <- ID <- list()
   for (si in SI_list){
     listSI[[si]] <- list.files(path = output_SI, pattern = si)
@@ -29,6 +31,6 @@ check_SI_computed <- function(dsn_grid, output_SI, SI_list){
     to_compute <- setdiff(x = names(plots), y = already_computed)
     plots <- plots[to_compute]
   }
-  tobedone <- list('plots' = plots, 'crs_target' = crs_target)
-  return(tobedone)
+  plotscrs <- list('plots' = plots, 'plotID' = plotID, 'crs_target' = crs_target)
+  return(plotscrs)
 }
