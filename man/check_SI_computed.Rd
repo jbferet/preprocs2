@@ -4,14 +4,16 @@
 \alias{check_SI_computed}
 \title{checks if SI already computed}
 \usage{
-check_SI_computed(dsn_grid, output_SI, SI_list)
+check_SI_computed(dsn_grid, output_SI, SI_list, siteName)
 }
 \arguments{
 \item{dsn_grid}{list.}
 
 \item{output_SI}{character. path for output directory for SI}
 
-\item{SI_list}{character list of SI}
+\item{SI_list}{character. list of SI}
+
+\item{siteName}{character. site name}
 }
 \value{
 plots list of plots
