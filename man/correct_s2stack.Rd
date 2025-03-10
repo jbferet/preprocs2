@@ -5,7 +5,15 @@
 \title{produce S2 stack and correct it if needed (BRDF or B2)
 These are very experimental corrections}
 \usage{
-correct_s2stack(s2_items, acq, raster_dir, aoi, offset_B2 = F, corr_BRF = F)
+correct_s2stack(
+  s2_items,
+  acq,
+  raster_dir,
+  aoi,
+  offset_B2 = F,
+  corr_BRF = F,
+  bands2correct = c("B8A", "B11", "B12")
+)
 }
 \arguments{
 \item{s2_items}{path for spectral bands required}
@@ -19,6 +27,8 @@ correct_s2stack(s2_items, acq, raster_dir, aoi, offset_B2 = F, corr_BRF = F)
 \item{offset_B2}{boolean. value of the offset to apply to the S2 band B2}
 
 \item{corr_BRF}{boolean.}
+
+\item{bands2correct}{character. name of bands to correct from geometry}
 }
 \value{
 list of collections per plot

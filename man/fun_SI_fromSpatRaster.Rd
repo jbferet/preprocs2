@@ -14,7 +14,7 @@ fun_SI_fromSpatRaster(S2_refl, S2_mask, argsin)
 \item{argsin}{list of input arguments}
 }
 \value{
-none
+resSI
 }
 \description{
 compute spectral indices and composite for a given period of time

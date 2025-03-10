@@ -25,7 +25,8 @@ download_s2collection(
   crs_target = NULL,
   original_clouds = TRUE,
   argsin = NULL,
-  writeoutput = T
+  writeoutput = T,
+  bands2correct = c("B8A", "B11", "B12")
 )
 }
 \arguments{
@@ -70,6 +71,8 @@ download_s2collection(
 \item{argsin}{list}
 
 \item{writeoutput}{boolean. should output file be saved?}
+
+\item{bands2correct}{character. name of bands to correct from geometry}
 }
 \value{
 list of collections per plot

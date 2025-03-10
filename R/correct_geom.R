@@ -4,6 +4,7 @@
 #' @param output_dir character.
 #' @param aoi sf object
 #' @param acq date of acquisition
+#' @param bands2correct character. name of bands to correct from geometry
 #'
 #' @return list of collections per plot
 #' @importFrom terra rast values na.omit crop buffer
@@ -11,7 +12,8 @@
 #' @importFrom methods as
 #' @export
 #'
-correct_geom <- function(S2_rast, output_dir, aoi, acq){
+correct_geom <- function(S2_rast, output_dir, aoi, acq,
+                         bands2correct = c('B8A', 'B11', 'B12')){
 
   geom_dir <- file.path(output_dir, 'geomAcq_S2')
   # download geometry of acquisition corresponding to aoi
@@ -78,9 +80,9 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq){
   ratioCorr <- colMeans(ratioBRF)
   originalnames <- names(S2_rast)
   names(S2_rast) <- SRF$Spectral_Bands
-  bands2correct <- c('B8A', 'B11', 'B12')
-  bands2correct <- names(S2_rast)
-  
+  # bands2correct <- c('B8A', 'B11', 'B12')
+  # bands2correct <- names(S2_rast)
+
   for (band in bands2correct){
     S2_rast[[band]] <- ratioCorr[band] * S2_rast[[band]]
     terra::values(S2_rast[[band]]) <- round(terra::values(S2_rast[[band]]))

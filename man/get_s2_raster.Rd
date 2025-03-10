@@ -17,7 +17,8 @@ get_s2_raster(
   authentication = NULL,
   collection = "sentinel-2-l2a",
   stac_url = NULL,
-  additional_process = NULL
+  additional_process = NULL,
+  bands2correct = c("B8A", "B11", "B12")
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ get_s2_raster(
 \item{stac_url}{character.}
 
 \item{additional_process}{additional process to be applied to S2_items once downloaded}
+
+\item{bands2correct}{character. name of bands to correct from geometry}
 }
 \value{
 list of path corresponding to output files

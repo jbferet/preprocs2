@@ -33,7 +33,8 @@ get_s2_tiling(
   pursue_existing = T,
   argsin = NULL,
   writeoutput = T,
-  bypassDL = F
+  bypassDL = F,
+  bands2correct = c("B8A", "B11", "B12")
 )
 }
 \arguments{
@@ -94,6 +95,8 @@ get_s2_tiling(
 \item{writeoutput}{boolean. should output file be saved?}
 
 \item{bypassDL}{boolean. the download of S2 data is not performed}
+
+\item{bands2correct}{character. name of bands to correct from geometry}
 }
 \value{
 plots list of plots

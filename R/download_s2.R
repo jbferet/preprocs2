@@ -13,6 +13,7 @@
 #' @param siteName character. name of the study site
 #' @param crs_target numeric.
 #' @param writeoutput boolean. should output file be saved?
+#' @param bands2correct character. name of bands to correct from geometry
 #'
 #' @return list of collections per plot
 #' @importFrom terra rast
@@ -23,7 +24,8 @@
 download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                         S2_items = NULL, offset = 1000, offset_B2 = F,
                         collection = 'sentinel-2-l2a', corr_BRF = F,
-                        siteName = NULL, crs_target = NULL, writeoutput = T){
+                        siteName = NULL, crs_target = NULL, writeoutput = T,
+                        bands2correct = c('B8A', 'B11', 'B12')){
 
   item_collection <- readRDS(file = collection_path)
   if (collection == 'sentinel-2-l2a'){
@@ -47,7 +49,7 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                             item = item_collection$features,
                             asset_names = asset_names_list,
                             MoreArgs = list(collection = collection,
-                                            aoi = aoi, 
+                                            aoi = aoi,
                                             crs_target = crs_target),
                             SIMPLIFY = F)
   names(S2_items_update) <- item_collection$acquisitionDate
@@ -78,7 +80,8 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
     s2_items[[acq]] <- correct_s2stack(s2_items = S2_items_final[[i]],
                                        acq = acq, raster_dir = raster_dir,
                                        aoi = aoi, offset_B2 = offset_B2,
-                                       corr_BRF = corr_BRF)
+                                       corr_BRF = corr_BRF,
+                                       bands2correct = bands2correct)
     # save reflectance file
     if (writeoutput){
       if (is.null(siteName)) filename <- file.path(raster_dir, paste0('plot_',iChar,'_',acq, '.tiff'))
