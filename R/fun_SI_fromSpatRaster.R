@@ -38,7 +38,7 @@ fun_SI_fromSpatRaster <- function(S2_refl, S2_mask, argsin){
       }
       SI_masked[[idx]][[doa]] <- SI_tmp
       if (argsin$write_SI_acq){
-        filename <- file.path(argsin$path_SI_acq, paste0(idx,'_',doa,'.tiff'))
+        filename <- file.path(argsin$path_SI_acq, paste0(idx,'_',argsin$iChar,'_',doa,'.tiff'))
         terra::writeRaster(x = SI_masked[[idx]][[doa]], filename = filename,
                            datatype = 'GTiff', overwrite = argsin$overwrite)
       }
