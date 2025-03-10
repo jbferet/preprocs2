@@ -4,7 +4,7 @@
 #' @param S2_mask spatRaster.
 #' @param argsin list of input arguments
 #'
-#' @return none
+#' @return resSI
 #' @importFrom terra rast values writeRaster median
 #' @importFrom stringr str_replace
 #' @export
@@ -37,6 +37,11 @@ fun_SI_fromSpatRaster <- function(S2_refl, S2_mask, argsin){
         terra::values(SI_tmp)[elim] <- NA
       }
       SI_masked[[idx]][[doa]] <- SI_tmp
+      if (argsin$write_SI_acq){
+        filename <- file.path(argsin$path_SI_acq, paste0(idx,'_',doa,'.tiff'))
+        terra::writeRaster(x = SI_masked[[idx]][[doa]], filename = filename,
+                           datatype = 'GTiff', overwrite = argsin$overwrite)
+      }
     }
   }
   sirast <- sirast_median <- list()
@@ -60,5 +65,6 @@ fun_SI_fromSpatRaster <- function(S2_refl, S2_mask, argsin){
       terra::writeRaster(x = sirast_median[[idx]], filename = filename,
                          datatype = argsin$datatype, overwrite = argsin$overwrite)
   }
-  return()
+  resSI <- list('individual_SI' = SI_val, 'synthesis_SI' = sirast_median)
+  return(resSI)
 }

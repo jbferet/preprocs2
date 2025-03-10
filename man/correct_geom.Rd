@@ -4,7 +4,13 @@
 \alias{correct_geom}
 \title{corrects geometry of acquisition}
 \usage{
-correct_geom(S2_rast, output_dir, aoi, acq)
+correct_geom(
+  S2_rast,
+  output_dir,
+  aoi,
+  acq,
+  bands2correct = c("B8A", "B11", "B12")
+)
 }
 \arguments{
 \item{S2_rast}{S2 spatRaster}
@@ -14,6 +20,8 @@ correct_geom(S2_rast, output_dir, aoi, acq)
 \item{aoi}{sf object}
 
 \item{acq}{date of acquisition}
+
+\item{bands2correct}{character. name of bands to correct from geometry}
 }
 \value{
 list of collections per plot

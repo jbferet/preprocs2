@@ -1,3 +1,9 @@
+# preprocS2 v2.5.2
+
+## addition
+- possibility to select spectral bands for which geometric correction will be applied
+- possibility to save spectral indices for individual acquisitions
+
 # preprocS2 v2.5.1
 
 ## addition

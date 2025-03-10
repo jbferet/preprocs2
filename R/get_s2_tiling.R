@@ -29,6 +29,7 @@
 #' @param argsin list. list of arguments for additional_process
 #' @param writeoutput boolean. should output file be saved?
 #' @param bypassDL boolean. the download of S2 data is not performed
+#' @param bands2correct character. name of bands to correct from geometry
 #'
 #' @return plots list of plots
 #' @export
@@ -42,7 +43,8 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                           offset = 1000, offset_B2 = F, corr_BRF = F, crs_target = NULL,
                           RadiometricFilter = NULL, additional_process = NULL,
                           original_clouds = T, cellsize = 10000, pursue_existing = T,
-                          argsin = NULL, writeoutput = T, bypassDL = F){
+                          argsin = NULL, writeoutput = T, bypassDL = F,
+                          bands2correct = c('B8A', 'B11', 'B12')){
 
   # create proper datetime if only one date provided
   if (inherits(x = datetime, what = c('character', 'Date')))
@@ -97,21 +99,30 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
     # download S2 data
     message('download S2 collection')
     S2tiles <- S2_grid$S2tiles
-    S2_items <- get_s2collection(plots = plots[missing], datetime = datetime,
-                                 nbCPU = nbCPU, S2tiles = S2tiles,
-                                 output_dir = output_dir, cloudcover = cloudcover,
+    S2_items <- get_s2collection(plots = plots[missing],
+                                 datetime = datetime,
+                                 nbCPU = nbCPU,
+                                 S2tiles = S2tiles,
+                                 output_dir = output_dir,
+                                 cloudcover = cloudcover,
                                  mask_path = mask_path,
                                  fraction_vegetation = fraction_vegetation,
-                                 resolution = resolution, collection = collection,
-                                 stac_url = stac_url, overwrite = overwrite,
+                                 resolution = resolution,
+                                 collection = collection,
+                                 stac_url = stac_url,
+                                 overwrite = overwrite,
                                  siteName = siteName,
-                                 doublecheckColl = doublecheckColl, offset = offset,
-                                 offset_B2 = offset_B2, corr_BRF = corr_BRF,
+                                 doublecheckColl = doublecheckColl,
+                                 offset = offset,
+                                 offset_B2 = offset_B2,
+                                 corr_BRF = corr_BRF,
                                  RadiometricFilter = RadiometricFilter,
-                                 rast_out = F, crs_target = crs_target,
+                                 rast_out = T,
+                                 crs_target = crs_target,
                                  additional_process = additional_process,
                                  original_clouds = original_clouds,
-                                 argsin = argsin, writeoutput = writeoutput)
+                                 argsin = argsin, writeoutput = writeoutput,
+                                 bands2correct = bands2correct)
   }
   tilingInfo <- list('plots' = plots,
                      'dsn_grid' = path_grid$dsn_grid,

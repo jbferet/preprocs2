@@ -24,6 +24,7 @@
 #' @param original_clouds should original cloud mask be used or not?
 #' @param argsin list
 #' @param writeoutput boolean. should output file be saved?
+#' @param bands2correct character. name of bands to correct from geometry
 #'
 #' @return list of collections per plot
 #' @importFrom parallel makeCluster stopCluster
@@ -41,7 +42,8 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
                              RadiometricFilter = NULL, siteName = NULL,
                              rast_out = T, additional_process = NULL,
                              crs_target = NULL, original_clouds = TRUE,
-                             argsin = NULL, writeoutput = T){
+                             argsin = NULL, writeoutput = T,
+                             bands2correct = c('B8A', 'B11', 'B12')){
 
   # get collection for each plot
   if (length(plots)<nbCPU) nbCPU <- length(plots)
@@ -78,7 +80,8 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
                                        overwrite = overwrite,
                                        siteName = siteName, crs_target = crs_target,
                                        original_clouds = original_clouds,
-                                       argsin = argsin, writeoutput = writeoutput),
+                                       argsin = argsin, writeoutput = writeoutput,
+                                       bands2correct = bands2correct),
                        SIMPLIFY = F)
   } else if (nbCPU>1){
     cl <- parallel::makeCluster(nbCPU)
@@ -107,7 +110,8 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
                                                               crs_target = crs_target,
                                                               original_clouds = original_clouds,
                                                               argsin = argsin,
-                                                              writeoutput = writeoutput),
+                                                              writeoutput = writeoutput,
+                                                              bands2correct = bands2correct),
                                               future.seed = T,
                                               future.chunk.size = NULL,
                                               future.scheduling = structure(TRUE, ordering = "random"),
