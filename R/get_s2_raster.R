@@ -75,6 +75,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
   message('get S2 tiles corresponding to aoi')
   path_S2tilinggrid <- check_S2tilinggrid(path_S2tilinggrid = path_S2tilinggrid)
   S2_grid <- get_s2_tiles(plots = plots,
+                          output_dir = output_dir,
                           dsn_bbox = bbox_path,
                           siteName = siteName,
                           path_S2tilinggrid = path_S2tilinggrid,
