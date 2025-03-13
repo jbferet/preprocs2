@@ -1,3 +1,8 @@
+# preprocS2 v2.5.3
+
+## Fix
+- fix function 'get_s2_raster': add output_dir when calling 'get_s2_tiles'
+
 # preprocS2 v2.5.2
 
 ## addition
