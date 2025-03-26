@@ -25,9 +25,9 @@
 update_mask <- function(aoi, collection_path, iChar, raster_dir, cloudmasks,
                         mask_path = NULL, fraction_vegetation = 10,
                         collection = "sentinel-2-l2a", resolution = 10,
-                        offset = 1000, overwrite = F, RadiometricFilter = NULL,
+                        offset = 1000, overwrite = FALSE, RadiometricFilter = NULL,
                         siteName = NULL, crs_target = NULL, original_clouds= TRUE,
-                        S2_items = NULL, writeoutput = T){
+                        S2_items = NULL, writeoutput = TRUE){
 
 
   item_collection <- readRDS(file = collection_path)
@@ -45,7 +45,7 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir, cloudmasks,
                                   offset = offset, siteName = siteName,
                                   RadiometricFilter = RadiometricFilter,
                                   crs_target = crs_target, original_clouds = original_clouds,
-                                  overwrite = overwrite, S2_items = S2_items, 
+                                  overwrite = overwrite, S2_items = S2_items,
                                   writeoutput = writeoutput)
     item_collection <- maskUD_out$collection_info
 
@@ -77,6 +77,6 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir, cloudmasks,
     saveRDS(object = item_collection, file = collection_path)
   }
   gc()
-  return(list('cloudmask'= cloudmask, 'mask_update'= mask_update, 
+  return(list('cloudmask'= cloudmask, 'mask_update'= mask_update,
               'S2_items' = S2_items, 'collection_info' = item_collection))
 }
