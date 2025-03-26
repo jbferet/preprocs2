@@ -1,3 +1,8 @@
+# preprocS2 v2.5.4
+
+## addition
+- added function 'extract_from_safe' to extract, crop and write reflectance, cloud mask and metadata from SAFE data
+
 # preprocS2 v2.5.3
 
 ## Fix

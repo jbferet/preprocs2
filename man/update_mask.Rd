@@ -15,13 +15,13 @@ update_mask(
   collection = "sentinel-2-l2a",
   resolution = 10,
   offset = 1000,
-  overwrite = F,
+  overwrite = FALSE,
   RadiometricFilter = NULL,
   siteName = NULL,
   crs_target = NULL,
   original_clouds = TRUE,
   S2_items = NULL,
-  writeoutput = T
+  writeoutput = TRUE
 )
 }
 \arguments{
