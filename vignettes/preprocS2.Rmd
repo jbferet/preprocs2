@@ -29,27 +29,44 @@ knitr::opts_chunk$set(
 )
 ```
 
-This tutorial illustrates how to download Sentinel-2 data for a given bounding box with the R package `preprocS2`.
+This tutorial illustrates how to download Sentinel-2 data for a given bounding 
+box with the R package `preprocS2`.
 
-`preprocS2` is a basic wrapper of the [`rstac`](https://brazil-data-cube.github.io/rstac/) package.
-It aims at downloading and preparing Sentinel-2 images for further processings using R packages such as [`biodivMapR`](https://jbferet.github.io/biodivMapR/index.html) for spectral diversity mapping, [`prosail`](https://jbferet.gitlab.io/prosail/index.html) for the computation of vegetation biophysical variables, or [`spinr`](https://gitlab.com/jbferet/spinr) for the computation of vegetation biophysical variables or spectral indices.
+`preprocS2` is a basic wrapper of the 
+[`rstac`](https://brazil-data-cube.github.io/rstac/) package.
+It aims at downloading and preparing Sentinel-2 images for further processings 
+using R packages such as 
+[`biodivMapR`](https://jbferet.github.io/biodivMapR/index.html) for spectral 
+diversity mapping, [`prosail`](https://jbferet.gitlab.io/prosail/index.html) for 
+the computation of vegetation biophysical variables, or 
+[`spinr`](https://gitlab.com/jbferet/spinr) for the computation of spectral 
+indices.
 
 # How to use preprocS2
 
-`preprocS2` will download S2 data from a STAC catalog based on spatial and temporal information.
-The default STAC collection is `sentinel-2-l2a` from the [`Planetary computer`](https://planetarycomputer.microsoft.com/dataset/sentinel-2-l2a) catalog.
+`preprocS2` will download S2 data from a STAC catalog based on spatial and 
+temporal information.
+The default STAC collection is `sentinel-2-l2a` from the 
+[`Planetary computer`](https://planetarycomputer.microsoft.com/dataset/sentinel-2-l2a) catalog.
 
-Optionally, `preprocS2` can download the geometry of acquisition corresponding to the S2 acquisition.
-Access to geometry of acquisition is provided by the package [`CDSE`](https://zivankaraman.github.io/CDSE/).
+Optionally, `preprocS2` can download the geometry of acquisition corresponding 
+to the S2 acquisition.
+Access to geometry of acquisition is provided by the package 
+[`CDSE`](https://zivankaraman.github.io/CDSE/).
 
-Please provide authentication for CDSE if you want to get geometry of acquisition by activating OAuth clients following [`this link`](https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings).
+Please provide authentication for CDSE if you want to get geometry of 
+acquisition by activating OAuth clients following 
+[`this link`](https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings).
 
 ## Download S2 subset from a STAC catalog based on a bounding box
 
 User can provide a bounding box as input to define the region of interest.
 User is also requested to provide a valid date of acquisition.
-The Sentinel-2 tile corresponding to the region of interest is identified based on the S2 tiling grid system.
-User can either download the corresponding kml [`here`](https://sentiwiki.copernicus.eu/web/s2-products), or let `preprocS2` download it.
+The Sentinel-2 tile corresponding to the region of interest is identified based 
+on the S2 tiling grid system.
+User can either download the corresponding kml 
+[`here`](https://sentiwiki.copernicus.eu/web/s2-products), or let `preprocS2` 
+download it.
 Access online is requested to download the tiling grid system.
 
 ```{r get s2 from bbox}
@@ -74,28 +91,12 @@ sf::st_crs(x = bbox) <- 4326
 # get tiling grid kml from https://sentiwiki.copernicus.eu/web/s2-products
 path_S2tilinggrid <- 'Sentinel-2_tiling_grid.kml'
 
-# 3- get S2 acquisition and geometry of acquisition for study area
-# https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings
-id <- "sh-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-secret <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-authentication <- list('id' = id, 'pwd' = secret)
-
-# tip to save credential on your computer: run the following command : 
-# > file.edit("~/.Renviron")
-# add ID and password for CDSE as well as CURL_SSL_BACKEND using this template
-# > CDSE_ID="sh-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-# > CDSE_SECRET="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-# > CURL_SSL_BACKEND="openssl"
-# save .Renviron file and restart R session then load your credential this way: 
-# > id <- Sys.getenv("CDSE_ID")
-# > secret <- Sys.getenv("CDSE_SECRET")
-
+# 3- get S2 acquisition 
 list_files <- get_s2_raster(bbox = bbox, datetime = datetime, 
                             output_dir = output_dir, 
                             path_S2tilinggrid = path_S2tilinggrid, 
                             siteName = 'FrenchGuiana',
-                            overwrite = F, geomAcq = T, 
-                            authentication = authentication)
+                            overwrite = F, geomAcq = T)
 
 # Sentinel-2 L2A reflectance
 Refl_L2A <- list_files$Refl_L2A
@@ -142,28 +143,12 @@ sf::st_write(obj = bbox_to_poly(x = bbox), dsn = aoi_path, driver = 'GPKG', over
 # get tiling grid kml from https://sentiwiki.copernicus.eu/web/s2-products
 path_S2tilinggrid <- 'Sentinel-2_tiling_grid.kml'
 
-# 3- get S2 acquisition and geometry of acquisition for study area
-# https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings
-id <- "sh-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-secret <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-authentication <- list('id' = id, 'pwd' = secret)
-
-# tip to save credential on your computer: run the following command : 
-# > file.edit("~/.Renviron")
-# add ID and password for CDSE as well as CURL_SSL_BACKEND using this template
-# > CDSE_ID="sh-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-# > CDSE_SECRET="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-# > CURL_SSL_BACKEND="openssl"
-# save .Renviron file and restart R session then load your credential this way: 
-# > id <- Sys.getenv("CDSE_ID")
-# > secret <- Sys.getenv("CDSE_SECRET")
-
+# 3- get S2 acquisition 
 list_files <- get_s2_raster(aoi_path = aoi_path, datetime = datetime, 
                             output_dir = output_dir, 
                             path_S2tilinggrid = path_S2tilinggrid, 
                             siteName = 'FrenchGuiana',
-                            overwrite = F, geomAcq = T, keepCRS = T, 
-                            authentication = authentication)
+                            overwrite = F, geomAcq = T, keepCRS = T)
 # Sentinel-2 L2A reflectance
 Refl_L2A <- list_files$Refl_L2A
 # Sentinel-2 binary mask identifying vegetation, discarding clouds & shadows
@@ -238,5 +223,6 @@ save_reflectance_s2(S2_stars = S2obj$S2_Stack,
 
 ## Additional functionalities
 
-S2 images corresponding to large extents can be downloaded using aoi tiling and parallel download/process to speed it up.
+S2 images corresponding to large extents can be downloaded using aoi tiling and 
+parallel download / process to speed it up.
 This will be documented soon.

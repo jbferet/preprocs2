@@ -11,7 +11,6 @@
 #' @param collection character.
 #' @param geomAcq boolean.
 #' @param nbCPU numeric.
-#' @param authentication list.
 #' @param mask_path character.
 #' @param resolution numeric.
 #' @param fraction_vegetation numeric.
@@ -38,7 +37,7 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                           cloudcover = 99, overwrite = T, siteName = NULL,
                           path_S2tilinggrid = 'Sentinel-2_tiling_grid.kml',
                           collection = 'sentinel-2-l2a', geomAcq = F, nbCPU = 1,
-                          authentication = NULL, mask_path = NULL, resolution = 10,
+                          mask_path = NULL, resolution = 10,
                           fraction_vegetation = 0, stac_url = NULL, doublecheckColl = T,
                           offset = 1000, offset_B2 = F, corr_BRF = F, crs_target = NULL,
                           RadiometricFilter = NULL, additional_process = NULL,
@@ -84,16 +83,18 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                             path_S2tilinggrid = path_S2tilinggrid,
                             overwrite = overwrite)
 
-    if (geomAcq & is.null(authentication)){
+    id <- Sys.getenv("PREPROCS2_CDSE_ID")
+    pwd <- Sys.getenv("PREPROCS2_CDSE_SECRET")
+    if (geomAcq & (nchar(id)==0 | nchar(pwd)==0)){
       message('Please provide authentication for CDSE if you want to get geometry of acquisition')
       message('Activate OAuth clients following this link')
       message('https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings')
-    } else if (geomAcq & !is.null(authentication)){
+    } else if (geomAcq & nchar(id)>0 & nchar(pwd)>0){
       message('get S2 geometry of acquisition of tiles overlapping with aoi')
       # limit to 10 CPU for download using CDSE (errors raised when too many CPUs)
       nbCPU_CDSE <- min(c(8, nbCPU))
       get_GeomAcq_s2(dsn_S2tiles = S2_grid$dsn_S2tiles, datetime = datetime,
-                     cloudcover = cloudcover, authentication = authentication,
+                     cloudcover = cloudcover,
                      output_dir = output_dir, overwrite = overwrite, nbCPU = nbCPU_CDSE)
     }
     # download S2 data

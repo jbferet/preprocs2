@@ -1,3 +1,9 @@
+# preprocS2 v2.5.5
+
+## change
+- requires user to save CDSE OAuth in `~/.Renviron` 
+- eliminate `Authentication` input variable from all functions
+
 # preprocS2 v2.5.4
 
 ## addition

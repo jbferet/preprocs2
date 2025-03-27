@@ -20,6 +20,39 @@ It aims at downloading and preparing Sentinel-2 images for further processings u
 devtools::install_github('jbferet/preprocS2')
 ```
 
+## Access to CDSE STAC catalog
+
+`preprocS2` uses the STAC API endpoint provided by 
+[MPC](https://planetarycomputer.microsoft.com/docs/quickstarts/reading-stac/). 
+However, some products optionally required by `preprocS2` are not provided by 
+this STAC API. 
+This is the case for raster data corresponding to the geometry of acquisition of 
+Sentinel-2 images. 
+
+These products are available from the STAC catalog provided by the 
+[Sentinel-hub](https://dataspace.copernicus.eu/analyse/apis/sentinel-hub) 
+Catalog API via [Copernicus Dataspace](https://dataspace.copernicus.eu/).
+
+To be able to download data from the Sentinel-hub STAC Catalog API via 
+[Copernicus Dataspace](https://dataspace.copernicus.eu/), 
+create an account on the CDSE plateform, and activate the **OAuth clients**
+following [this link](https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings).
+Then add your credentials to your `~/.Renviron`:
+
+```r
+usethis::edit_r_environ()
+```
+
+and add the following lines before saving the `~/.Renviron` file. 
+
+```r
+PREPROCS2_CDSE_ID = "sh-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+PREPROCS2_CDSE_SECRET = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+```
+
+Once the R session restarted, you can use all functionalities of `preprocS2`.
+
+
 ## Example
 
 A tutorial vignette is available [here](https://jbferet.gitlab.io/preprocs2/articles/preprocS2.html).

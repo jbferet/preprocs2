@@ -4,18 +4,10 @@
 \alias{download_GeomAcq_s2}
 \title{download from CDSE geometry of acquisition for aoi}
 \usage{
-download_GeomAcq_s2(
-  aoi,
-  authentication,
-  geom_dir,
-  collection_GeomAcq_S2,
-  nbCPU = 1
-)
+download_GeomAcq_s2(aoi, geom_dir, collection_GeomAcq_S2, nbCPU = 1)
 }
 \arguments{
 \item{aoi}{simple feature. vector including all S2 tiles intersecting with aoi}
-
-\item{authentication}{authentication for CDSE}
 
 \item{geom_dir}{character. directory where rasters for geometry are saved}
 

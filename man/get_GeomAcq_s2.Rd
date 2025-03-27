@@ -8,7 +8,6 @@ get_GeomAcq_s2(
   dsn_S2tiles,
   datetime,
   cloudcover = 100,
-  authentication,
   collection = "sentinel-2-l2a",
   output_dir,
   nbCPU = 1,
@@ -21,8 +20,6 @@ get_GeomAcq_s2(
 \item{datetime}{list. define period 'from' / 'to' day of acquisition}
 
 \item{cloudcover}{numeric. maximum cloud cover over tile}
-
-\item{authentication}{authentication for CDSE}
 
 \item{collection}{character. collection targeted with CDSE}
 
