@@ -14,7 +14,6 @@ get_s2_raster(
   path_S2tilinggrid = NULL,
   overwrite = T,
   geomAcq = F,
-  authentication = NULL,
   collection = "sentinel-2-l2a",
   stac_url = NULL,
   additional_process = NULL,
@@ -39,8 +38,6 @@ get_s2_raster(
 \item{overwrite}{boolean.}
 
 \item{geomAcq}{boolean.}
-
-\item{authentication}{list. authentication to CDSE}
 
 \item{collection}{character.}
 

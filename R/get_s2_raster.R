@@ -9,7 +9,6 @@
 #' @param path_S2tilinggrid character. path for the Sentinel-2_tiling_grid.kml file
 #' @param overwrite boolean.
 #' @param geomAcq boolean.
-#' @param authentication list. authentication to CDSE
 #' @param collection character.
 #' @param stac_url character.
 #' @param additional_process additional process to be applied to S2_items once downloaded
@@ -20,10 +19,10 @@
 #' @export
 
 get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
-                          cloudcover = 100, siteName = NULL, path_S2tilinggrid = NULL, overwrite = T,
-                          geomAcq = F, authentication = NULL,
-                          collection = "sentinel-2-l2a", stac_url = NULL,
-                          additional_process = NULL,
+                          cloudcover = 100, siteName = NULL,
+                          path_S2tilinggrid = NULL, overwrite = T,
+                          geomAcq = F, collection = "sentinel-2-l2a",
+                          stac_url = NULL, additional_process = NULL,
                           bands2correct = c('B8A', 'B11', 'B12')){
 
   input_dir <- NULL
@@ -82,16 +81,17 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
                           overwrite = overwrite)
 
   path_geomfiles <- 'No geometry files requested'
-  if (geomAcq & is.null(authentication)){
+  id <- Sys.getenv("PREPROCS2_CDSE_ID")
+  pwd <- Sys.getenv("PREPROCS2_CDSE_SECRET")
+  if (geomAcq & (nchar(id)==0 | nchar(pwd)==0)){
     message('Please provide authentication for CDSE if you want to get geometry of acquisition')
     message('Activate OAuth clients following this link')
     message('https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings')
-  } else if (geomAcq & !is.null(authentication)){
+  } else if (geomAcq & nchar(id)>0 & nchar(pwd)>0){
     message('get S2 geometry of acquisition of tiles overlapping with aoi')
     path_geomfiles <- get_GeomAcq_s2(dsn_S2tiles = S2_grid$dsn_S2tiles,
                                      datetime = datetime,
                                      cloudcover = cloudcover,
-                                     authentication = authentication,
                                      output_dir = output_dir,
                                      overwrite = overwrite)
   }

@@ -16,7 +16,6 @@ get_s2_tiling(
   collection = "sentinel-2-l2a",
   geomAcq = F,
   nbCPU = 1,
-  authentication = NULL,
   mask_path = NULL,
   resolution = 10,
   fraction_vegetation = 0,
@@ -59,8 +58,6 @@ get_s2_tiling(
 \item{geomAcq}{boolean.}
 
 \item{nbCPU}{numeric.}
-
-\item{authentication}{list.}
 
 \item{mask_path}{character.}
 
