@@ -1,3 +1,9 @@
+# preprocS2 v2.5.6
+
+## change
+- account for output of additional_process when continuing already started job 
+- anticipate conflicts between prosail v3.0.0 and earlier versions
+
 # preprocS2 v2.5.5
 
 ## change
