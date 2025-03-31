@@ -4,16 +4,18 @@
 \alias{get_missing_plots}
 \title{return vector grid corresponding to an area of interest}
 \usage{
-get_missing_plots(plots, pursue_existing, datetime, output_dir)
+get_missing_plots(plots, pursue_existing, datetime, output_dir, pattern = NULL)
 }
 \arguments{
-\item{plots}{character. path for vector file defining aoi}
+\item{plots}{character. list of vector plots}
 
-\item{pursue_existing}{numeric. square cell size in meters}
+\item{pursue_existing}{boolean. set TRUE if continue already started process}
 
-\item{datetime}{character. output path}
+\item{datetime}{list. datetime of acquisition}
 
-\item{output_dir}{character. path corresponding to output dir}
+\item{output_dir}{character. output dir}
+
+\item{pattern}{character. pattern to look for in output_dir}
 }
 \value{
 missing plot ID

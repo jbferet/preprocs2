@@ -68,12 +68,23 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
     dsn_grid <- path_grid$dsn_grid
   }
 
+  s2_raster_dir <- file.path(output_dir, 'raster_samples')
+  dir.create(path = s2_raster_dir, showWarnings = F, recursive = T)
   if (!bypassDL){
     # check if already existing and list plots to process
-    s2_raster_dir <- file.path(output_dir, 'raster_samples')
-    dir.create(path = s2_raster_dir, showWarnings = F, recursive = T)
-    missing <- get_missing_plots(plots = plots, pursue_existing = pursue_existing,
-                                 datetime = datetime, output_dir = s2_raster_dir)
+    if (is.null(argsin)){
+      missing <- get_missing_plots(plots = plots,
+                                   pursue_existing = pursue_existing,
+                                   datetime = datetime,
+                                   output_dir = s2_raster_dir,
+                                   pattern = siteName)
+    } else {
+      missing <- get_missing_plots(plots = plots,
+                                   pursue_existing = pursue_existing,
+                                   datetime = datetime,
+                                   output_dir = argsin$output_path,
+                                   pattern = argsin$siteName)
+    }
 
     # define s2 tiles corresponding to aoi
     message('get S2 tiles corresponding to aoi')
