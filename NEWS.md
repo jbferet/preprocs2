@@ -1,3 +1,8 @@
+# preprocS2 v2.5.7
+
+## change
+- automatically creates output_dir if does not exists when calling get_s2_raster 
+
 # preprocS2 v2.5.6
 
 ## change

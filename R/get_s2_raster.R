@@ -25,6 +25,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
                           stac_url = NULL, additional_process = NULL,
                           bands2correct = c('B8A', 'B11', 'B12')){
 
+  dir.create(path = output_dir, showWarnings = FALSE, recursive = TRUE)
   input_dir <- NULL
   # get bounding box for aoi
   if (is.null(bbox) | ! inherits(x = bbox, 'bbox')){

@@ -1,6 +1,6 @@
 Package: preprocS2
 Title: preprocessing of Sentinel-2 data downloaded from various data hubs / produced from various atmospheric correction methods
-Version: 2.5.6
+Version: 2.5.7
 Authors@R: c(person(given = "Jean-Baptiste", 
 					    family = "Feret", 
 					    email = "jb.feret@teledetection.fr", 
