@@ -1,3 +1,9 @@
+# preprocS2 v2.5.8
+
+## addition
+- possibility to use aoi in degrees when calling get_grid_aoi
+- borrowed meters_to_decdeg from https://github.com/mlammens/occUncertain
+
 # preprocS2 v2.5.7
 
 ## change
