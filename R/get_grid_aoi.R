@@ -7,7 +7,7 @@
 #'
 #' @return dsn_grid path for grid of aoi
 #' @importFrom sf read_sf st_transform st_make_grid st_intersects st_buffer st_write st_centroid
-#' @importFrom crsuggest suggest_crs
+#' @importFrom crsuggest suggest_crs suggest_top_crs
 #' @export
 
 get_grid_aoi <- function(aoi_path, cellsize = 10000, output_dir, crs_target = NULL){
@@ -29,10 +29,27 @@ get_grid_aoi <- function(aoi_path, cellsize = 10000, output_dir, crs_target = NU
       crs_target <- suppressMessages(crsuggest::suggest_top_crs(input = aoi,
                                                                 units = 'm'))
     aoi <- sf::st_transform(aoi, crs = crs_target)
+
+    # convert cellsize in degrees if meters and required by CRS
+    if (sf::st_crs(aoi)$units_gdal=='degree' & cellsize > 10){
+      suppressMessages(sf_use_s2(FALSE))
+      suppressWarnings(centroid_aoi <- sf::st_centroid(x = sf::st_sf(aoi)))
+      suppressMessages(sf_use_s2(TRUE))
+      occs_df <- data.frame('latitude' = centroid_aoi$geom[[1]][2],
+                            'longitude' = centroid_aoi$geom[[1]][1],
+                            'distance' = cellsize)
+      distlatlon <- meters_to_decdeg(occs_df = occs_df,
+                                     lat_col = 'latitude',
+                                     lon_col = 'longitude',
+                                     distance = 'distance')
+      cellsize <- mean(unlist(distlatlon))
+    }
     # transform vector into crs applicable for metric system if needed
     aoi_grid <- aoi |> sf::st_make_grid(cellsize = cellsize, square = TRUE)
     # select grid cells intersecting with initial aoi
+    suppressMessages(sf_use_s2(FALSE))
     intersect <- as.data.frame(sf::st_intersects(x = aoi_grid, aoi))
+    suppressMessages(sf_use_s2(TRUE))
     aoi_grid <- aoi_grid[intersect$row.id]
     # add buffer to avoid border effects
     aoi_grid <- sf::st_buffer(x = aoi_grid, dist = 100)
