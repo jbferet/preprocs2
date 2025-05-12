@@ -23,21 +23,24 @@ apply_radiometric_filter <- function(S2_item, acq, iChar, raster_dir,
                                      cloudmask, mask_path = NULL, aoiplot,
                                      fraction_vegetation, siteName = NULL,
                                      RadiometricFilter = NULL, asset_cloud,
-                                     original_clouds = TRUE, overwrite = T, 
-                                     writeoutput = T){
+                                     original_clouds = TRUE, overwrite = TRUE,
+                                     writeoutput = TRUE){
 
   # define root path for output files
-  if (is.null(siteName)) prefix <- file.path(raster_dir, paste0('plot_',iChar,'_',acq))
-  if (!is.null(siteName)) prefix <- file.path(raster_dir, paste0(siteName,'_',iChar,'_',acq))
+  if (is.null(siteName))
+    prefix <- file.path(raster_dir, paste0('plot_',iChar,'_',acq))
+  if (!is.null(siteName))
+    prefix <- file.path(raster_dir, paste0(siteName,'_',iChar,'_',acq))
   bin_mask_file <- paste0(prefix, '_BIN.tiff')
   bin_mask_filtered <- paste0(prefix, '_BIN_v2.tiff')
   cloudmask_path <- paste0(prefix, '_',asset_cloud,'.tiff')
-
+  mask_update <- NULL
   # radiometric filter
   if (is.null(RadiometricFilter))
-    RadiometricFilter <- list('cloudMask' = 350, 'shadeMask' = 1500, 'NDVIMask' = 0.65)
-
-  validity <- T
+    RadiometricFilter <- list('cloudMask' = 350,
+                              'shadeMask' = 1500,
+                              'NDVIMask' = 0.65)
+  validity <- TRUE
   if (overwrite | (!file.exists(bin_mask_file) & !file.exists(bin_mask_filtered))){
     mainmask <- get_mainmask(mask_path, S2_item, aoiplot)
     ndvi <- (S2_item$B08-S2_item$B04)/(S2_item$B08+S2_item$B04)
@@ -68,16 +71,19 @@ apply_radiometric_filter <- function(S2_item, acq, iChar, raster_dir,
       names(bin_mask) <- 'binary mask'
       # save files
       if (writeoutput){
-        terra::writeRaster(x = bin_mask, filename = bin_mask_file, overwrite = T)
-        terra::writeRaster(x = mask_update, filename = bin_mask_filtered, overwrite = T)
-        terra::writeRaster(x = cloudmask, filename = cloudmask_path, overwrite = T)
+        terra::writeRaster(x = bin_mask, filename = bin_mask_file,
+                           overwrite = TRUE)
+        terra::writeRaster(x = mask_update, filename = bin_mask_filtered,
+                           overwrite = TRUE)
+        terra::writeRaster(x = cloudmask, filename = cloudmask_path,
+                           overwrite = TRUE)
       }
-      validity <- T
+      validity <- TRUE
     } else {
       # remove original SCL file
       if (file.exists(cloudmask_path)) unlink(x = cloudmask_path)
       mask_update <- NULL
-      validity <- F
+      validity <- FALSE
     }
   }
   updatedMasks <- list('validity' = validity, 'mask_update' = mask_update)

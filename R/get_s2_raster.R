@@ -112,11 +112,16 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
 
   raster_dir <- file.path(output_dir, 'raster_samples')
   dir.create(path = raster_dir, showWarnings = F, recursive = T)
-  if (is.null(siteName)) prefix <- file.path(raster_dir, paste0('plot_001_',names(S2_items$`001`)))
-  if (!is.null(siteName)) prefix <- file.path(raster_dir, paste0(siteName,'_001_',names(S2_items$`001`)))
+  if (is.null(siteName))
+    prefix <- file.path(raster_dir, paste0('plot_001_',names(S2_items$`001`)))
+  if (!is.null(siteName))
+    prefix <- file.path(raster_dir, paste0(siteName,'_001_',
+                                           names(S2_items$`001`)))
 
-  if (collection =='sentinel-2-l2a') provider_mask <- 'SCL'
-  if (collection =='sentinel2-l2a-sen2lasrc') provider_mask <- 'CLM'
+  if (collection =='sentinel-2-l2a')
+    provider_mask <- 'SCL'
+  if (collection =='sentinel2-l2a-sen2lasrc')
+    provider_mask <- 'CLM'
   files_out <- list('Refl_L2A' = paste0(prefix, '.tiff'),
                     'Binary_mask' = paste0(prefix, '_BIN.tiff'),
                     'vegetation_mask' = paste0(prefix, '_BIN_v2.tiff'),

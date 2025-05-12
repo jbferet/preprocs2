@@ -25,15 +25,18 @@
 #' @export
 #'
 get_B248_filter <- function(raster_dir, mask_path, item_collection, cloudmasks,
-                            iChar, aoi, resolution, collection = 'sentinel-2-l2a',
+                            iChar, aoi, resolution,
+                            collection = 'sentinel-2-l2a',
                             fraction_vegetation, offset = 1000,
-                            RadiometricFilter = NULL, siteName, crs_target = NULL,
+                            RadiometricFilter = NULL, siteName,
+                            crs_target = NULL,
                             original_clouds = original_clouds, overwrite = F,
                             S2_items = NULL, writeoutput = T){
 
   asset_cloud <- get_cloud_asset(item_collection, collection)
   suffix <- paste0('_',asset_cloud,'.tiff')
   acq2keep <- NULL
+  mask_update <- NULL
   asset_names <- c('B02', 'B04', 'B08')
   if (is.null(S2_items)){
     S2_items <- lapply(X = item_collection$features,
@@ -55,7 +58,8 @@ get_B248_filter <- function(raster_dir, mask_path, item_collection, cloudmasks,
   }
   for (i in seq_len(length(baseline))){
     if (as.numeric(baseline[[i]])>=4 & asset_cloud == 'SCL')
-      S2_items[[i]] <- lapply(X = S2_items[[i]], FUN = function(x, offset){x - offset}, offset)
+      S2_items[[i]] <- lapply(X = S2_items[[i]],
+                              FUN = function(x, offset){x - offset}, offset)
   }
 
   if (length(S2_items)>0){
@@ -70,16 +74,17 @@ get_B248_filter <- function(raster_dir, mask_path, item_collection, cloudmasks,
                                            fraction_vegetation = fraction_vegetation,
                                            RadiometricFilter = RadiometricFilter,
                                            asset_cloud = asset_cloud,
-                                           siteName = siteName, 
+                                           siteName = siteName,
                                            original_clouds = original_clouds,
-                                           overwrite = overwrite, 
+                                           overwrite = overwrite,
                                            writeoutput = writeoutput),
                            SIMPLIFY = F)
 
     validity <- lapply(updatedMasks, '[[',1)
     mask_update <- lapply(updatedMasks, '[[',2)
     keepit <- which(unlist(validity))
-    if (length(keepit)>0) acq2keep <- item_collection$acquisitionDate[keepit]
+    if (length(keepit)>0)
+      acq2keep <- item_collection$acquisitionDate[keepit]
   }
 
   if (!is.null(acq2keep)) {
@@ -95,6 +100,6 @@ get_B248_filter <- function(raster_dir, mask_path, item_collection, cloudmasks,
     cloudmasks <- NULL
     S2_items <- NULL
   }
-  return(list('cloudmask'= cloudmasks, 'mask_update'= mask_update, 
+  return(list('cloudmask'= cloudmasks, 'mask_update'= mask_update,
               'S2_items' = S2_items, 'collection_info' = item_collection))
 }

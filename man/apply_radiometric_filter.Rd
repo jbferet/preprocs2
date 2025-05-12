@@ -17,8 +17,8 @@ apply_radiometric_filter(
   RadiometricFilter = NULL,
   asset_cloud,
   original_clouds = TRUE,
-  overwrite = T,
-  writeoutput = T
+  overwrite = TRUE,
+  writeoutput = TRUE
 )
 }
 \arguments{
