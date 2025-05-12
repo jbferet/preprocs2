@@ -46,7 +46,8 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
                              bands2correct = c('B8A', 'B11', 'B12')){
 
   # get collection for each plot
-  if (length(plots)<nbCPU) nbCPU <- length(plots)
+  if (length(plots)<nbCPU)
+    nbCPU <- length(plots)
   collection_path <- get_collections(list_aoi = plots,
                                      S2tiles = S2tiles,
                                      datetime = datetime,
@@ -120,6 +121,7 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
     parallel::stopCluster(cl)
     plan(sequential)
   }
-  if (length(plots)>1) S2_items <- NULL
+  if (length(plots)>1)
+    S2_items <- NULL
   return(S2_items)
 }

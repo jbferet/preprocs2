@@ -25,8 +25,9 @@
 update_mask <- function(aoi, collection_path, iChar, raster_dir, cloudmasks,
                         mask_path = NULL, fraction_vegetation = 10,
                         collection = "sentinel-2-l2a", resolution = 10,
-                        offset = 1000, overwrite = FALSE, RadiometricFilter = NULL,
-                        siteName = NULL, crs_target = NULL, original_clouds= TRUE,
+                        offset = 1000, overwrite = FALSE,
+                        RadiometricFilter = NULL, siteName = NULL,
+                        crs_target = NULL, original_clouds= TRUE,
                         S2_items = NULL, writeoutput = TRUE){
 
 
@@ -39,12 +40,14 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir, cloudmasks,
     maskUD_out <- get_B248_filter(raster_dir = raster_dir, mask_path = mask_path,
                                   item_collection = item_collection,
                                   cloudmasks = cloudmasks,
-                                  iChar = iChar, aoi = aoi, resolution = resolution,
+                                  iChar = iChar, aoi = aoi,
+                                  resolution = resolution,
                                   collection = collection,
                                   fraction_vegetation = fraction_vegetation,
                                   offset = offset, siteName = siteName,
                                   RadiometricFilter = RadiometricFilter,
-                                  crs_target = crs_target, original_clouds = original_clouds,
+                                  crs_target = crs_target,
+                                  original_clouds = original_clouds,
                                   overwrite = overwrite, S2_items = S2_items,
                                   writeoutput = writeoutput)
     item_collection <- maskUD_out$collection_info
@@ -60,8 +63,10 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir, cloudmasks,
       if (asset_names == 'SCL'){
         total_pix <- length(which((terra::values(cloudmask[[dateAcq]]))>0))
         vegetation_pix <- length(which((terra::values(cloudmask[[dateAcq]]))==4))
-        if (total_pix>0) fcover <- 100*vegetation_pix/total_pix
-        if (total_pix==0) fcover <- 0
+        if (total_pix>0)
+          fcover <- 100*vegetation_pix/total_pix
+        if (total_pix==0)
+          fcover <- 0
         # if not, eliminate day and cloudmask
         if (fcover < fraction_vegetation){
           elim <- which(item_collection$acquisitionDate %in% dateAcq)

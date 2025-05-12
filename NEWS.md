@@ -1,3 +1,11 @@
+# preprocS2 v2.5.9
+
+## change
+- started updating wording of code to follow good practices
+
+## fix
+- fixed initialization of mask_update <- NULL
+
 # preprocS2 v2.5.8
 
 ## addition

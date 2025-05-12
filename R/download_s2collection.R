@@ -61,7 +61,8 @@ download_s2collection <- function(collection_path, aoi, iChar, raster_dir,
   S2_items <- NULL
   if (!is.null(S2data$S2_items)){
     S2_items <- download_s2(aoi = aoi, raster_dir = raster_dir, iChar = iChar,
-                            collection = collection, collection_path = collection_path,
+                            collection = collection,
+                            collection_path = collection_path,
                             S2_items = S2data$S2_items, resolution = resolution,
                             offset = offset, offset_B2 = offset_B2,
                             corr_BRF = corr_BRF, siteName = siteName,
@@ -83,11 +84,13 @@ download_s2collection <- function(collection_path, aoi, iChar, raster_dir,
 
     if (!is.null(additional_process)){
       argsin$iChar <- iChar
-      res_add <- additional_process(S2_refl = S2_items, S2_mask = S2data$mask_update,
+      res_add <- additional_process(S2_refl = S2_items,
+                                    S2_mask = S2data$mask_update,
                                     argsin = argsin)
     }
   }
   if (!is.null(p)) p()
-  if (!rast_out) S2_items <- NULL
+  if (!rast_out)
+    S2_items <- NULL
   return(S2_items)
 }
