@@ -33,7 +33,8 @@ extract_from_S2_L2A <- function(Path_dir_S2,
                            Path_dir_Mask = Path_dir_Mask)
 
   elim <- which(unlist(lapply(S2_Bands,is.null)))
-  if (length(elim)>0) S2_Bands[elim] <- NULL
+  if (length(elim)>0)
+    S2_Bands[elim] <- NULL
 
   # check if vector and raster share the same projection. if not, re-project vector
   if (!is.null(path_vector)){
