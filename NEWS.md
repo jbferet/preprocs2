@@ -1,3 +1,8 @@
+# preprocS2 v2.5.10
+
+## fix
+- import sf_use_s2 from sf in get_grid_aoi
+
 # preprocS2 v2.5.9
 
 ## change
