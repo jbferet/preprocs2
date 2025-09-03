@@ -48,8 +48,8 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
   # get prosail simulations for current acquisition and for standard configuration
   nbsamples <- 100
   SensorName <- 'Sentinel_2'
-  lambda <- prosail::SpecPROSPECT_FullRange$lambda
   if (utils::packageVersion("prosail")<'3.0.0'){
+    lambda <- prosail::SpecPROSPECT_FullRange$lambda
     SRF <- prosail::GetRadiometry(SensorName)
     InputPROSAIL <- prosail::get_InputPROSAIL(atbd = TRUE, nbSamples = nbsamples,
                                               GeomAcq = GeomAcq)
@@ -76,17 +76,18 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
     BRF_LUT_ref <- applySensorCharacteristics(wvl = lambda, SRF = SRF,
                                                    InRefl = BRF_LUT_1nm)
   } else {
+    lambda <- prosail::spec_prospect_fullrange$lambda
     SRF <- prosail::get_radiometry(sensor_name = SensorName)
-    InputPROSAIL <- prosail::get_input_PROSAIL(atbd = TRUE,
+    InputPROSAIL <- prosail::get_input_prosail(atbd = TRUE,
                                                nb_samples = nbsamples,
-                                               GeomAcq = GeomAcq)
-    res <- generate_LUT_PROSAIL(SAILversion = '4SAIL',
+                                               geom_acq = GeomAcq)
+    res <- generate_lut_prosail(SAILversion = '4SAIL',
                                 input_prosail = InputPROSAIL,
-                                SpecPROSPECT = prosail::SpecPROSPECT_FullRange,
-                                SpecSOIL = prosail::SpecSOIL,
-                                SpecATM = prosail::SpecATM)
+                                spec_prospect = prosail::spec_prospect_fullrange,
+                                spec_soil = prosail::spec_soil,
+                                spec_atm = prosail::spec_atm)
     BRF_LUT_1nm <- res$BRF
-    BRF_LUT <- apply_sensor_characteristics(wvl = lambda, SRF = SRF,
+    BRF_LUT <- apply_sensor_characteristics(wvl = lambda, srf = SRF,
                                             input_refl_table = BRF_LUT_1nm)
 
     # produce prosail LUT in standard nadir conditions
@@ -94,13 +95,13 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
     InputPROSAIL_standard$tto <- 0
     InputPROSAIL_standard$tts <- 45
     InputPROSAIL_standard$psi <- 90
-    res <- generate_LUT_PROSAIL(SAILversion = '4SAIL',
+    res <- generate_lut_prosail(SAILversion = '4SAIL',
                                 input_prosail = InputPROSAIL_standard,
-                                SpecPROSPECT = prosail::SpecPROSPECT_FullRange,
-                                SpecSOIL = prosail::SpecSOIL,
-                                SpecATM = prosail::SpecATM)
-    BRF_LUT_1nm <- res$BRF
-    BRF_LUT_ref <- apply_sensor_characteristics(wvl = lambda, SRF = SRF,
+                                spec_prospect = prosail::spec_prospect_fullrange,
+                                spec_soil = prosail::spec_soil,
+                                spec_atm = prosail::spec_atm)
+    BRF_LUT_1nm <- res$brf
+    BRF_LUT_ref <- apply_sensor_characteristics(wvl = lambda, srf = SRF,
                                                 input_refl_table = BRF_LUT_1nm)
 
   }

@@ -42,7 +42,9 @@ apply_radiometric_filter <- function(S2_item, acq, iChar, raster_dir,
                               'NDVIMask' = 0.65)
   validity <- TRUE
   if (overwrite | (!file.exists(bin_mask_file) & !file.exists(bin_mask_filtered))){
-    mainmask <- get_mainmask(mask_path, S2_item, aoiplot)
+    mainmask <- get_mainmask(mask_path = mask_path,
+                             S2_dl = S2_item,
+                             aoiplot = aoiplot)
     ndvi <- (S2_item$B08-S2_item$B04)/(S2_item$B08+S2_item$B04)
     sel <- S2_item$B02 < RadiometricFilter$cloudMask &
       S2_item$B08 > RadiometricFilter$shadeMask &

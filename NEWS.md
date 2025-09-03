@@ -1,3 +1,11 @@
+# preprocS2 v2.5.11
+
+## fix
+- fixed bug in get_mainmask when mask does not have the extent of raster
+
+## change
+- updated prosail parameterization with latest prosail v3
+
 # preprocS2 v2.5.10
 
 ## fix
