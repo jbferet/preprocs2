@@ -86,7 +86,7 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
                                 spec_prospect = prosail::spec_prospect_fullrange,
                                 spec_soil = prosail::spec_soil,
                                 spec_atm = prosail::spec_atm)
-    BRF_LUT_1nm <- res$BRF
+    BRF_LUT_1nm <- res$brf
     BRF_LUT <- apply_sensor_characteristics(wvl = lambda, srf = SRF,
                                             input_refl_table = BRF_LUT_1nm)
 
