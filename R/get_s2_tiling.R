@@ -94,8 +94,13 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                             path_S2tilinggrid = path_S2tilinggrid,
                             overwrite = overwrite)
 
-    id <- Sys.getenv("PREPROCS2_CDSE_ID")
-    pwd <- Sys.getenv("PREPROCS2_CDSE_SECRET")
+    # get token for authentication on CDSE
+    OAuth_client <- get_OAuth_client()
+    id <- OAuth_client$id
+    pwd <- OAuth_client$pwd
+    # id <- Sys.getenv("PREPROCS2_CDSE_ID")
+    # pwd <- Sys.getenv("PREPROCS2_CDSE_SECRET")
+
     if (geomAcq & (nchar(id)==0 | nchar(pwd)==0)){
       message('Please provide authentication for CDSE if you want to get geometry of acquisition')
       message('Activate OAuth clients following this link')

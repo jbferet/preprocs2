@@ -22,9 +22,12 @@ get_GeomAcq_s2 <- function(dsn_S2tiles, datetime, cloudcover = 100,
   dir.create(geom_dir, showWarnings = F, recursive = T)
   # read aoi
   aoi <- sf::st_read(dsn = dsn_S2tiles, as_tibble = F, quiet = T)
-  # get token for CDSE
-  id <- Sys.getenv("PREPROCS2_CDSE_ID")
-  pwd <- Sys.getenv("PREPROCS2_CDSE_SECRET")
+  # get token for authentication on CDSE
+  OAuth_client <- get_OAuth_client()
+  id <- OAuth_client$id
+  pwd <- OAuth_client$pwd
+  # id <- Sys.getenv("PREPROCS2_CDSE_ID")
+  # pwd <- Sys.getenv("PREPROCS2_CDSE_SECRET")
   if (nchar(id)==0 | nchar(pwd)==0){
     path_geomfiles <- NULL
     message('please follow install procedure for preprocS2 and provide OAuth')

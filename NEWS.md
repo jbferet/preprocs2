@@ -1,3 +1,9 @@
+# preprocS2 v2.5.12
+
+## change
+- changed name for credentials corresponding to CDSE and CDSE OAuth client
+- updated readme accordingly
+
 # preprocS2 v2.5.11
 
 ## fix
