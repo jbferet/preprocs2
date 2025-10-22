@@ -11,7 +11,7 @@ update_mask(
   raster_dir,
   cloudmasks,
   mask_path = NULL,
-  fraction_vegetation = 10,
+  fraction_vegetation = 5,
   collection = "sentinel-2-l2a",
   resolution = 10,
   offset = 1000,

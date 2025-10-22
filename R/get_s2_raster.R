@@ -13,6 +13,8 @@
 #' @param stac_url character.
 #' @param additional_process additional process to be applied to S2_items once downloaded
 #' @param bands2correct character. name of bands to correct from geometry
+#' @param fraction_vegetation numeric. minimum fraction vegetation to consider acquisition
+#' @param RadiometricFilter list.
 #'
 #' @return list of path corresponding to output files
 #' @importFrom sf st_write st_bbox st_read st_crs st_transform
@@ -23,7 +25,8 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
                           path_S2tilinggrid = NULL, overwrite = T,
                           geomAcq = F, collection = "sentinel-2-l2a",
                           stac_url = NULL, additional_process = NULL,
-                          bands2correct = c('B8A', 'B11', 'B12')){
+                          bands2correct = c('B8A', 'B11', 'B12'),
+                          fraction_vegetation = 5, RadiometricFilter = NULL){
 
   dir.create(path = output_dir, showWarnings = FALSE, recursive = TRUE)
   input_dir <- NULL
@@ -73,7 +76,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
 
   # define s2 tiles corresponding to aoi
   message('get S2 tiles corresponding to aoi')
-  path_S2tilinggrid <- check_S2tilinggrid(path_S2tilinggrid = path_S2tilinggrid)
+  path_S2tilinggrid <- check_s2_tiling_grid(path_S2tilinggrid = path_S2tilinggrid)
   S2_grid <- get_s2_tiles(plots = plots,
                           output_dir = output_dir,
                           dsn_bbox = bbox_path,
@@ -94,7 +97,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
     message('https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings')
   } else if (geomAcq & nchar(id)>0 & nchar(pwd)>0){
     message('get S2 geometry of acquisition of tiles overlapping with aoi')
-    path_geomfiles <- get_GeomAcq_s2(dsn_S2tiles = S2_grid$dsn_S2tiles,
+    path_geomfiles <- get_s2_geom_acq(dsn_S2tiles = S2_grid$dsn_S2tiles,
                                      datetime = datetime,
                                      cloudcover = cloudcover,
                                      output_dir = output_dir,
@@ -104,15 +107,17 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
   # download S2 data
   message('download S2 collection')
   S2tiles <- S2_grid$S2tiles
-  S2_items <- get_s2collection(plots = plots,
-                               datetime = datetime,
-                               S2tiles = S2tiles,
-                               output_dir = output_dir,
-                               collection = collection,
-                               stac_url = stac_url,
-                               siteName = siteName,
-                               additional_process = additional_process,
-                               bands2correct = bands2correct)
+  S2_items <- get_s2_collection(plots = plots,
+                                datetime = datetime,
+                                S2tiles = S2tiles,
+                                output_dir = output_dir,
+                                collection = collection,
+                                stac_url = stac_url,
+                                siteName = siteName,
+                                additional_process = additional_process,
+                                bands2correct = bands2correct,
+                                RadiometricFilter = RadiometricFilter,
+                                fraction_vegetation = fraction_vegetation)
 
   raster_dir <- file.path(output_dir, 'raster_samples')
   dir.create(path = raster_dir, showWarnings = F, recursive = T)

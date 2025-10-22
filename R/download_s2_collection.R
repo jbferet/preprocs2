@@ -27,8 +27,8 @@
 #' @return list of collections per plot
 #' @export
 #'
-download_s2collection <- function(collection_path, aoi, iChar, raster_dir,
-                                  mask_path = NULL, fraction_vegetation = 10,
+download_s2_collection <- function(collection_path, aoi, iChar, raster_dir,
+                                  mask_path = NULL, fraction_vegetation = 5,
                                   collection = 'sentinel-2-l2a', resolution = 10,
                                   offset = 1000, offset_B2 = F, corr_BRF = F,
                                   p = NULL, RadiometricFilter = NULL,

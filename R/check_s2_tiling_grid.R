@@ -7,7 +7,7 @@
 #' @importFrom curl has_internet
 #' @export
 
-check_S2tilinggrid <- function(path_S2tilinggrid = NULL){
+check_s2_tiling_grid <- function(path_S2tilinggrid = NULL){
   if (is.null(path_S2tilinggrid))
     path_S2tilinggrid <- 'Sentinel-2_tiling_grid.kml'
   if (!file.exists(path_S2tilinggrid)){

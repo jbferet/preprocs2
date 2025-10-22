@@ -17,7 +17,9 @@ get_s2_raster(
   collection = "sentinel-2-l2a",
   stac_url = NULL,
   additional_process = NULL,
-  bands2correct = c("B8A", "B11", "B12")
+  bands2correct = c("B8A", "B11", "B12"),
+  fraction_vegetation = 5,
+  RadiometricFilter = NULL
 )
 }
 \arguments{
@@ -46,6 +48,10 @@ get_s2_raster(
 \item{additional_process}{additional process to be applied to S2_items once downloaded}
 
 \item{bands2correct}{character. name of bands to correct from geometry}
+
+\item{fraction_vegetation}{numeric. minimum fraction vegetation to consider acquisition}
+
+\item{RadiometricFilter}{list.}
 }
 \value{
 list of path corresponding to output files

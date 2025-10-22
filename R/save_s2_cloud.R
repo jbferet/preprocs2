@@ -14,7 +14,7 @@
 #' @importFrom stars write_stars read_stars
 #' @importFrom terra rast vect rasterize
 #' @export
-save_cloud_s2 <- function(S2_stars, Cloud_path, S2source = 'SAFE',
+save_s2_cloud <- function(S2_stars, Cloud_path, S2source = 'SAFE',
                           footprint = NULL, SaveRaw = FALSE,MaxChunk = 256){
   
   WhichCloud <- which(names(S2_stars$attr)=="Cloud")

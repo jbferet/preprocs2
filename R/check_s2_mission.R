@@ -7,7 +7,7 @@
 #' @return s2mission character. name of the S2 mission (2A or 2B)
 #' @export
 
-check_S2mission <- function(S2Sat = NULL, tile_S2, dateAcq_S2){
+check_s2_mission <- function(S2Sat = NULL, tile_S2, dateAcq_S2){
   
   # is mission already defined by user?
   if (!is.null(S2Sat)){

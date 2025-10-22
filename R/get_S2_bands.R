@@ -9,19 +9,19 @@
 #' @return ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution
 #' @export
 #'
-get_S2_bands <- function(Path_dir_S2, S2source = 'SAFE', resolution = 10,
+get_s2_bands <- function(Path_dir_S2, S2source = 'SAFE', resolution = 10,
                          fre_sre = 'FRE', Path_dir_Mask = NULL){
 
   if (S2source=='SAFE' | S2source=='Sen2Cor'){
-    ListBands <- get_S2_bands_from_Sen2Cor(Path_dir_S2 = Path_dir_S2,resolution = resolution)
+    ListBands <- get_s2_bands_from_Sen2Cor(Path_dir_S2 = Path_dir_S2,resolution = resolution)
   } else if (S2source=='THEIA'){
-    ListBands <- get_S2_bands_from_THEIA(Path_dir_S2 = Path_dir_S2,resolution = resolution, fre_sre = fre_sre)
+    ListBands <- get_s2_bands_from_THEIA(Path_dir_S2 = Path_dir_S2,resolution = resolution, fre_sre = fre_sre)
   } else if (S2source=='LaSRC'){
-    ListBands <- get_S2_bands_from_LaSRC(Path_dir_S2 = Path_dir_S2,resolution = resolution)
+    ListBands <- get_s2_bands_from_LaSRC(Path_dir_S2 = Path_dir_S2,resolution = resolution)
   # } else if (S2source == 'GEE'){
-  #   ListBands <- get_S2_bands_from_RGEE(Path_dir_S2 = Path_dir_S2)
+  #   ListBands <- get_s2_bands_from_RGEE(Path_dir_S2 = Path_dir_S2)
   # } else if (S2source == 'RAW'){
-  #   ListBands <- get_S2_bands_from_RAW(Path_dir_S2 = Path_dir_S2,
+  #   ListBands <- get_s2_bands_from_RAW(Path_dir_S2 = Path_dir_S2,
   #                                      Path_dir_Mask = Path_dir_Mask)
   } else {
     message('The data source (Atmospheric correction) for Sentinel-2 image is unknown')

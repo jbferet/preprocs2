@@ -40,7 +40,8 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
   }
 
   # get bounding box
-  asset_names <- c('B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B11', 'B12')
+  asset_names <- c('B02', 'B03', 'B04', 'B05', 'B06',
+                   'B07', 'B08', 'B8A', 'B11', 'B12')
   asset_names_list <- list_assets(S2_items = S2_items,
                                   asset_names = asset_names,
                                   dateAcqs = item_collection$acquisitionDate)
@@ -57,12 +58,15 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
   for (i in seq_len(length(baseline))){
     if (as.numeric(baseline[[i]])>=4 & asset_cloud == 'SCL')
       S2_items_update[[i]] <- lapply(X = S2_items_update[[i]],
-                                     FUN = function(x, offset){x - offset}, offset)
+                                     FUN = function(x, offset){x - offset},
+                                     offset)
   }
   S2_items_final <- list()
   for (dateAcq in as.character(item_collection$acquisitionDate)){
-    if (is.null(S2_items[[dateAcq]])) S2_items_final[[dateAcq]] <- S2_items_update[[dateAcq]]
-    if (is.null(S2_items_update[[dateAcq]])) S2_items_final[[dateAcq]] <- S2_items[[dateAcq]]
+    if (is.null(S2_items[[dateAcq]]))
+      S2_items_final[[dateAcq]] <- S2_items_update[[dateAcq]]
+    if (is.null(S2_items_update[[dateAcq]]))
+      S2_items_final[[dateAcq]] <- S2_items[[dateAcq]]
     if (! is.null(S2_items_update[[dateAcq]]) & ! is.null(S2_items_update[[dateAcq]]))
       S2_items_final[[dateAcq]] <- c(S2_items[[dateAcq]], S2_items_update[[dateAcq]])
     S2_items_final[[dateAcq]] <- S2_items_final[[dateAcq]][asset_names]
@@ -77,15 +81,19 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                                    FUN = terra::resample,
                                    template_Rast[[1]], method = 'near')
     acq <- as.character(item_collection$acquisitionDate[[i]])
-    s2_items[[acq]] <- correct_s2stack(s2_items = S2_items_final[[i]],
-                                       acq = acq, raster_dir = raster_dir,
-                                       aoi = aoi, offset_B2 = offset_B2,
-                                       corr_BRF = corr_BRF,
-                                       bands2correct = bands2correct)
+    s2_items[[acq]] <- correct_s2_stack(s2_items = S2_items_final[[i]],
+                                        acq = acq, raster_dir = raster_dir,
+                                        aoi = aoi, offset_B2 = offset_B2,
+                                        corr_BRF = corr_BRF,
+                                        bands2correct = bands2correct)
     # save reflectance file
     if (writeoutput){
-      if (is.null(siteName)) filename <- file.path(raster_dir, paste0('plot_',iChar,'_',acq, '.tiff'))
-      if (!is.null(siteName)) filename <- file.path(raster_dir, paste0(siteName,'_',iChar,'_',acq, '.tiff'))
+      if (is.null(siteName))
+        filename <- file.path(raster_dir, paste0('plot_',iChar,'_',
+                                                 acq, '.tiff'))
+      if (!is.null(siteName))
+        filename <- file.path(raster_dir, paste0(siteName,'_',iChar,'_',
+                                                 acq, '.tiff'))
       terra::writeRaster(x = s2_items[[acq]], filename = filename, overwrite = T)
     }
   }

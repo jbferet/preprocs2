@@ -26,7 +26,7 @@ extract_from_safe <- function(safe_path, path_aoi = NULL, resolution = 10,
   Cloud_path <- file.path(output_dir_s2,'CloudMask')
   dir.create(path = Cloud_path, showWarnings = FALSE, recursive = TRUE)
   # Filename for cloud mask
-  cloudmasks <- save_cloud_s2(S2_stars = S2obj$S2_Stack,
+  cloudmasks <- save_s2_cloud(S2_stars = S2obj$S2_Stack,
                               Cloud_path = Cloud_path,
                               S2source = 'SAFE',
                               SaveRaw = T)
@@ -44,7 +44,7 @@ extract_from_safe <- function(safe_path, path_aoi = NULL, resolution = 10,
   safename <- basename(safe_path)
   sensor <- strsplit(x = safename, split = '_')[[1]][1]
   s2mission <- gsub(pattern = 'S', x = sensor, replacement = '')
-  save_reflectance_s2(S2_stars = S2obj$S2_Stack, Refl_path = Refl_path,
+  save_s2_reflectance(S2_stars = S2obj$S2_Stack, Refl_path = Refl_path,
                       tile_S2 = tile_S2, s2mission = s2mission,
                       dateAcq_S2 = dateAcq_S2,
                       Format = 'ENVI', datatype = 'Int16',

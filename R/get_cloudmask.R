@@ -27,19 +27,21 @@ get_cloudmask <- function(collection_path, aoi, iChar, raster_dir, overwrite = F
     item_collection <- item_collection |>
       rstactheia::items_sign_theia()
   }
-  asset_names <- get_cloud_asset(item_collection, collection)
+  asset_names <- get_cloud_asset(item_collection = item_collection,
+                                 collection = collection)
   suffix <- paste0('_',asset_names,'.tiff')
   Acqdates <- unique(rev(item_collection$acquisitionDate))
   if (length(Acqdates)>0){
     # clean raster directory if overwrite
-    if (overwrite ==T) clean_rasters(raster_dir, Acqdates, iChar)
-    # cloud mask: download / read if exists 
+    if (overwrite ==T)
+      clean_rasters(raster_dir, Acqdates, iChar)
+    # cloud mask: download / read if exists
     cloudmasks <- download_cloudmask(aoi = aoi, raster_dir = raster_dir,
                                      collection = collection,
                                      item_collection = item_collection, iChar = iChar,
-                                     resolution = resolution, asset_names = asset_names, 
+                                     resolution = resolution, asset_names = asset_names,
                                      siteName = siteName, crs_target = crs_target)
-    
+
     # check if sufficient vegetation fraction cover
     elim <- NULL
     for (dateAcq in names(cloudmasks)){
@@ -57,10 +59,11 @@ get_cloudmask <- function(collection_path, aoi, iChar, raster_dir, overwrite = F
           item_collection$features <- item_collection$features[-elim]
           item_collection$acquisitionDate <- item_collection$acquisitionDate[-elim]
           cloudmasks <- cloudmasks[-which(names(cloudmasks) %in% dateAcq)]
-        } 
-      } 
+        }
+      }
     }
-    if (!is.null(elim)) saveRDS(object = item_collection, file = collection_path)
+    if (!is.null(elim))
+      saveRDS(object = item_collection, file = collection_path)
   }
   return(cloudmasks)
 }

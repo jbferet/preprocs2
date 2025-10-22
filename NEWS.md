@@ -1,3 +1,13 @@
+# preprocS2 v2.5.13
+
+## fix
+- update vignettes
+- get_cloud_asset: update asset name for cloud mask when calling api.stac.teledetection
+
+## change
+- changed default values for fraction_vegetation
+- added RadiometricFilter and fraction_vegetation as inputs for get_s2_raster
+
 # preprocS2 v2.5.12
 
 ## change

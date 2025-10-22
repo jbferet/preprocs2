@@ -18,7 +18,7 @@
 #' @importFrom terra writeRaster
 #' @export
 
-GetImages_par <- function(fileName, time_range, bbox, collection, script,
+get_images_parallel <- function(fileName, time_range, bbox, collection, script,
                           format, mosaicking_order, resolution, buffer, mask,
                           token, p = NULL){
   rast_out <- CDSE::GetImageByTimerange(time_range = time_range, bbox = bbox,

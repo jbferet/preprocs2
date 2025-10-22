@@ -33,17 +33,17 @@
 #' @importFrom progressr with_progress progressor handlers
 #' @export
 #'
-get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
-                             mask_path = NULL, cloudcover = 100,
-                             fraction_vegetation = 5, resolution = 10,
-                             collection = "sentinel-2-l2a", stac_url = NULL,
-                             overwrite = F, nbCPU = 1, doublecheckColl = T,
-                             offset = 1000, offset_B2 = F, corr_BRF = F,
-                             RadiometricFilter = NULL, siteName = NULL,
-                             rast_out = T, additional_process = NULL,
-                             crs_target = NULL, original_clouds = TRUE,
-                             argsin = NULL, writeoutput = T,
-                             bands2correct = c('B8A', 'B11', 'B12')){
+get_s2_collection <- function(plots, S2tiles = NULL, datetime, output_dir,
+                              mask_path = NULL, cloudcover = 100,
+                              fraction_vegetation = 5, resolution = 10,
+                              collection = "sentinel-2-l2a", stac_url = NULL,
+                              overwrite = F, nbCPU = 1, doublecheckColl = T,
+                              offset = 1000, offset_B2 = F, corr_BRF = F,
+                              RadiometricFilter = NULL, siteName = NULL,
+                              rast_out = T, additional_process = NULL,
+                              crs_target = NULL, original_clouds = TRUE,
+                              argsin = NULL, writeoutput = T,
+                              bands2correct = c('B8A', 'B11', 'B12')){
 
   # get collection for each plot
   if (length(plots)<nbCPU)
@@ -65,7 +65,7 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
   nbPlots <- length(plots)
   ID_aoi <- names(plots)
   if (nbCPU==1){
-    S2_items <- mapply(FUN = download_s2collection,
+    S2_items <- mapply(FUN = download_s2_collection,
                        collection_path = collection_path,
                        aoi = plots,
                        iChar = ID_aoi,
@@ -91,7 +91,7 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
     handlers("cli")
     with_progress({
       p <- progressr::progressor(steps = nbPlots)
-      S2_items <- future.apply::future_mapply(FUN = download_s2collection,
+      S2_items <- future.apply::future_mapply(FUN = download_s2_collection,
                                               collection_path = collection_path,
                                               aoi = plots,
                                               iChar = ID_aoi,

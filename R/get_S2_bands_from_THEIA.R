@@ -7,7 +7,7 @@
 #' @return ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution, as well name of as granule
 #' @export
 #'
-get_S2_bands_from_THEIA <- function(Path_dir_S2, resolution=10, fre_sre='FRE'){
+get_s2_bands_from_THEIA <- function(Path_dir_S2, resolution=10, fre_sre='FRE'){
 
   # build path for all bands
   if (resolution == 10){

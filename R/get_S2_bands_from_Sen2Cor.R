@@ -6,7 +6,7 @@
 #' @return ListBands list. contains path for spectral bands corresponding to 10m and 20m resolution, as well name of as granule
 #' @export
 #'
-get_S2_bands_from_Sen2Cor <- function(Path_dir_S2, resolution = 10){
+get_s2_bands_from_Sen2Cor <- function(Path_dir_S2, resolution = 10){
   # build path for all bands
   if (resolution == 10){
     B10m <- c('B02','B03','B04','B08')
