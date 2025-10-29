@@ -38,7 +38,8 @@ download_s2_geom_acq <- function(aoi, geom_dir, collection_GeomAcq_S2, nbCPU=1){
     # download geometry of acquisition for full scene (1km resolution)
     script_geom <- system.file("extdata", "S2L2A_geometry.js", package = "preprocS2")
 
-    DatesofAcq <- unique(get_dateAcq(S2product = collection_GeomAcq_S2$sourceId))
+    DatesofAcq <- unique(get_dateAcq(S2product = collection_GeomAcq_S2$sourceId,
+                                     stac_info = list('provider' = 'esa')))
     fileName <- fileNameAll <- list()
     if (nbCPU==1){
       for (i in seq_len(length(DatesofAcq))){
