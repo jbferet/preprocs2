@@ -13,7 +13,7 @@
 #' @importFrom CDSE SearchCatalog
 #' @export
 
-get_GeomAcq_s2_coll <- function(aoi, datetime, collection = "sentinel-2-l2a",
+get_s2_geom_acq_collection <- function(aoi, datetime, collection = "sentinel-2-l2a",
                                 OAuthToken, cloudcover, output_dir, overwrite = F){
   # create directories
   collection_dir_geom <- file.path(output_dir, 'collections', 'geomAcq_S2')

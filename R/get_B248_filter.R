@@ -7,7 +7,7 @@
 #' @param iChar plot ID
 #' @param aoi geometry corresponding to one point
 #' @param resolution numeric. spatial resolution (10 or 20)
-#' @param collection character.
+#' @param stac_info list.
 #' @param fraction_vegetation numeric. minimum % of vegetatiomn to have on plot footprint
 #' @param offset numeric. value of S2 offset
 #' @param RadiometricFilter list. list of radiometric filters for shade, clouds and vegetation
@@ -26,14 +26,13 @@
 #'
 get_B248_filter <- function(raster_dir, mask_path, item_collection, cloudmasks,
                             iChar, aoi, resolution,
-                            collection = 'sentinel-2-l2a',
-                            fraction_vegetation, offset = 1000,
+                            stac_info, fraction_vegetation, offset = 1000,
                             RadiometricFilter = NULL, siteName,
                             crs_target = NULL,
                             original_clouds = original_clouds, overwrite = F,
                             S2_items = NULL, writeoutput = T){
 
-  asset_cloud <- get_cloud_asset(item_collection, collection)
+  asset_cloud <- get_cloud_asset(stac_info)
   suffix <- paste0('_',asset_cloud,'.tiff')
   acq2keep <- NULL
   mask_update <- NULL
@@ -42,20 +41,14 @@ get_B248_filter <- function(raster_dir, mask_path, item_collection, cloudmasks,
     S2_items <- lapply(X = item_collection$features,
                        FUN = get_asset_terra,
                        asset_names = asset_names,
-                       collection = collection,
+                       collection = stac_info$collection,
                        aoi = aoi,
                        crs_target = crs_target)
     names(S2_items) <- names(cloudmasks)
   }
 
-  if (collection == 'sentinel-2-l2a'){
-    baseline <- lapply(lapply(item_collection$features,'[[','properties'),
-                       '[[', 's2:processing_baseline')
-  } else if (collection == 'sentinel2-l2a-sen2lasrc'){
-    baseline <- lapply(lapply(lapply(item_collection$features,'[[','properties'),
-                              '[[', 'processing:software'),
-                       '[[', 'sen2lasrc')
-  }
+  # get baseline and correct for bias
+  baseline <- get_s2_baseline(stac_info, item_collection)
   for (i in seq_len(length(baseline))){
     if (as.numeric(baseline[[i]])>=4 & asset_cloud == 'SCL')
       S2_items[[i]] <- lapply(X = S2_items[[i]],

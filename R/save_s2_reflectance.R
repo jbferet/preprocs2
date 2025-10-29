@@ -16,14 +16,14 @@
 #' @return None
 #' @importFrom stars read_stars
 #' @export
-save_reflectance_s2 <- function(S2_stars, Refl_path, Format = 'ENVI',
+save_s2_reflectance <- function(S2_stars, Refl_path, Format = 'ENVI',
                                 datatype = 'INT2S', S2Sat = NULL, tile_S2 = NULL,
                                 dateAcq_S2 = NULL,
                                 MTD = NULL, MTD_MSI = NULL, MTD_LaSRC = NULL,
                                 MaxChunk = 256, s2mission = NULL){
   # identify if S2A or S2B, if possible
   if (is.null(s2mission)){
-    s2mission <- check_S2mission(S2Sat = S2Sat, tile_S2 = tile_S2, dateAcq_S2 = dateAcq_S2)
+    s2mission <- check_s2_mission(S2Sat = S2Sat, tile_S2 = tile_S2, dateAcq_S2 = dateAcq_S2)
   } else if (!s2mission== '2A' & !s2mission== '2B'){
     s2mission <- '2A'
   }
@@ -58,7 +58,7 @@ save_reflectance_s2 <- function(S2_stars, Refl_path, Format = 'ENVI',
     sensor <- 'Sentinel_2B'
   }
   
-  S2_offset <- get_S2_offset(MTD_MSI, MTD_LaSRC)
+  S2_offset <- get_s2_offset(MTD_MSI, MTD_LaSRC)
   Offset <- S2_offset$Offset
   BOA_QuantVal <- S2_offset$BOA_QuantVal
 

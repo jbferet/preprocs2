@@ -11,8 +11,7 @@ get_collections(
   output_dir,
   overwrite = T,
   cloudcover = 100,
-  collection = "sentinel-2-l2a",
-  stac_url = NULL,
+  stac_info,
   nbCPU = 1,
   doublecheckColl = T
 )
@@ -30,9 +29,7 @@ get_collections(
 
 \item{cloudcover}{numeric. maximum cloud cover over tile}
 
-\item{collection}{character. collection targeted with CDSE}
-
-\item{stac_url}{character. URL for STAC endpoint}
+\item{stac_info}{list. stac provider, name of collection url for stac}
 
 \item{nbCPU}{numeric. number of CPU}
 

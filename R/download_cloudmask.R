@@ -4,7 +4,7 @@
 #' @param raster_dir directory where rasters are stored
 #' @param item_collection description of collection to download
 #' @param iChar plot ID
-#' @param collection character. name of the collection
+#' @param stac_info list.
 #' @param asset_names character.
 #' @param resolution numeric. spatial resolution (10 or 20)
 #' @param siteName character. name of the study site
@@ -16,7 +16,7 @@
 #' @export
 #'
 download_cloudmask <- function(aoi, raster_dir, item_collection, iChar,
-                               collection = 'sentinel-2-l2a', asset_names,
+                               stac_info, asset_names,
                                resolution, siteName = NULL, crs_target = NULL){
 
   # if collection not empty
@@ -24,7 +24,7 @@ download_cloudmask <- function(aoi, raster_dir, item_collection, iChar,
     # stac_source <- rstac::stac("https://planetarycomputer.microsoft.com/api/stac/v1")
     # define file name for cloud mask
     S2product <- unlist(lapply(item_collection$features,'[[','id'))
-    dateAcq <- get_dateAcq(S2product = S2product, collection = collection)
+    dateAcq <- get_dateAcq(S2product = S2product, stac_info = stac_info)
     if (is.null(siteName)){
       filenames <- basename(paste0('plot_',iChar,'_',dateAcq,'_',asset_names,'.tiff'))
     } else {
@@ -45,7 +45,7 @@ download_cloudmask <- function(aoi, raster_dir, item_collection, iChar,
       features_dl <- lapply(X = item_collection,
                             FUN = get_asset_terra,
                             asset_names = asset_names,
-                            collection = collection,
+                            collection = stac_info$collection,
                             aoi = aoi,
                             crs_target = crs_target)
       names(features_dl) <- keep_dateAcq
@@ -58,8 +58,10 @@ download_cloudmask <- function(aoi, raster_dir, item_collection, iChar,
       names(features_exist) <- dateAcq[read_exists]
       item_collection <- item_collection$features
     }
-    if (is.null(features_exist)) cloudmask <- features_dl
-    if (is.null(features_dl)) cloudmask <- features_exist
+    if (is.null(features_exist)) 
+      cloudmask <- features_dl
+    if (is.null(features_dl)) 
+      cloudmask <- features_exist
     if (! is.null(features_dl) & ! is.null(features_exist))
       cloudmask <- c(features_exist, features_dl)
 
@@ -68,7 +70,7 @@ download_cloudmask <- function(aoi, raster_dir, item_collection, iChar,
       asset_b2 <- 'B02'
       features_b2 <- get_asset_terra(item = item_collection[[1]],
                                      asset_names = asset_b2,
-                                     collection = collection,
+                                     collection = stac_info$collection,
                                      aoi = aoi, crs_target = crs_target)
       cloudmask  <- lapply(X = cloudmask,
                           FUN = terra::resample,

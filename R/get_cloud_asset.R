@@ -1,17 +1,24 @@
 #' get name for cloud asset in item collection
 #'
-#' @param item_collection item collection
-#' @param collection character. S2 collection
+#' @param stac_info list.
 #'
 #' @return asset_names corresponding to cloud or scene classification
 #' @importFrom stringr str_detect
 #' @export
 #'
-get_cloud_asset <- function(item_collection, collection){
-  href <- item_collection$links[[2]]$href
-  if (stringr::str_detect(href, pattern = 'planetary'))
+get_cloud_asset <- function(stac_info){
+  if (stac_info$provider =='mpc'){
     asset_names <- 'SCL'
-  if (stringr::str_detect(href, pattern = 'cdos') & collection == 'sentinel2-l2a-sen2lasrc')
+  } else if (stac_info$provider =='lasrc'){
     asset_names <- 'CLM'
+  } else if (stac_info$provider =='theia'){
+    asset_names <- 'CLM_R1'
+  } else if (stac_info$provider =='mtd_esa'){
+    asset_names <- 'SCL'
+  } else {
+    message('STAC URL unidentified from get_cloud_asset')
+    message('assuming standard oESA products and looking for SCL')
+    asset_names <- 'SCL'
+  }
   return(asset_names)
 }

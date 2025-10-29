@@ -1,6 +1,6 @@
 #' This function reads a list of files corresponding to S2 bands
 #' S2 bands are expected to have uniform spatial resolution and footprint
-#' @param S2_Bands list. list of S2 bands obtained from get_S2_bands
+#' @param S2_Bands list. list of S2 bands obtained from get_s2_bands
 #' @param aoi sf object.
 #' @param resolution numeric. resolution of final product
 #' @param interpolation character. method for resampling. default = 'nearest_neighbour'
@@ -11,7 +11,7 @@
 #' @importFrom sf st_bbox st_crop
 #' @export
 
-read_S2bands <- function(S2_Bands,
+read_s2_bands <- function(S2_Bands,
                          aoi = NULL,
                          resolution = 10,
                          interpolation = 'nearest_neighbour'){

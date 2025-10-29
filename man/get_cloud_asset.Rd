@@ -4,12 +4,10 @@
 \alias{get_cloud_asset}
 \title{get name for cloud asset in item collection}
 \usage{
-get_cloud_asset(item_collection, collection)
+get_cloud_asset(stac_info)
 }
 \arguments{
-\item{item_collection}{item collection}
-
-\item{collection}{character. S2 collection}
+\item{stac_info}{list.}
 }
 \value{
 asset_names corresponding to cloud or scene classification

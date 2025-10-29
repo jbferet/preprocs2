@@ -13,13 +13,12 @@ get_s2_tiling(
   overwrite = T,
   siteName = NULL,
   path_S2tilinggrid = "Sentinel-2_tiling_grid.kml",
-  collection = "sentinel-2-l2a",
+  stac_info,
   geomAcq = F,
   nbCPU = 1,
   mask_path = NULL,
   resolution = 10,
   fraction_vegetation = 0,
-  stac_url = NULL,
   doublecheckColl = T,
   offset = 1000,
   offset_B2 = F,
@@ -53,7 +52,7 @@ get_s2_tiling(
 
 \item{path_S2tilinggrid}{character. path for the Sentinel-2_tiling_grid.kml file}
 
-\item{collection}{character.}
+\item{stac_info}{list. stac provider, name of collection url for stac}
 
 \item{geomAcq}{boolean.}
 
@@ -64,8 +63,6 @@ get_s2_tiling(
 \item{resolution}{numeric.}
 
 \item{fraction_vegetation}{numeric.}
-
-\item{stac_url}{character.}
 
 \item{doublecheckColl}{boolean.}
 

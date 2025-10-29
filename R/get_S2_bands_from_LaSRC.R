@@ -7,7 +7,7 @@
 #' @importFrom stringr str_subset
 #' @export
 #'
-get_S2_bands_from_LaSRC <- function(Path_dir_S2, resolution=10){
+get_s2_bands_from_LaSRC <- function(Path_dir_S2, resolution=10){
 
   # get granule directory & path for corresponding metadata XML file
   granule <- Path_dir_S2

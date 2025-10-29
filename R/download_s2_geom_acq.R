@@ -15,7 +15,7 @@
 #' @importFrom progressr with_progress progressor handlers
 #' @export
 
-download_GeomAcq_s2 <- function(aoi, geom_dir, collection_GeomAcq_S2, nbCPU=1){
+download_s2_geom_acq <- function(aoi, geom_dir, collection_GeomAcq_S2, nbCPU=1){
 
   collection <- 'sentinel-2-l2a'
   # get token for authentication on CDSE
@@ -94,7 +94,7 @@ download_GeomAcq_s2 <- function(aoi, geom_dir, collection_GeomAcq_S2, nbCPU=1){
         handlers("cli")
         with_progress({
           p <- progressr::progressor(steps = length(DatesofAcq))
-          s2_file <- future.apply::future_mapply(FUN = GetImages_par,
+          s2_file <- future.apply::future_mapply(FUN = get_images_parallel,
                                                  fileName = fileNameAll,
                                                  # fileName = fileName_geom,
                                                  time_range = DatesofAcq,

@@ -11,7 +11,7 @@ get_cloudmask(
   raster_dir,
   overwrite = F,
   fraction_vegetation = 10,
-  collection = "sentinel-2-l2a",
+  stac_info,
   resolution = 10,
   nbCPU = 1,
   siteName = NULL,
@@ -31,7 +31,7 @@ get_cloudmask(
 
 \item{fraction_vegetation}{numeric. minimum fraction vegetation over plot}
 
-\item{collection}{character. collection targeted with CDSE}
+\item{stac_info}{list.}
 
 \item{resolution}{numeric. spatial resolution (10 or 20)}
 

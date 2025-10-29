@@ -1,3 +1,23 @@
+# preprocS2 v2.5.14
+
+## change
+- use list stac_info instead of collection and stac_url
+- added option as a list of input parameters for get_s2_raster
+
+## addition
+- include possibility to download data from STAC available via CDS and CDG MTD
+- added functions get_cloud_asset and get_s2_baseline
+
+# preprocS2 v2.5.13
+
+## fix
+- update vignettes
+- get_cloud_asset: update asset name for cloud mask when calling api.stac.teledetection
+
+## change
+- changed default values for fraction_vegetation
+- added RadiometricFilter and fraction_vegetation as inputs for get_s2_raster
+
 # preprocS2 v2.5.12
 
 ## change

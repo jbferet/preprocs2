@@ -8,8 +8,7 @@
 #' @param cloudcover numeric. maximum cloud cover over tile
 #' @param fraction_vegetation numeric. minimum fraction vegetation to consider acquisition
 #' @param resolution numeric. spatial resolution (10 or 20)
-#' @param collection character. collection
-#' @param stac_url character. STAC endpoint
+#' @param stac_info list. stac provider, name of collection url for stac
 #' @param overwrite boolean. should collection and S2 data be overwritten?
 #' @param nbCPU numeric. number of threads to work with
 #' @param doublecheckColl boolean.
@@ -33,17 +32,16 @@
 #' @importFrom progressr with_progress progressor handlers
 #' @export
 #'
-get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
-                             mask_path = NULL, cloudcover = 100,
-                             fraction_vegetation = 5, resolution = 10,
-                             collection = "sentinel-2-l2a", stac_url = NULL,
-                             overwrite = F, nbCPU = 1, doublecheckColl = T,
-                             offset = 1000, offset_B2 = F, corr_BRF = F,
-                             RadiometricFilter = NULL, siteName = NULL,
-                             rast_out = T, additional_process = NULL,
-                             crs_target = NULL, original_clouds = TRUE,
-                             argsin = NULL, writeoutput = T,
-                             bands2correct = c('B8A', 'B11', 'B12')){
+get_s2_collection <- function(plots, S2tiles = NULL, datetime, output_dir,
+                              mask_path = NULL, cloudcover = 100,
+                              fraction_vegetation = 5, resolution = 10,
+                              stac_info, overwrite = F, nbCPU = 1, doublecheckColl = T,
+                              offset = 1000, offset_B2 = F, corr_BRF = F,
+                              RadiometricFilter = NULL, siteName = NULL,
+                              rast_out = T, additional_process = NULL,
+                              crs_target = NULL, original_clouds = TRUE,
+                              argsin = NULL, writeoutput = T,
+                              bands2correct = c('B8A', 'B11', 'B12')){
 
   # get collection for each plot
   if (length(plots)<nbCPU)
@@ -54,8 +52,8 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
                                      output_dir = output_dir,
                                      cloudcover = cloudcover,
                                      overwrite = overwrite,
-                                     collection = collection,
-                                     nbCPU = nbCPU, stac_url = stac_url,
+                                     stac_info = stac_info,
+                                     nbCPU = nbCPU, 
                                      doublecheckColl = doublecheckColl)
   # define paths
   raster_dir <- file.path(output_dir, 'raster_samples')
@@ -65,14 +63,14 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
   nbPlots <- length(plots)
   ID_aoi <- names(plots)
   if (nbCPU==1){
-    S2_items <- mapply(FUN = download_s2collection,
+    S2_items <- mapply(FUN = download_s2_collection,
                        collection_path = collection_path,
                        aoi = plots,
                        iChar = ID_aoi,
                        MoreArgs = list(raster_dir = raster_dir,
                                        mask_path = mask_path,
                                        fraction_vegetation = fraction_vegetation,
-                                       collection = collection,
+                                       stac_info = stac_info,
                                        resolution = resolution,
                                        offset = offset,
                                        offset_B2 = offset_B2,
@@ -81,6 +79,7 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
                                        overwrite = overwrite,
                                        siteName = siteName, crs_target = crs_target,
                                        original_clouds = original_clouds,
+                                       additional_process = additional_process,
                                        argsin = argsin, writeoutput = writeoutput,
                                        bands2correct = bands2correct),
                        SIMPLIFY = F)
@@ -91,14 +90,14 @@ get_s2collection <- function(plots, S2tiles = NULL, datetime, output_dir,
     handlers("cli")
     with_progress({
       p <- progressr::progressor(steps = nbPlots)
-      S2_items <- future.apply::future_mapply(FUN = download_s2collection,
+      S2_items <- future.apply::future_mapply(FUN = download_s2_collection,
                                               collection_path = collection_path,
                                               aoi = plots,
                                               iChar = ID_aoi,
                                               MoreArgs = list(raster_dir = raster_dir,
                                                               mask_path = mask_path,
                                                               fraction_vegetation = fraction_vegetation,
-                                                              collection = collection,
+                                                              stac_info = stac_info,
                                                               resolution = resolution,
                                                               offset = offset,
                                                               offset_B2 = offset_B2,

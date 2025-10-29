@@ -7,7 +7,7 @@
 #' @importFrom XML xmlToList
 #' @export
 
-get_S2_offset <- function(MTD_MSI = NULL, MTD_LaSRC = NULL){
+get_s2_offset <- function(MTD_MSI = NULL, MTD_LaSRC = NULL){
   
   # apply offset when necessary
   listBands_bis <-     c("B2", "B3", "B4", "B5", "B6", "B7", "B8", "B8A", "B11", "B12")

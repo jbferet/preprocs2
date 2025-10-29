@@ -11,8 +11,8 @@ update_mask(
   raster_dir,
   cloudmasks,
   mask_path = NULL,
-  fraction_vegetation = 10,
-  collection = "sentinel-2-l2a",
+  fraction_vegetation = 5,
+  stac_info,
   resolution = 10,
   offset = 1000,
   overwrite = FALSE,
@@ -39,7 +39,7 @@ update_mask(
 
 \item{fraction_vegetation}{numeric. minimum fraction vegetation over plot}
 
-\item{collection}{character. collection targeted with CDSE}
+\item{stac_info}{list.}
 
 \item{resolution}{numeric. spatial resolution (10 or 20)}
 

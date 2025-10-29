@@ -25,7 +25,9 @@ get_asset_terra <- function(item, asset_names, aoi, crs_target = NULL,
       assets_url(asset_names = asset_names, append_gdalvsi = TRUE) |>
       lapply(rast) |>
       setNames(asset_names)
-  if (collection =='sentinel2-l2a-sen2lasrc')
+  if (collection %in% c('sentinel2-l2a-sen2lasrc', 
+                        'sentinel2-l2a-theia', 
+                        'sentinel2-l2a-sen2cor'))
     features <- item |>
       # sign again if the signed url has expired
       rstactheia::items_sign_theia() |>

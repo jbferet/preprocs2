@@ -59,6 +59,10 @@ apply_radiometric_filter <- function(S2_item, acq, iChar, raster_dir,
       bin_mask <- 0*cloudmask
       selclear <- which(is.na(terra::values(cloudmask)))
       bin_mask[selclear] <- 1
+    } else if (asset_cloud == 'CLM_R1') {
+      bin_mask <- 0*cloudmask
+      selclear <- which(terra::values(cloudmask)==0)
+      bin_mask[selclear] <- 1
     }
     if (!original_clouds)
       bin_mask <- 0*bin_mask+1

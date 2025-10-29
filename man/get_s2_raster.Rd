@@ -9,15 +9,9 @@ get_s2_raster(
   bbox = NULL,
   datetime,
   output_dir,
-  cloudcover = 100,
   siteName = NULL,
-  path_S2tilinggrid = NULL,
-  overwrite = T,
-  geomAcq = F,
-  collection = "sentinel-2-l2a",
-  stac_url = NULL,
-  additional_process = NULL,
-  bands2correct = c("B8A", "B11", "B12")
+  stac_info = NULL,
+  options = NULL
 )
 }
 \arguments{
@@ -29,23 +23,23 @@ get_s2_raster(
 
 \item{output_dir}{character. path for output directory}
 
-\item{cloudcover}{numeric. cloud cover}
-
 \item{siteName}{character. name of the study site}
 
-\item{path_S2tilinggrid}{character. path for the Sentinel-2_tiling_grid.kml file}
+\item{stac_info}{list. stac provider, name of collection url for stac}
 
-\item{overwrite}{boolean.}
-
-\item{geomAcq}{boolean.}
-
-\item{collection}{character.}
-
-\item{stac_url}{character.}
-
-\item{additional_process}{additional process to be applied to S2_items once downloaded}
-
-\item{bands2correct}{character. name of bands to correct from geometry}
+\item{options}{may include
+\itemize{
+\item cloudcover numeric. cloud cover
+\item path_S2tilinggrid character. path for the Sentinel-2_tiling_grid.kml file
+\item overwrite boolean.
+\item geomAcq boolean.
+\item collection character.
+\item stac_url character.
+\item additional_process additional process to be applied to S2_items once downloaded
+\item bands2correct character. name of bands to correct from geometry
+\item fraction_vegetation numeric. minimum fraction vegetation to consider acquisition
+\item RadiometricFilter list.
+}}
 }
 \value{
 list of path corresponding to output files

@@ -13,7 +13,7 @@
 #' @importFrom sf st_read
 #' @export
 
-get_GeomAcq_s2 <- function(dsn_S2tiles, datetime, cloudcover = 100,
+get_s2_geom_acq <- function(dsn_S2tiles, datetime, cloudcover = 100,
                            collection = "sentinel-2-l2a", output_dir,
                            nbCPU = 1, overwrite = F){
 
@@ -37,17 +37,17 @@ get_GeomAcq_s2 <- function(dsn_S2tiles, datetime, cloudcover = 100,
     OAuthToken <- CDSE::GetOAuthToken(id = id,
                                       secret = pwd)
     # get collection for geometry of acquisition corresponding to the aoi
-    collection_GeomAcq_S2 <- get_GeomAcq_s2_coll(aoi = aoi, datetime = datetime,
+    collection_GeomAcq_S2 <- get_s2_geom_acq_collection(aoi = aoi, datetime = datetime,
                                                  collection = collection,
                                                  OAuthToken = OAuthToken,
                                                  cloudcover = cloudcover,
                                                  output_dir = output_dir,
                                                  overwrite = overwrite)
     # download geometry of acquisition corresponding to the aoi stored in collection
-    path_geomfiles <- download_GeomAcq_s2(aoi = aoi,
-                                          geom_dir = geom_dir,
-                                          collection_GeomAcq_S2 = collection_GeomAcq_S2,
-                                          nbCPU = nbCPU)
+    path_geomfiles <- download_s2_geom_acq(aoi = aoi,
+                                           geom_dir = geom_dir,
+                                           collection_GeomAcq_S2 = collection_GeomAcq_S2,
+                                           nbCPU = nbCPU)
   }
   return(path_geomfiles)
 }
