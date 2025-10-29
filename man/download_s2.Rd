@@ -13,7 +13,7 @@ download_s2(
   S2_items = NULL,
   offset = 1000,
   offset_B2 = F,
-  collection = "sentinel-2-l2a",
+  stac_info,
   corr_BRF = F,
   siteName = NULL,
   crs_target = NULL,
@@ -38,7 +38,7 @@ download_s2(
 
 \item{offset_B2}{boolean.}
 
-\item{collection}{character.}
+\item{stac_info}{list.}
 
 \item{corr_BRF}{boolean.}
 

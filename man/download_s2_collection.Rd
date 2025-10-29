@@ -11,7 +11,7 @@ download_s2_collection(
   raster_dir,
   mask_path = NULL,
   fraction_vegetation = 5,
-  collection = "sentinel-2-l2a",
+  stac_info,
   resolution = 10,
   offset = 1000,
   offset_B2 = F,
@@ -42,7 +42,7 @@ download_s2_collection(
 
 \item{fraction_vegetation}{numeric. minimum fraction vegetation over plot}
 
-\item{collection}{character. collection targeted with CDSE}
+\item{stac_info}{list}
 
 \item{resolution}{numeric. spatial resolution (10 or 20)}
 

@@ -7,7 +7,7 @@
 #' @param cloudmasks spatial raster
 #' @param mask_path directory where mask is
 #' @param fraction_vegetation numeric. minimum fraction vegetation over plot
-#' @param collection character. collection targeted with CDSE
+#' @param stac_info list.
 #' @param resolution numeric. spatial resolution (10 or 20)
 #' @param offset numeric. offset
 #' @param overwrite boolean.
@@ -24,7 +24,7 @@
 #'
 update_mask <- function(aoi, collection_path, iChar, raster_dir, cloudmasks,
                         mask_path = NULL, fraction_vegetation = 5,
-                        collection = "sentinel-2-l2a", resolution = 10,
+                        stac_info, resolution = 10,
                         offset = 1000, overwrite = FALSE,
                         RadiometricFilter = NULL, siteName = NULL,
                         crs_target = NULL, original_clouds= TRUE,
@@ -33,7 +33,7 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir, cloudmasks,
 
   item_collection <- readRDS(file = collection_path)
   # get asset name for cloud data
-  asset_names <- get_cloud_asset(item_collection, collection)
+  asset_names <- get_cloud_asset(stac_info)
   cloudmask <- mask_update <- NULL
   if (!is.null(cloudmasks)){
     # download B02, B04 & B08 to update mask
@@ -42,7 +42,7 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir, cloudmasks,
                                   cloudmasks = cloudmasks,
                                   iChar = iChar, aoi = aoi,
                                   resolution = resolution,
-                                  collection = collection,
+                                  stac_info = stac_info,
                                   fraction_vegetation = fraction_vegetation,
                                   offset = offset, siteName = siteName,
                                   RadiometricFilter = RadiometricFilter,

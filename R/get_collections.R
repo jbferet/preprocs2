@@ -6,8 +6,7 @@
 #' @param output_dir character. path for output directory
 #' @param overwrite boolean. should collection and S2 data be overwritten?
 #' @param cloudcover numeric. maximum cloud cover over tile
-#' @param collection character. collection targeted with CDSE
-#' @param stac_url character. URL for STAC endpoint
+#' @param stac_info list. stac provider, name of collection url for stac
 #' @param nbCPU numeric. number of CPU
 #' @param doublecheckColl boolean. set TRUE to double check collection
 #'
@@ -18,8 +17,7 @@
 #' @export
 #'
 get_collections <- function(list_aoi, S2tiles = NULL, datetime, output_dir,
-                            overwrite = T, cloudcover = 100,
-                            collection = "sentinel-2-l2a", stac_url = NULL,
+                            overwrite = T, cloudcover = 100, stac_info, 
                             nbCPU = 1, doublecheckColl = T){
 
   # create output collection directory
@@ -38,15 +36,17 @@ get_collections <- function(list_aoi, S2tiles = NULL, datetime, output_dir,
 
   if (is.null(S2tiles)){
     S2tiles <- list()
-    for (ni in names(list_aoi)) S2tiles[[ni]] <- NA
+    for (ni in names(list_aoi)) 
+      S2tiles[[ni]] <- NA
   }
   if (dl_collection){
     if (nbCPU==1){
       mapply(FUN = get_collection, aoi = list_aoi, S2tiles = S2tiles,
              FileName = FileName_fullcoll,
              MoreArgs = list(overwrite = overwrite,
-                             datetime = datetime, collection = collection,
-                             cloudcover = cloudcover, stac_url = stac_url),
+                             datetime = datetime, 
+                             stac_info = stac_info,
+                             cloudcover = cloudcover),
              SIMPLIFY = F)
     } else if (nbCPU>1){
       cl <- parallel::makeCluster(nbCPU)
@@ -56,9 +56,8 @@ get_collections <- function(list_aoi, S2tiles = NULL, datetime, output_dir,
                                   FileName = FileName_fullcoll,
                                   MoreArgs = list(overwrite = overwrite,
                                                   datetime = datetime,
-                                                  collection = collection,
-                                                  cloudcover = cloudcover,
-                                                  stac_url = stac_url),
+                                                  stac_info = stac_info,
+                                                  cloudcover = cloudcover),
                                   future.seed = T, SIMPLIFY = F)
       parallel::stopCluster(cl)
       plan(sequential)

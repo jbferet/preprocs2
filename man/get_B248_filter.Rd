@@ -12,7 +12,7 @@ get_B248_filter(
   iChar,
   aoi,
   resolution,
-  collection = "sentinel-2-l2a",
+  stac_info,
   fraction_vegetation,
   offset = 1000,
   RadiometricFilter = NULL,
@@ -39,7 +39,7 @@ get_B248_filter(
 
 \item{resolution}{numeric. spatial resolution (10 or 20)}
 
-\item{collection}{character.}
+\item{stac_info}{list.}
 
 \item{fraction_vegetation}{numeric. minimum \% of vegetatiomn to have on plot footprint}
 

@@ -8,13 +8,12 @@
 #' @param overwrite boolean.
 #' @param siteName character. name of the study site
 #' @param path_S2tilinggrid character. path for the Sentinel-2_tiling_grid.kml file
-#' @param collection character.
+#' @param stac_info list. stac provider, name of collection url for stac
 #' @param geomAcq boolean.
 #' @param nbCPU numeric.
 #' @param mask_path character.
 #' @param resolution numeric.
 #' @param fraction_vegetation numeric.
-#' @param stac_url character.
 #' @param doublecheckColl boolean.
 #' @param offset numeric.
 #' @param offset_B2 boolean.
@@ -36,9 +35,9 @@
 get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                           cloudcover = 99, overwrite = T, siteName = NULL,
                           path_S2tilinggrid = 'Sentinel-2_tiling_grid.kml',
-                          collection = 'sentinel-2-l2a', geomAcq = F, nbCPU = 1,
+                          stac_info, geomAcq = F, nbCPU = 1,
                           mask_path = NULL, resolution = 10,
-                          fraction_vegetation = 0, stac_url = NULL, doublecheckColl = T,
+                          fraction_vegetation = 0, doublecheckColl = T,
                           offset = 1000, offset_B2 = F, corr_BRF = F, crs_target = NULL,
                           RadiometricFilter = NULL, additional_process = NULL,
                           original_clouds = T, cellsize = 10000, pursue_existing = T,
@@ -125,8 +124,7 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                                   mask_path = mask_path,
                                   fraction_vegetation = fraction_vegetation,
                                   resolution = resolution,
-                                  collection = collection,
-                                  stac_url = stac_url,
+                                  stac_info = stac_info,
                                   overwrite = overwrite,
                                   siteName = siteName,
                                   doublecheckColl = doublecheckColl,

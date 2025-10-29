@@ -13,8 +13,7 @@ get_s2_collection(
   cloudcover = 100,
   fraction_vegetation = 5,
   resolution = 10,
-  collection = "sentinel-2-l2a",
-  stac_url = NULL,
+  stac_info,
   overwrite = F,
   nbCPU = 1,
   doublecheckColl = T,
@@ -49,9 +48,7 @@ get_s2_collection(
 
 \item{resolution}{numeric. spatial resolution (10 or 20)}
 
-\item{collection}{character. collection}
-
-\item{stac_url}{character. STAC endpoint}
+\item{stac_info}{list. stac provider, name of collection url for stac}
 
 \item{overwrite}{boolean. should collection and S2 data be overwritten?}
 

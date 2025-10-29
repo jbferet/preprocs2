@@ -6,8 +6,7 @@
 #' @param FileName character. filename for collection
 #' @param overwrite boolean. should collection and S2 data be overwritten?
 #' @param cloudcover numeric. maximum cloud cover over tile
-#' @param collection character. collection targeted with CDSE
-#' @param stac_url character. URL for STAC endpoint
+#' @param stac_info list. stac provider, name of collection url for stac
 
 #' @return list of collections per plot
 #' @importFrom rstac stac ext_filter post_request
@@ -17,31 +16,27 @@
 #' @export
 #'
 get_collection <- function(aoi, S2tiles = NULL, datetime, FileName, overwrite = T,
-                           cloudcover = 100, collection = "sentinel-2-l2a",
-                           stac_url = NULL ){
+                           cloudcover = 100, stac_info){
 
   # get collection for plot, datetime and cloud cover
   if (! file.exists(FileName) | overwrite==T){
-    if (is.null(stac_url))
-      stac_source <- rstac::stac("https://planetarycomputer.microsoft.com/api/stac/v1")
-    if (!is.null(stac_url))
-      stac_source <- rstac::stac(stac_url)
+    stac_source <- rstac::stac(stac_info$stac_url)
     aoistac <- aoi |>
       sf::st_transform(4326)
     # define start and end days
     startday <- as.character(datetime$from)
     endday <- as.character(datetime$to)
-	# avoid notes when building package
-	`eo:cloud_cover` <- s_intersects <- geometry <- anyinteracts <- interval <- s_intersects <- NULL
+    # avoid notes when building package
+    `eo:cloud_cover` <- s_intersects <- geometry <- anyinteracts <- interval <- s_intersects <- NULL
     # download collection
     collection_plot <- stac_source %>%
-      ext_filter(collection == {{collection}} && `eo:cloud_cover` <= {{cloudcover}}
+      ext_filter(collection == {{stac_info$collection}} && `eo:cloud_cover` <= {{cloudcover}}
                  && s_intersects(geometry, {{aoistac}})
                  && anyinteracts(datetime, interval({{startday}}, {{endday}}))
       ) %>%
       post_request()
-
-    if (collection=='sentinel2-l2a-sen2lasrc')
+    
+    if (stac_info$provider %in% c('lasrc', 'theia', 'mtd_esa'))
       collection_plot <- collection_plot |>
       rstactheia::items_sign_theia()
 
@@ -50,7 +45,7 @@ get_collection <- function(aoi, S2tiles = NULL, datetime, FileName, overwrite = 
       message('No acquisition available for area of interest at the specified dates of acquisition')
       print(paste0('from ', datetime$from, ' to ', datetime$to))
       message('Please check image availability on collection')
-      print(collection)
+      print(stac_info$collection)
       message('from provider')
       print(stac_source$base_url)
       stop_quietly()

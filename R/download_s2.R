@@ -8,7 +8,7 @@
 #' @param S2_items list. S2 items already downloaded
 #' @param offset numeric. S2 offset value
 #' @param offset_B2 boolean.
-#' @param collection character.
+#' @param stac_info list.
 #' @param corr_BRF boolean.
 #' @param siteName character. name of the study site
 #' @param crs_target numeric.
@@ -23,21 +23,13 @@
 #'
 download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                         S2_items = NULL, offset = 1000, offset_B2 = F,
-                        collection = 'sentinel-2-l2a', corr_BRF = F,
+                        stac_info, corr_BRF = F,
                         siteName = NULL, crs_target = NULL, writeoutput = T,
                         bands2correct = c('B8A', 'B11', 'B12')){
 
   item_collection <- readRDS(file = collection_path)
-  if (collection == 'sentinel-2-l2a'){
-    baseline <- lapply(lapply(item_collection$features,'[[','properties'),
-                       '[[', 's2:processing_baseline')
-    asset_cloud <- 'SCL'
-  } else if (collection == 'sentinel2-l2a-sen2lasrc'){
-    baseline <- lapply(lapply(lapply(item_collection$features,'[[','properties'),
-                              '[[', 'processing:software'),
-                       '[[', 'sen2lasrc')
-    asset_cloud <- 'CLM'
-  }
+  asset_cloud <- get_cloud_asset(stac_info = stac_info)
+  baseline <- get_s2_baseline(stac_info, item_collection)
 
   # get bounding box
   asset_names <- c('B02', 'B03', 'B04', 'B05', 'B06',
@@ -49,7 +41,7 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
   S2_items_update <- mapply(FUN = get_asset_terra,
                             item = item_collection$features,
                             asset_names = asset_names_list,
-                            MoreArgs = list(collection = collection,
+                            MoreArgs = list(collection = stac_info$collection,
                                             aoi = aoi,
                                             crs_target = crs_target),
                             SIMPLIFY = F)

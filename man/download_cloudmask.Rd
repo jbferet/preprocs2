@@ -9,7 +9,7 @@ download_cloudmask(
   raster_dir,
   item_collection,
   iChar,
-  collection = "sentinel-2-l2a",
+  stac_info,
   asset_names,
   resolution,
   siteName = NULL,
@@ -25,7 +25,7 @@ download_cloudmask(
 
 \item{iChar}{plot ID}
 
-\item{collection}{character. name of the collection}
+\item{stac_info}{list.}
 
 \item{asset_names}{character.}
 

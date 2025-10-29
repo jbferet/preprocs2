@@ -6,7 +6,7 @@
 #' @param raster_dir directory where rasters are stored
 #' @param mask_path path for binary mask
 #' @param fraction_vegetation numeric. minimum fraction vegetation over plot
-#' @param collection character. collection targeted with CDSE
+#' @param stac_info list
 #' @param resolution numeric. spatial resolution (10 or 20)
 #' @param offset numeric. offset value
 #' @param offset_B2 boolean.
@@ -29,7 +29,7 @@
 #'
 download_s2_collection <- function(collection_path, aoi, iChar, raster_dir,
                                   mask_path = NULL, fraction_vegetation = 5,
-                                  collection = 'sentinel-2-l2a', resolution = 10,
+                                  stac_info, resolution = 10,
                                   offset = 1000, offset_B2 = F, corr_BRF = F,
                                   p = NULL, RadiometricFilter = NULL,
                                   overwrite = T, siteName = NULL, rast_out = T,
@@ -42,7 +42,7 @@ download_s2_collection <- function(collection_path, aoi, iChar, raster_dir,
                               iChar = iChar, raster_dir = raster_dir,
                               overwrite = overwrite, siteName = siteName,
                               fraction_vegetation = fraction_vegetation,
-                              collection = collection, resolution = resolution,
+                              stac_info = stac_info, resolution = resolution,
                               crs_target = crs_target)
 
   # update collection cloud masks
@@ -51,7 +51,7 @@ download_s2_collection <- function(collection_path, aoi, iChar, raster_dir,
                         mask_path = mask_path, cloudmasks = cloudmasks,
                         fraction_vegetation = fraction_vegetation,
                         siteName = siteName, offset = offset,
-                        collection = collection, resolution = resolution,
+                        stac_info = stac_info, resolution = resolution,
                         RadiometricFilter = RadiometricFilter,
                         overwrite = overwrite, crs_target = crs_target,
                         original_clouds = original_clouds,
@@ -61,7 +61,7 @@ download_s2_collection <- function(collection_path, aoi, iChar, raster_dir,
   S2_items <- NULL
   if (!is.null(S2data$S2_items)){
     S2_items <- download_s2(aoi = aoi, raster_dir = raster_dir, iChar = iChar,
-                            collection = collection,
+                            stac_info = stac_info, 
                             collection_path = collection_path,
                             S2_items = S2data$S2_items, resolution = resolution,
                             offset = offset, offset_B2 = offset_B2,
