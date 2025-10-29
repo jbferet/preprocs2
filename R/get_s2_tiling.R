@@ -114,6 +114,7 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
     }
     # download S2 data
     message('download S2 collection')
+    stac_info <- get_stac_info(stac_info)
     S2tiles <- S2_grid$S2tiles
     S2_items <- get_s2_collection(plots = plots[missing],
                                   datetime = datetime,
