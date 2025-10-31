@@ -60,7 +60,10 @@ get_grid_aoi <- function(aoi_path, cellsize = 10000, output_dir, crs_target = NU
                  driver = 'GPKG', quiet = T)
     nbcells <- length(aoi_grid)
   }
-  message(paste('the crs of the output products will be', crs_target))
+  # message(paste('the crs of the output products will be', crs_target))
   plots <- get_plot_list(dsn = dsn_grid, nbdigits = nchar(nbcells))
-  return(list('dsn_grid' = dsn_grid, 'plots' = plots, 'crs_target' = crs_target))
+  list_out <- list('dsn_grid' = dsn_grid,
+                   'plots' = plots,
+                   'crs_target' = crs_target)
+  return(list_out)
 }

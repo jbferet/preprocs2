@@ -1,5 +1,21 @@
-set_options <- function(fun, options = NULL){
-  
+#' set options
+#'
+#' @param fun character. name of the function which has optional parameters
+#' @param options list. including
+#' - cloudcover
+#' - path_S2tilinggrid
+#' - overwrite
+#' - geomAcq
+#' - additional_process
+#' - bands2correct
+#' - fraction_vegetation
+#' - RadiometricFilter
+#'
+#' @return options with default values when missing
+#' @export
+
+set_options_preprocS2 <- function(fun, options = NULL){
+
   if (fun == 'get_s2_raster'){
     if (is.null(options$cloudcover))
       options$cloudcover <- 100
@@ -20,3 +36,4 @@ set_options <- function(fun, options = NULL){
   }
   return(options)
 }
+
