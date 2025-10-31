@@ -26,7 +26,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
                           siteName = NULL, stac_info = NULL, options = NULL){
 
   # set default options when not defined
-  options <- set_options(fun = 'get_s2_raster', options = options)
+  options <- set_options_preprocS2(fun = 'get_s2_raster', options = options)
   # make sure output directory is created
   dir.create(path = output_dir, showWarnings = FALSE, recursive = TRUE)
 

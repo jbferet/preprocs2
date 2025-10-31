@@ -1,3 +1,12 @@
+# preprocS2 v2.5.15
+
+## addition
+- added functions compute_si_from_grid and get_si_tiles_from_raster to produce 
+spectral index tiles over a grid
+
+## fix
+- call set_options_preprocS2 instead of set_options
+
 # preprocS2 v2.5.14
 
 ## change
