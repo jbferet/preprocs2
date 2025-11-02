@@ -12,6 +12,7 @@ compute_si_from_grid(
   si_list,
   output_dir,
   overwrite = F,
+  spectral_bands = NULL,
   sensor_name = "sentinel-2",
   ReflFactor = 10000
 )
@@ -30,6 +31,8 @@ compute_si_from_grid(
 \item{output_dir}{character.}
 
 \item{overwrite}{boolean.}
+
+\item{spectral_bands}{numeric.}
 
 \item{sensor_name}{character.}
 
