@@ -11,7 +11,7 @@ compute_si_from_grid(
   siteName,
   si_list,
   output_dir,
-  overwrite = F,
+  overwrite = FALSE,
   spectral_bands = NULL,
   sensor_name = "sentinel-2",
   ReflFactor = 10000

@@ -61,14 +61,14 @@ get_si_tiles_from_raster <- function(aoi, aoi_ID, rast_path, mask_path = NULL,
     } else {
       if (!is.na(match(toupper(sensor_name), c('S2', 'SENTINEL2',
                                                'SENTINEL_2', 'SENTINEL-2')))){
-        HDRpath <- system.file('extdata', 'HDR', 'Sentinel_2.hdr',
-                               package = 'biodivMapR')
+        HDRpath <- system.file('extdata', 'HDR', 'SENTINEL_2.hdr',
+                               package = 'preprocS2')
         sensor <- 'S2'
       } else if (!is.na(match(toupper(sensor_name), c('LANDSAT', 'LANDSAT7', 'LANDSAT_7', 'LANDSAT-7',
                                                       'LANDSAT8', 'LANDSAT_8', 'LANDSAT-8',
                                                       'LANDSAT9', 'LANDSAT_9', 'LANDSAT-9')))){
         HDRpath <- system.file('extdata', 'HDR', 'Landsat_7.hdr',
-                               package = 'biodivMapR')
+                               package = 'preprocS2')
         sensor <- 'landsat'
       }
       hdr <- biodivMapR::read_ENVI_header(HDRpath = HDRpath)
