@@ -17,7 +17,7 @@ fun_SI_fromSpatRaster <- function(S2_refl, S2_mask, argsin){
   siteName <- argsin$siteName
   # define parameters related to Sentinel-2
   HDRpath <- system.file("extdata", "SENTINEL_2.hdr", package = "preprocS2")
-  HDR <- preprocS2::read_ENVI_header(HDRpath = HDRpath)
+  HDR <- read_envi_header(HDRpath = HDRpath)
   # get SI for each S2 acquisition
   SI_val <- lapply(X = S2_refl,
                    FUN = spinR::compute_S2SI_Raster,
@@ -38,7 +38,8 @@ fun_SI_fromSpatRaster <- function(S2_refl, S2_mask, argsin){
       }
       SI_masked[[idx]][[doa]] <- SI_tmp
       if (argsin$write_SI_acq){
-        filename <- file.path(argsin$path_SI_acq, paste0(idx,'_',argsin$iChar,'_',doa,'.tiff'))
+        filename <- file.path(argsin$path_SI_acq,
+                              paste0(idx,'_',argsin$iChar,'_',doa,'.tiff'))
         terra::writeRaster(x = SI_masked[[idx]][[doa]], filename = filename,
                            datatype = 'GTiff', overwrite = argsin$overwrite)
       }
@@ -63,7 +64,8 @@ fun_SI_fromSpatRaster <- function(S2_refl, S2_mask, argsin){
     filename <- file.path(output_path, filename)
     if (argsin$overwrite | ! file.exists(filename))
       terra::writeRaster(x = sirast_median[[idx]], filename = filename,
-                         datatype = argsin$datatype, overwrite = argsin$overwrite)
+                         datatype = argsin$datatype,
+                         overwrite = argsin$overwrite)
   }
   resSI <- list('individual_SI' = SI_val, 'synthesis_SI' = sirast_median)
   return(resSI)

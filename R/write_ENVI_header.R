@@ -6,7 +6,7 @@
 #' @return None
 #' @importFrom stringr str_count
 #' @export
-write_ENVI_header <- function(HDR, HDRpath) {
+write_envi_header <- function(HDR, HDRpath) {
   h <- lapply(HDR, function(x) {
     if (length(x) > 1 || (is.character(x) && str_count(x, "\\w+") > 1)) {
       x <- paste0("{", paste(x, collapse = ","), "}")
