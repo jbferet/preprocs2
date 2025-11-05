@@ -15,7 +15,7 @@ get_quicklook <- function(raster_path, wavelength = NULL, driver = 'png',
                           fact = NULL, normalize = T){
   img <- terra::rast(raster_path)
   if (is.null(wavelength)){
-    hdr <- read_ENVI_header(get_HDR_name(raster_path))
+    hdr <- read_envi_header(get_HDR_name(raster_path))
     wavelength <- hdr$wavelength
   }
   lambda <- list('R' = 690, 'G' = 590, 'B' = 490)

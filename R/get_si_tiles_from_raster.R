@@ -8,6 +8,7 @@
 #' @param si_list character.
 #' @param output_dir character.
 #' @param overwrite boolean.
+#' @param spectral_bands numeric.
 #' @param sensor_name character. either sentinel-2 or landsat
 #' @param siteName character.
 #' @param ReflFactor numeric.
@@ -21,8 +22,8 @@
 
 get_si_tiles_from_raster <- function(aoi, aoi_ID, rast_path, mask_path = NULL,
                                      si_list, output_dir, overwrite = FALSE,
-                                     sensor_name = 'sentinel-2', siteName,
-                                     ReflFactor = 10000, p = NULL){
+                                     spectral_bands, sensor_name = 'sentinel-2',
+                                     siteName, ReflFactor = 10000, p = NULL){
 
   rast_obj <- terra::rast(rast_path)
   if (!is.null(mask_path)){
@@ -55,20 +56,26 @@ get_si_tiles_from_raster <- function(aoi, aoi_ID, rast_path, mask_path = NULL,
       mask_val <- 1+0*sensor_refl[[1]]
     names(mask_val) <- 'mask'
 
-    if (!is.na(match(toupper(sensor_name), c('S2', 'SENTINEL2',
-                                             'SENTINEL_2', 'SENTINEL-2')))){
-      HDRpath <- system.file('extdata', 'HDR', 'Sentinel_2.hdr',
-                             package = 'biodivMapR')
-      sensor <- 'S2'
-    } else if (!is.na(match(toupper(sensor_name), c('LANDSAT', 'LANDSAT7', 'LANDSAT_7', 'LANDSAT-7',
-                                                    'LANDSAT8', 'LANDSAT_8', 'LANDSAT-8',
-                                                    'LANDSAT9', 'LANDSAT_9', 'LANDSAT-9')))){
-      HDRpath <- system.file('extdata', 'HDR', 'Landsat_7.hdr',
-                             package = 'biodivMapR')
-      sensor <- 'landsat'
+    if (!is.null(spectral_bands)){
+      SensorBands <- spectral_bands
+    } else {
+      if (!is.na(match(toupper(sensor_name), c('S2', 'SENTINEL2',
+                                               'SENTINEL_2', 'SENTINEL-2')))){
+        HDRpath <- system.file('extdata', 'SENTINEL_2.hdr',
+                               package = 'preprocS2')
+        sensor <- 'S2'
+      } else if (!is.na(match(toupper(sensor_name), c('LANDSAT', 'LANDSAT7',
+                                                      'LANDSAT_7', 'LANDSAT-7',
+                                                      'LANDSAT8', 'LANDSAT_8',
+                                                      'LANDSAT-8', 'LANDSAT9',
+                                                      'LANDSAT_9', 'LANDSAT-9')))){
+        HDRpath <- system.file('extdata', 'Landsat_7.hdr',
+                               package = 'preprocS2')
+        sensor <- 'landsat'
+      }
+      hdr <- read_envi_header(HDRpath = HDRpath)
+      SensorBands <- hdr$wavelength
     }
-    hdr <- biodivMapR::read_ENVI_header(HDRpath = HDRpath)
-    SensorBands <- hdr$wavelength
     # if (sensor == 'landsat'){
     #   bandnames <- strsplit(x = hdr$`band names`, split = ', ')[[1]]
     #   sensor_refl$blue <- sensor_refl$B01

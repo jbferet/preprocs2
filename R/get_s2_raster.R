@@ -80,7 +80,8 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
                                 additional_process = options$additional_process,
                                 bands2correct = options$bands2correct,
                                 RadiometricFilter = options$RadiometricFilter,
-                                fraction_vegetation = options$fraction_vegetation)
+                                fraction_vegetation = options$fraction_vegetation,
+                                overwrite = options$overwrite)
 
   raster_dir <- file.path(output_dir, 'raster_samples')
   dir.create(path = raster_dir, showWarnings = F, recursive = T)

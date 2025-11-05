@@ -61,13 +61,14 @@ download_s2_collection <- function(collection_path, aoi, iChar, raster_dir,
   S2_items <- NULL
   if (!is.null(S2data$S2_items)){
     S2_items <- download_s2(aoi = aoi, raster_dir = raster_dir, iChar = iChar,
-                            stac_info = stac_info, 
+                            stac_info = stac_info,
                             collection_path = collection_path,
                             S2_items = S2data$S2_items, resolution = resolution,
                             offset = offset, offset_B2 = offset_B2,
                             corr_BRF = corr_BRF, siteName = siteName,
                             crs_target = crs_target, writeoutput = writeoutput,
-                            bands2correct = bands2correct)
+                            bands2correct = bands2correct,
+                            overwrite = overwrite)
 
     # if (corr_BRF | offset_B2){
     #   S2data <- update_mask(aoi = aoi, collection_path = collection_path,

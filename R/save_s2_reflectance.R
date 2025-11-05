@@ -23,11 +23,12 @@ save_s2_reflectance <- function(S2_stars, Refl_path, Format = 'ENVI',
                                 MaxChunk = 256, s2mission = NULL){
   # identify if S2A or S2B, if possible
   if (is.null(s2mission)){
-    s2mission <- check_s2_mission(S2Sat = S2Sat, tile_S2 = tile_S2, dateAcq_S2 = dateAcq_S2)
+    s2mission <- check_s2_mission(S2Sat = S2Sat, tile_S2 = tile_S2,
+                                  dateAcq_S2 = dateAcq_S2)
   } else if (!s2mission== '2A' & !s2mission== '2B'){
     s2mission <- '2A'
   }
-  
+
   # define central wavelength corresponding to each spectral band
   nameBands <- names(S2_stars$attr)
   if (!is.na(match('B2',nameBands))){
@@ -51,13 +52,13 @@ save_s2_reflectance <- function(S2_stars, Refl_path, Format = 'ENVI',
                     "B8A"=864.0, "B11"=1610.4, "B12"=2185.7)
     }
   }
-  
+
   if (s2mission=='2A'){
     sensor <- 'Sentinel_2A'
   } else if (s2mission=='2B'){
     sensor <- 'Sentinel_2B'
   }
-  
+
   S2_offset <- get_s2_offset(MTD_MSI, MTD_LaSRC)
   Offset <- S2_offset$Offset
   BOA_QuantVal <- S2_offset$BOA_QuantVal
@@ -68,13 +69,12 @@ save_s2_reflectance <- function(S2_stars, Refl_path, Format = 'ENVI',
   Stars_Spectral$bandname <- starsnames[which(!starsnames=='Cloud')]
   Stars_Spectral$wavelength <- WL_s2[Stars_Spectral$bandname]
   Stars_Spectral$`wavelength units` <- 'nanometers'
-  
+
   SortedWL <- names(WL_s2)
   Reorder <- match(SortedWL,Stars_Spectral$bandname)
   Elim <- which(is.na(Reorder))
-  if (length(Elim)>0){
+  if (length(Elim)>0)
     Reorder <- Reorder[-Elim]
-  }
   pathR <- S2_stars$attr[Reorder]
   names_S2 <- names(pathR)
   names(pathR) <- NULL
@@ -82,7 +82,7 @@ save_s2_reflectance <- function(S2_stars, Refl_path, Format = 'ENVI',
                                  proxy = TRUE, driver = 'ENVI')
   Stars_Spectral$bandname <- Stars_Spectral$bandname[Reorder]
   Stars_Spectral$wavelength <- Stars_Spectral$wavelength[Reorder]
-  
+
   UniqueOffset <- as.numeric(unique(Offset$Offset))
   if (length(UniqueOffset)>1){
     message('Warning: BOA offset differs between bands.')
@@ -91,7 +91,7 @@ save_s2_reflectance <- function(S2_stars, Refl_path, Format = 'ENVI',
     print(MTD_MSI)
     UniqueOffset <- BOA_QuantVal <- 1
   }
-  
+
   # write stack with bigRaster
   funct <- bigRaster::wrapperBig_Stack
   input_rasters <- as.list(S2_stars2$attr)
@@ -102,7 +102,7 @@ save_s2_reflectance <- function(S2_stars, Refl_path, Format = 'ENVI',
   if (!is.null(MTD_LaSRC)) input_args$LaSRC <- TRUE
   output_rasters <- list('Stack' = Refl_path)
   bandNames <- list('Stack' = names_S2)
-  
+
   bigRaster::apply_bigRaster(funct = funct,
                              input_rasters = input_rasters,
                              input_args = input_args,
@@ -110,29 +110,34 @@ save_s2_reflectance <- function(S2_stars, Refl_path, Format = 'ENVI',
                              output_lyrs = length(input_rasters),
                              filetype = 'EHdr',
                              bandNames = bandNames)
-  
-  if (Format == 'ENVI') adjust_ENVI_hdr(dsn = Refl_path, Bands = Stars_Spectral,
-                                        sensor = sensor, Stretch = TRUE)
-  
+
+  if (Format == 'ENVI')
+    adjust_envi_hdr(dsn = Refl_path, Bands = Stars_Spectral,
+                    sensor = sensor, Stretch = TRUE)
+
   # save metadata file as well if available
   if (!is.null(MTD)){
-    if (file.exists(MTD)) file.copy(from = MTD,
-                                    to = file.path(dirname(Refl_path), basename(MTD)),
-                                    overwrite = TRUE)}
+    if (file.exists(MTD))
+      file.copy(from = MTD, to = file.path(dirname(Refl_path), basename(MTD)),
+                overwrite = TRUE)
+  }
   # save metadata file as well if available
   if (!is.null(MTD_MSI)){
-    if (file.exists(MTD_MSI)) file.copy(from = MTD_MSI,
-                                        to = file.path(dirname(Refl_path), basename(MTD_MSI)),
-                                        overwrite = TRUE)}
+    if (file.exists(MTD_MSI))
+      file.copy(from = MTD_MSI, to = file.path(dirname(Refl_path), basename(MTD_MSI)),
+                overwrite = TRUE)
+  }
   # save LaSRC metadata file as well if available
   if (!is.null(MTD_LaSRC)){
-    if (file.exists(MTD_LaSRC)) file.copy(from = MTD_LaSRC,
-                                          to = file.path(dirname(Refl_path), basename(MTD_LaSRC)),
-                                          overwrite = TRUE)}
+    if (file.exists(MTD_LaSRC))
+      file.copy(from = MTD_LaSRC, to = file.path(dirname(Refl_path), basename(MTD_LaSRC)),
+                overwrite = TRUE)
+  }
   # delete temporary file
   for (pathtemp in pathR){
     file.remove(pathtemp)
-    if (file.exists(paste0(pathtemp,'.hdr'))) file.remove(paste0(pathtemp,'.hdr'))
+    if (file.exists(paste0(pathtemp,'.hdr')))
+      file.remove(paste0(pathtemp,'.hdr'))
   }
   gc()
   return(invisible())

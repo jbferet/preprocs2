@@ -5,7 +5,7 @@
 #' @return list of the content of the hdr file
 #' @export
 #'
-read_ENVI_header <- function(HDRpath) {
+read_envi_header <- function(HDRpath) {
   # header <- paste(header, collapse = "\n")
   if (!grepl(".hdr$", HDRpath)) {
     stop("File extension should be .hdr")

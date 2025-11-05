@@ -29,6 +29,7 @@ get_cloudmask <- function(collection_path, aoi, iChar, raster_dir, overwrite = F
   asset_names <- get_cloud_asset(stac_info = stac_info)
   suffix <- paste0('_',asset_names,'.tiff')
   Acqdates <- unique(rev(item_collection$acquisitionDate))
+
   if (length(Acqdates)>0){
     # clean raster directory if overwrite
     if (overwrite ==T)
@@ -43,9 +44,9 @@ get_cloudmask <- function(collection_path, aoi, iChar, raster_dir, overwrite = F
     # check if sufficient vegetation fraction cover
     elim <- NULL
     for (dateAcq in names(cloudmasks)){
-      if (is.null(siteName)) 
+      if (is.null(siteName))
         filename <- file.path(raster_dir,paste0('plot_',iChar,'_',dateAcq,suffix))
-      if (!is.null(siteName)) 
+      if (!is.null(siteName))
         filename <- file.path(raster_dir,paste0(siteName,'_',iChar,'_',dateAcq,suffix))
       total_pix <- length(which((terra::values(cloudmasks[[dateAcq]]))>0))
       # if using SCL allowing identifying vegetation pixels

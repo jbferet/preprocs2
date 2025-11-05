@@ -7,14 +7,17 @@
 #' @param si_list character.
 #' @param output_dir character.
 #' @param overwrite boolean.
+#' @param spectral_bands numeric.
 #' @param sensor_name character.
 #' @param ReflFactor numeric.
+#'
 #'
 #' @return filename_si list of file paths produced
 #' @export
 
-compute_si_from_grid <- function(rast_path, mask_path, plots, siteName, si_list,
-                                 output_dir, overwrite = F,
+compute_si_from_grid <- function(rast_path, mask_path = NULL, plots, siteName, si_list,
+                                 output_dir, overwrite = FALSE,
+                                 spectral_bands = NULL,
                                  sensor_name = 'sentinel-2', ReflFactor = 10000){
 
   if (!all(!is.na(match(si_list, names(spinR::listIndices_spinR()))))){
@@ -35,6 +38,7 @@ compute_si_from_grid <- function(rast_path, mask_path, plots, siteName, si_list,
                                             mask_path = mask_path,
                                             si_list = si_list,
                                             output_dir = output_dir,
+                                            spectral_bands = spectral_bands,
                                             sensor_name = sensor_name,
                                             siteName = siteName,
                                             overwrite = overwrite,

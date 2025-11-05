@@ -13,6 +13,7 @@ get_si_tiles_from_raster(
   si_list,
   output_dir,
   overwrite = FALSE,
+  spectral_bands,
   sensor_name = "sentinel-2",
   siteName,
   ReflFactor = 10000,
@@ -33,6 +34,8 @@ get_si_tiles_from_raster(
 \item{output_dir}{character.}
 
 \item{overwrite}{boolean.}
+
+\item{spectral_bands}{numeric.}
 
 \item{sensor_name}{character. either sentinel-2 or landsat}
 

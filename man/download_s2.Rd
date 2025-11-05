@@ -18,7 +18,8 @@ download_s2(
   siteName = NULL,
   crs_target = NULL,
   writeoutput = T,
-  bands2correct = c("B8A", "B11", "B12")
+  bands2correct = c("B8A", "B11", "B12"),
+  overwrite = T
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ download_s2(
 \item{writeoutput}{boolean. should output file be saved?}
 
 \item{bands2correct}{character. name of bands to correct from geometry}
+
+\item{overwrite}{boolean.}
 }
 \value{
 list of collections per plot

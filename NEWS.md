@@ -5,6 +5,7 @@
 spectral index tiles over a grid
 
 ## fix
+- activate overwrite: discard already existing acquisitions in 'get_cloudmask'
 - call set_options_preprocS2 instead of set_options
 
 # preprocS2 v2.5.14
