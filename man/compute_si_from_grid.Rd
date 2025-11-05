@@ -6,7 +6,7 @@
 \usage{
 compute_si_from_grid(
   rast_path,
-  mask_path,
+  mask_path = NULL,
   plots,
   siteName,
   si_list,

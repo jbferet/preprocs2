@@ -14,6 +14,7 @@
 #' @param crs_target numeric.
 #' @param writeoutput boolean. should output file be saved?
 #' @param bands2correct character. name of bands to correct from geometry
+#' @param overwrite boolean.
 #'
 #' @return list of collections per plot
 #' @importFrom terra rast
@@ -25,7 +26,7 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                         S2_items = NULL, offset = 1000, offset_B2 = F,
                         stac_info, corr_BRF = F,
                         siteName = NULL, crs_target = NULL, writeoutput = T,
-                        bands2correct = c('B8A', 'B11', 'B12')){
+                        bands2correct = c('B8A', 'B11', 'B12'), overwrite = T){
 
   item_collection <- readRDS(file = collection_path)
   asset_cloud <- get_cloud_asset(stac_info = stac_info)
@@ -73,20 +74,24 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                                    FUN = terra::resample,
                                    template_Rast[[1]], method = 'near')
     acq <- as.character(item_collection$acquisitionDate[[i]])
-    s2_items[[acq]] <- correct_s2_stack(s2_items = S2_items_final[[i]],
-                                        acq = acq, raster_dir = raster_dir,
-                                        aoi = aoi, offset_B2 = offset_B2,
-                                        corr_BRF = corr_BRF,
-                                        bands2correct = bands2correct)
-    # save reflectance file
-    if (writeoutput){
-      if (is.null(siteName))
-        filename <- file.path(raster_dir, paste0('plot_',iChar,'_',
-                                                 acq, '.tiff'))
-      if (!is.null(siteName))
-        filename <- file.path(raster_dir, paste0(siteName,'_',iChar,'_',
-                                                 acq, '.tiff'))
-      terra::writeRaster(x = s2_items[[acq]], filename = filename, overwrite = T)
+
+    # define reflectance file name and check if exists
+    if (is.null(siteName))
+      filename <- file.path(raster_dir, paste0('plot_',iChar,'_', acq, '.tiff'))
+    if (!is.null(siteName))
+      filename <- file.path(raster_dir, paste0(siteName,'_',iChar,'_', acq, '.tiff'))
+
+    if (file.exists(filename) & overwrite == FALSE){
+      s2_items[[acq]] <- terra::rast(x = filename)
+    } else {
+      s2_items[[acq]] <- correct_s2_stack(s2_items = S2_items_final[[i]],
+                                          acq = acq, raster_dir = raster_dir,
+                                          aoi = aoi, offset_B2 = offset_B2,
+                                          corr_BRF = corr_BRF,
+                                          bands2correct = bands2correct)
+      # save reflectance file
+      if (writeoutput)
+        terra::writeRaster(x = s2_items[[acq]], filename = filename, overwrite = T)
     }
   }
   return(s2_items)

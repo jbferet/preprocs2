@@ -15,7 +15,7 @@
 #' @return filename_si list of file paths produced
 #' @export
 
-compute_si_from_grid <- function(rast_path, mask_path, plots, siteName, si_list,
+compute_si_from_grid <- function(rast_path, mask_path = NULL, plots, siteName, si_list,
                                  output_dir, overwrite = FALSE,
                                  spectral_bands = NULL,
                                  sensor_name = 'sentinel-2', ReflFactor = 10000){
