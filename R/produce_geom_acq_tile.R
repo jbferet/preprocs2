@@ -12,7 +12,7 @@
 #' @importFrom future.apply future_lapply
 #' @export
 #'
-produce_GeomAcq_tile <- function(list_aoi, collection_dir_geom, geom_dir, nbCPU){
+produce_geom_acq_tile <- function(list_aoi, collection_dir_geom, geom_dir, nbCPU){
 
   # define angles corresponding to gepometry of acquisition
   angle <- c('saa', 'sza', 'vaa', 'vza')

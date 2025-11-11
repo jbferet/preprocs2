@@ -1,7 +1,7 @@
 #' downloads Sentinel-2 time series for a vectorized plot network
 #'
 #' @param plots list. sf objects corresponding to polygons
-#' @param S2tiles list. S2 tiles corresponding to the plots
+#' @param s2_tiles list. S2 tiles corresponding to the plots
 #' @param datetime list. define period 'from' / 'to' day of acquisition
 #' @param output_dir character. output directory
 #' @param mask_path character. path for mask
@@ -15,15 +15,15 @@
 #' @param offset numeric. S2 reflectance offset
 #' @param offset_B2 boolean. should an offset be applied to normalize B2?
 #' @param corr_BRF boolean.
-#' @param RadiometricFilter list.
-#' @param siteName character. name of the study site
+#' @param radiometric_filter list.
+#' @param site_name character. name of the study site
 #' @param rast_out boolean. should S2 SpatRaster be obtained as output?
 #' @param additional_process additional process to be applied to S2_items once downloaded
 #' @param crs_target numeric.
 #' @param original_clouds should original cloud mask be used or not?
 #' @param argsin list
 #' @param writeoutput boolean. should output file be saved?
-#' @param bands2correct character. name of bands to correct from geometry
+#' @param bands_to_correct character. name of bands to correct from geometry
 #'
 #' @return list of collections per plot
 #' @importFrom parallel makeCluster stopCluster
@@ -32,22 +32,22 @@
 #' @importFrom progressr with_progress progressor handlers
 #' @export
 #'
-get_s2_collection <- function(plots, S2tiles = NULL, datetime, output_dir,
+get_s2_collection <- function(plots, s2_tiles = NULL, datetime, output_dir,
                               mask_path = NULL, cloudcover = 100,
                               fraction_vegetation = 5, resolution = 10,
                               stac_info, overwrite = F, nbCPU = 1, doublecheckColl = T,
                               offset = 1000, offset_B2 = F, corr_BRF = F,
-                              RadiometricFilter = NULL, siteName = NULL,
+                              radiometric_filter = NULL, site_name = NULL,
                               rast_out = T, additional_process = NULL,
                               crs_target = NULL, original_clouds = TRUE,
                               argsin = NULL, writeoutput = T,
-                              bands2correct = c('B8A', 'B11', 'B12')){
+                              bands_to_correct = c('B8A', 'B11', 'B12')){
 
   # get collection for each plot
   if (length(plots)<nbCPU)
     nbCPU <- length(plots)
   collection_path <- get_collections(list_aoi = plots,
-                                     S2tiles = S2tiles,
+                                     s2_tiles = s2_tiles,
                                      datetime = datetime,
                                      output_dir = output_dir,
                                      cloudcover = cloudcover,
@@ -75,13 +75,13 @@ get_s2_collection <- function(plots, S2tiles = NULL, datetime, output_dir,
                                        offset = offset,
                                        offset_B2 = offset_B2,
                                        corr_BRF = corr_BRF,
-                                       RadiometricFilter = RadiometricFilter,
+                                       radiometric_filter = radiometric_filter,
                                        overwrite = overwrite,
-                                       siteName = siteName, crs_target = crs_target,
+                                       site_name = site_name, crs_target = crs_target,
                                        original_clouds = original_clouds,
                                        additional_process = additional_process,
                                        argsin = argsin, writeoutput = writeoutput,
-                                       bands2correct = bands2correct),
+                                       bands_to_correct = bands_to_correct),
                        SIMPLIFY = F)
   } else if (nbCPU>1){
     cl <- parallel::makeCluster(nbCPU)
@@ -102,16 +102,16 @@ get_s2_collection <- function(plots, S2tiles = NULL, datetime, output_dir,
                                                               offset = offset,
                                                               offset_B2 = offset_B2,
                                                               corr_BRF = corr_BRF,
-                                                              RadiometricFilter = RadiometricFilter,
+                                                              radiometric_filter = radiometric_filter,
                                                               overwrite = overwrite,
-                                                              siteName = siteName,
+                                                              site_name = site_name,
                                                               p = p, rast_out = rast_out,
                                                               additional_process = additional_process,
                                                               crs_target = crs_target,
                                                               original_clouds = original_clouds,
                                                               argsin = argsin,
                                                               writeoutput = writeoutput,
-                                                              bands2correct = bands2correct),
+                                                              bands_to_correct = bands_to_correct),
                                               future.seed = T,
                                               future.chunk.size = NULL,
                                               future.scheduling = structure(TRUE, ordering = "random"),

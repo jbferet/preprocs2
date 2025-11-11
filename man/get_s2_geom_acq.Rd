@@ -5,7 +5,7 @@
 \title{geometry of acquisition for aoi}
 \usage{
 get_s2_geom_acq(
-  dsn_S2tiles,
+  dsn_s2_tiles,
   datetime,
   cloudcover = 100,
   collection = "sentinel-2-l2a",
@@ -15,7 +15,7 @@ get_s2_geom_acq(
 )
 }
 \arguments{
-\item{dsn_S2tiles}{character. path for vector including all S2 tiles intersecting with aoi}
+\item{dsn_s2_tiles}{character. path for vector including all S2 tiles intersecting with aoi}
 
 \item{datetime}{list. define period 'from' / 'to' day of acquisition}
 

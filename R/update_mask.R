@@ -11,8 +11,8 @@
 #' @param resolution numeric. spatial resolution (10 or 20)
 #' @param offset numeric. offset
 #' @param overwrite boolean.
-#' @param RadiometricFilter list.
-#' @param siteName character. name of the study site
+#' @param radiometric_filter list.
+#' @param site_name character. name of the study site
 #' @param crs_target numeric.
 #' @param original_clouds boolean
 #' @param S2_items list
@@ -26,7 +26,7 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir, cloudmasks,
                         mask_path = NULL, fraction_vegetation = 5,
                         stac_info, resolution = 10,
                         offset = 1000, overwrite = FALSE,
-                        RadiometricFilter = NULL, siteName = NULL,
+                        radiometric_filter = NULL, site_name = NULL,
                         crs_target = NULL, original_clouds= TRUE,
                         S2_items = NULL, writeoutput = TRUE){
 
@@ -44,8 +44,8 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir, cloudmasks,
                                   resolution = resolution,
                                   stac_info = stac_info,
                                   fraction_vegetation = fraction_vegetation,
-                                  offset = offset, siteName = siteName,
-                                  RadiometricFilter = RadiometricFilter,
+                                  offset = offset, site_name = site_name,
+                                  radiometric_filter = radiometric_filter,
                                   crs_target = crs_target,
                                   original_clouds = original_clouds,
                                   overwrite = overwrite, S2_items = S2_items,

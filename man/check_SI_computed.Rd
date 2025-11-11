@@ -4,7 +4,7 @@
 \alias{check_SI_computed}
 \title{checks if SI already computed}
 \usage{
-check_SI_computed(dsn_grid, output_SI, SI_list, siteName)
+check_SI_computed(dsn_grid, output_SI, SI_list, site_name)
 }
 \arguments{
 \item{dsn_grid}{list.}
@@ -13,7 +13,7 @@ check_SI_computed(dsn_grid, output_SI, SI_list, siteName)
 
 \item{SI_list}{character. list of SI}
 
-\item{siteName}{character. site name}
+\item{site_name}{character. site name}
 }
 \value{
 plots list of plots

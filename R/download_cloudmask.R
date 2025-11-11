@@ -7,7 +7,7 @@
 #' @param stac_info list.
 #' @param asset_names character.
 #' @param resolution numeric. spatial resolution (10 or 20)
-#' @param siteName character. name of the study site
+#' @param site_name character. name of the study site
 #' @param crs_target numeric.
 #'
 #' @return list of collections per plot
@@ -17,7 +17,7 @@
 #'
 download_cloudmask <- function(aoi, raster_dir, item_collection, iChar,
                                stac_info, asset_names,
-                               resolution, siteName = NULL, crs_target = NULL){
+                               resolution, site_name = NULL, crs_target = NULL){
 
   # if collection not empty
   if (length(item_collection$acquisitionDate)>0){
@@ -25,10 +25,10 @@ download_cloudmask <- function(aoi, raster_dir, item_collection, iChar,
     # define file name for cloud mask
     S2product <- unlist(lapply(item_collection$features,'[[','id'))
     dateAcq <- get_dateAcq(S2product = S2product, stac_info = stac_info)
-    if (is.null(siteName)){
+    if (is.null(site_name)){
       filenames <- basename(paste0('plot_',iChar,'_',dateAcq,'_',asset_names,'.tiff'))
     } else {
-      filenames <- basename(paste0(siteName,'_',iChar,'_',dateAcq,'_',asset_names,'.tiff'))
+      filenames <- basename(paste0(site_name,'_',iChar,'_',dateAcq,'_',asset_names,'.tiff'))
     }
     filepath <- file.path(raster_dir,filenames)
     # check if expected files already exist

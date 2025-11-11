@@ -1,6 +1,6 @@
 #' geometry of acquisition for aoi
 #'
-#' @param dsn_S2tiles character. path for vector including all S2 tiles intersecting with aoi
+#' @param dsn_s2_tiles character. path for vector including all S2 tiles intersecting with aoi
 #' @param datetime list. define period 'from' / 'to' day of acquisition
 #' @param cloudcover numeric. maximum cloud cover over tile
 #' @param collection character. collection targeted with CDSE
@@ -13,15 +13,15 @@
 #' @importFrom sf st_read
 #' @export
 
-get_s2_geom_acq <- function(dsn_S2tiles, datetime, cloudcover = 100,
+get_s2_geom_acq <- function(dsn_s2_tiles, datetime, cloudcover = 100,
                            collection = "sentinel-2-l2a", output_dir,
                            nbCPU = 1, overwrite = F){
 
   # create directory where geometry of acquisition rasters are stored
-  geom_dir <- file.path(output_dir, 'geomAcq_S2')
+  geom_dir <- file.path(output_dir, 'geom_acq_S2')
   dir.create(geom_dir, showWarnings = F, recursive = T)
   # read aoi
-  aoi <- sf::st_read(dsn = dsn_S2tiles, as_tibble = F, quiet = T)
+  aoi <- sf::st_read(dsn = dsn_s2_tiles, as_tibble = F, quiet = T)
   # get token for authentication on CDSE
   OAuth_client <- get_OAuth_client()
   id <- OAuth_client$id
@@ -37,7 +37,7 @@ get_s2_geom_acq <- function(dsn_S2tiles, datetime, cloudcover = 100,
     OAuthToken <- CDSE::GetOAuthToken(id = id,
                                       secret = pwd)
     # get collection for geometry of acquisition corresponding to the aoi
-    collection_GeomAcq_S2 <- get_s2_geom_acq_collection(aoi = aoi, datetime = datetime,
+    collection_geom_acq_S2 <- get_s2_geom_acq_collection(aoi = aoi, datetime = datetime,
                                                  collection = collection,
                                                  OAuthToken = OAuthToken,
                                                  cloudcover = cloudcover,
@@ -46,7 +46,7 @@ get_s2_geom_acq <- function(dsn_S2tiles, datetime, cloudcover = 100,
     # download geometry of acquisition corresponding to the aoi stored in collection
     path_geomfiles <- download_s2_geom_acq(aoi = aoi,
                                            geom_dir = geom_dir,
-                                           collection_GeomAcq_S2 = collection_GeomAcq_S2,
+                                           collection_geom_acq_S2 = collection_geom_acq_S2,
                                            nbCPU = nbCPU)
   }
   return(path_geomfiles)

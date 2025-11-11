@@ -1,7 +1,7 @@
 #' gets collections for plot network
 #'
 #' @param list_aoi list. list of simple features
-#' @param S2tiles list. list of S2 tiles including each sf from list_aoi
+#' @param s2_tiles list. list of S2 tiles including each sf from list_aoi
 #' @param datetime list. define period 'from' / 'to' day of acquisition
 #' @param output_dir character. path for output directory
 #' @param overwrite boolean. should collection and S2 data be overwritten?
@@ -16,7 +16,7 @@
 #' @importFrom parallel makeCluster stopCluster
 #' @export
 #'
-get_collections <- function(list_aoi, S2tiles = NULL, datetime, output_dir,
+get_collections <- function(list_aoi, s2_tiles = NULL, datetime, output_dir,
                             overwrite = T, cloudcover = 100, stac_info, 
                             nbCPU = 1, doublecheckColl = T){
 
@@ -34,14 +34,14 @@ get_collections <- function(list_aoi, S2tiles = NULL, datetime, output_dir,
   if (!doublecheckColl & length(alreadyExists)==length(list_aoi))
     dl_collection <- FALSE
 
-  if (is.null(S2tiles)){
-    S2tiles <- list()
+  if (is.null(s2_tiles)){
+    s2_tiles <- list()
     for (ni in names(list_aoi)) 
-      S2tiles[[ni]] <- NA
+      s2_tiles[[ni]] <- NA
   }
   if (dl_collection){
     if (nbCPU==1){
-      mapply(FUN = get_collection, aoi = list_aoi, S2tiles = S2tiles,
+      mapply(FUN = get_collection, aoi = list_aoi, s2_tiles = s2_tiles,
              FileName = FileName_fullcoll,
              MoreArgs = list(overwrite = overwrite,
                              datetime = datetime, 
@@ -52,7 +52,7 @@ get_collections <- function(list_aoi, S2tiles = NULL, datetime, output_dir,
       cl <- parallel::makeCluster(nbCPU)
       plan("cluster", workers = cl)
       future.apply::future_mapply(FUN = get_collection,
-                                  aoi = list_aoi, S2tiles = S2tiles,
+                                  aoi = list_aoi, s2_tiles = s2_tiles,
                                   FileName = FileName_fullcoll,
                                   MoreArgs = list(overwrite = overwrite,
                                                   datetime = datetime,

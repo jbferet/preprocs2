@@ -14,7 +14,7 @@ fun_SI_fromSpatRaster <- function(S2_refl, S2_mask, argsin){
   ReflFactor <- argsin$ReflFactor
   SI_list <- argsin$SI_list
   output_path <- argsin$output_path
-  siteName <- argsin$siteName
+  site_name <- argsin$site_name
   # define parameters related to Sentinel-2
   HDRpath <- system.file("extdata", "SENTINEL_2.hdr", package = "preprocS2")
   HDR <- read_envi_header(HDRpath = HDRpath)
@@ -58,7 +58,7 @@ fun_SI_fromSpatRaster <- function(S2_refl, S2_mask, argsin){
                                      replacement = paste0('_', idx,'.'))
     filename <- stringr::str_replace(string = filename,
                                      pattern = 'plot_',
-                                     replacement = paste0(siteName, '_'))
+                                     replacement = paste0(site_name, '_'))
     dir.create(path = output_path, showWarnings = F, recursive = T)
     # write composites
     filename <- file.path(output_path, filename)

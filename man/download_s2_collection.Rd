@@ -17,16 +17,16 @@ download_s2_collection(
   offset_B2 = F,
   corr_BRF = F,
   p = NULL,
-  RadiometricFilter = NULL,
+  radiometric_filter = NULL,
   overwrite = T,
-  siteName = NULL,
+  site_name = NULL,
   rast_out = T,
   additional_process = NULL,
   crs_target = NULL,
   original_clouds = TRUE,
   argsin = NULL,
   writeoutput = T,
-  bands2correct = c("B8A", "B11", "B12")
+  bands_to_correct = c("B8A", "B11", "B12")
 )
 }
 \arguments{
@@ -54,11 +54,11 @@ download_s2_collection(
 
 \item{p}{list.}
 
-\item{RadiometricFilter}{list. values for radiometric filter shade cloud vegetation}
+\item{radiometric_filter}{list. values for radiometric filter shade cloud vegetation}
 
 \item{overwrite}{boolean.}
 
-\item{siteName}{character. name of the study site}
+\item{site_name}{character. name of the study site}
 
 \item{rast_out}{boolean. should S2 SpatRaster be obtained as output?}
 
@@ -72,7 +72,7 @@ download_s2_collection(
 
 \item{writeoutput}{boolean. should output file be saved?}
 
-\item{bands2correct}{character. name of bands to correct from geometry}
+\item{bands_to_correct}{character. name of bands to correct from geometry}
 }
 \value{
 list of collections per plot

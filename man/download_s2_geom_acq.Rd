@@ -4,14 +4,14 @@
 \alias{download_s2_geom_acq}
 \title{download from CDSE geometry of acquisition for aoi}
 \usage{
-download_s2_geom_acq(aoi, geom_dir, collection_GeomAcq_S2, nbCPU = 1)
+download_s2_geom_acq(aoi, geom_dir, collection_geom_acq_S2, nbCPU = 1)
 }
 \arguments{
 \item{aoi}{simple feature. vector including all S2 tiles intersecting with aoi}
 
 \item{geom_dir}{character. directory where rasters for geometry are saved}
 
-\item{collection_GeomAcq_S2}{list. STAC collection}
+\item{collection_geom_acq_S2}{list. STAC collection}
 
 \item{nbCPU}{numeric. number of CPUs}
 }

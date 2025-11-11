@@ -4,7 +4,7 @@
 #' @param output_dir character.
 #' @param aoi sf object
 #' @param acq date of acquisition
-#' @param bands2correct character. name of bands to correct from geometry
+#' @param bands_to_correct character. name of bands to correct from geometry
 #'
 #' @return list of collections per plot
 #' @importFrom terra rast values na.omit crop buffer
@@ -14,9 +14,9 @@
 #' @export
 #'
 correct_geom <- function(S2_rast, output_dir, aoi, acq,
-                         bands2correct = c('B8A', 'B11', 'B12')){
+                         bands_to_correct = c('B8A', 'B11', 'B12')){
 
-  geom_dir <- file.path(output_dir, 'geomAcq_S2')
+  geom_dir <- file.path(output_dir, 'geom_acq_S2')
   # download geometry of acquisition corresponding to aoi
   angle <- c('saa', 'sza', 'vaa', 'vza')
   mean_angle <- list()
@@ -40,11 +40,11 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
     mean_angle[[angle[jj]]] <- base::mean(terra::values(geom),na.rm = T)
   }
   # produce prosail LUT corresponding to mean geometry of acquisition
-  GeomAcq <- list()
+  geom_acq <- list()
   psi <- abs(mean_angle$saa-mean_angle$vaa)
   if (psi>180) psi <- 360-psi
-  GeomAcq$min <- data.frame('tto' = mean_angle$vza, 'tts' = mean_angle$sza, 'psi' = psi)
-  GeomAcq$max <- data.frame('tto' = mean_angle$vza, 'tts' = mean_angle$sza, 'psi' = psi)
+  geom_acq$min <- data.frame('tto' = mean_angle$vza, 'tts' = mean_angle$sza, 'psi' = psi)
+  geom_acq$max <- data.frame('tto' = mean_angle$vza, 'tts' = mean_angle$sza, 'psi' = psi)
   # get prosail simulations for current acquisition and for standard configuration
   nbsamples <- 100
   SensorName <- 'Sentinel_2'
@@ -52,7 +52,7 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
     lambda <- prosail::SpecPROSPECT_FullRange$lambda
     SRF <- prosail::GetRadiometry(SensorName)
     InputPROSAIL <- prosail::get_InputPROSAIL(atbd = TRUE, nbSamples = nbsamples,
-                                              GeomAcq = GeomAcq)
+                                              geom_acq = geom_acq)
     res <- Generate_LUT_PROSAIL(SAILversion = '4SAIL',
                                 InputPROSAIL = InputPROSAIL,
                                 SpecPROSPECT = prosail::SpecPROSPECT_FullRange,
@@ -80,7 +80,7 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
     SRF <- prosail::get_radiometry(sensor_name = SensorName)
     InputPROSAIL <- prosail::get_input_prosail(atbd = TRUE,
                                                nb_samples = nbsamples,
-                                               geom_acq = GeomAcq)
+                                               geom_acq = geom_acq)
     res <- generate_lut_prosail(SAILversion = '4SAIL',
                                 input_prosail = InputPROSAIL,
                                 spec_prospect = prosail::spec_prospect_fullrange,
@@ -112,10 +112,10 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
   ratioCorr <- colMeans(ratioBRF)
   originalnames <- names(S2_rast)
   names(S2_rast) <- SRF$Spectral_Bands
-  # bands2correct <- c('B8A', 'B11', 'B12')
-  # bands2correct <- names(S2_rast)
+  # bands_to_correct <- c('B8A', 'B11', 'B12')
+  # bands_to_correct <- names(S2_rast)
 
-  for (band in bands2correct){
+  for (band in bands_to_correct){
     S2_rast[[band]] <- ratioCorr[band] * S2_rast[[band]]
     terra::values(S2_rast[[band]]) <- round(terra::values(S2_rast[[band]]))
   }

@@ -3,7 +3,7 @@
 #' @param rast_path character.
 #' @param mask_path character.
 #' @param plots list. list of plots (sf object)
-#' @param siteName character.
+#' @param site_name character.
 #' @param si_list character.
 #' @param output_dir character.
 #' @param overwrite boolean.
@@ -15,7 +15,7 @@
 #' @return filename_si list of file paths produced
 #' @export
 
-compute_si_from_grid <- function(rast_path, mask_path = NULL, plots, siteName, si_list,
+compute_si_from_grid <- function(rast_path, mask_path = NULL, plots, site_name, si_list,
                                  output_dir, overwrite = FALSE,
                                  spectral_bands = NULL,
                                  sensor_name = 'sentinel-2', ReflFactor = 10000){
@@ -40,7 +40,7 @@ compute_si_from_grid <- function(rast_path, mask_path = NULL, plots, siteName, s
                                             output_dir = output_dir,
                                             spectral_bands = spectral_bands,
                                             sensor_name = sensor_name,
-                                            siteName = siteName,
+                                            site_name = site_name,
                                             overwrite = overwrite,
                                             p = p),
                             SIMPLIFY = F)}))

@@ -6,7 +6,7 @@
 \usage{
 get_collection(
   aoi,
-  S2tiles = NULL,
+  s2_tiles = NULL,
   datetime,
   FileName,
   overwrite = T,
@@ -17,7 +17,7 @@ get_collection(
 \arguments{
 \item{aoi}{simple feature including a unique polygon}
 
-\item{S2tiles}{list. list of S2 tiles including each sf from list_aoi}
+\item{s2_tiles}{list. list of S2 tiles including each sf from list_aoi}
 
 \item{datetime}{list. define period 'from' / 'to' day of acquisition}
 

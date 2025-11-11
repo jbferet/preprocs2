@@ -6,7 +6,7 @@
 \usage{
 get_collections(
   list_aoi,
-  S2tiles = NULL,
+  s2_tiles = NULL,
   datetime,
   output_dir,
   overwrite = T,
@@ -19,7 +19,7 @@ get_collections(
 \arguments{
 \item{list_aoi}{list. list of simple features}
 
-\item{S2tiles}{list. list of S2 tiles including each sf from list_aoi}
+\item{s2_tiles}{list. list of S2 tiles including each sf from list_aoi}
 
 \item{datetime}{list. define period 'from' / 'to' day of acquisition}
 

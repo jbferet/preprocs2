@@ -8,9 +8,9 @@ get_s2_tiles(
   plots,
   dsn_bbox,
   output_dir,
-  siteName = NULL,
+  site_name = NULL,
   overwrite = T,
-  path_S2tilinggrid = "Sentinel-2_tiling_grid.kml"
+  path_S2_tiling_grid = "Sentinel-2_tiling_grid.kml"
 )
 }
 \arguments{
@@ -20,14 +20,14 @@ get_s2_tiles(
 
 \item{output_dir}{character. output path}
 
-\item{siteName}{character. name of the study site}
+\item{site_name}{character. name of the study site}
 
 \item{overwrite}{boolean.}
 
-\item{path_S2tilinggrid}{character. path for the Sentinel-2_tiling_grid.kml file}
+\item{path_S2_tiling_grid}{character. path for the Sentinel-2_tiling_grid.kml file}
 }
 \value{
-S2tiles list of tiles corresponding to plots
+s2_tiles list of tiles corresponding to plots
 }
 \description{
 return S2 tiles intersecting with the footprint of a vector file

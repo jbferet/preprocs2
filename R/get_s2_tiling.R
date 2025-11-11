@@ -6,10 +6,10 @@
 #' @param output_dir character. path for output directory
 #' @param cloudcover numeric.
 #' @param overwrite boolean.
-#' @param siteName character. name of the study site
-#' @param path_S2tilinggrid character. path for the Sentinel-2_tiling_grid.kml file
+#' @param site_name character. name of the study site
+#' @param path_S2_tiling_grid character. path for the Sentinel-2_tiling_grid.kml file
 #' @param stac_info list. stac provider, name of collection url for stac
-#' @param geomAcq boolean.
+#' @param geom_acq boolean.
 #' @param nbCPU numeric.
 #' @param mask_path character.
 #' @param resolution numeric.
@@ -19,7 +19,7 @@
 #' @param offset_B2 boolean.
 #' @param corr_BRF boolean.
 #' @param crs_target numeric.
-#' @param RadiometricFilter list.
+#' @param radiometric_filter list.
 #' @param additional_process additional process to be applied to S2_items once downloaded
 #' @param original_clouds boolean. should original cloud mask be used or not?
 #' @param cellsize numeric. cell size
@@ -27,22 +27,22 @@
 #' @param argsin list. list of arguments for additional_process
 #' @param writeoutput boolean. should output file be saved?
 #' @param bypassDL boolean. the download of S2 data is not performed
-#' @param bands2correct character. name of bands to correct from geometry
+#' @param bands_to_correct character. name of bands to correct from geometry
 #'
 #' @return plots list of plots
 #' @export
 
 get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
-                          cloudcover = 99, overwrite = T, siteName = NULL,
-                          path_S2tilinggrid = 'Sentinel-2_tiling_grid.kml',
-                          stac_info, geomAcq = F, nbCPU = 1,
+                          cloudcover = 99, overwrite = T, site_name = NULL,
+                          path_S2_tiling_grid = 'Sentinel-2_tiling_grid.kml',
+                          stac_info, geom_acq = F, nbCPU = 1,
                           mask_path = NULL, resolution = 10,
                           fraction_vegetation = 0, doublecheckColl = T,
                           offset = 1000, offset_B2 = F, corr_BRF = F, crs_target = NULL,
-                          RadiometricFilter = NULL, additional_process = NULL,
+                          radiometric_filter = NULL, additional_process = NULL,
                           original_clouds = T, cellsize = 10000, pursue_existing = T,
                           argsin = NULL, writeoutput = T, bypassDL = F,
-                          bands2correct = c('B8A', 'B11', 'B12')){
+                          bands_to_correct = c('B8A', 'B11', 'B12')){
 
   # create proper datetime if only one date provided
   if (inherits(x = datetime, what = c('character', 'Date')))
@@ -76,21 +76,21 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                                    pursue_existing = pursue_existing,
                                    datetime = datetime,
                                    output_dir = s2_raster_dir,
-                                   pattern = siteName)
+                                   pattern = site_name)
     } else {
       missing <- get_missing_plots(plots = plots,
                                    pursue_existing = pursue_existing,
                                    datetime = datetime,
                                    output_dir = argsin$output_path,
-                                   pattern = argsin$siteName)
+                                   pattern = argsin$site_name)
     }
 
     # define s2 tiles corresponding to aoi
     message('get S2 tiles corresponding to aoi')
-    path_S2tilinggrid <- check_s2_tiling_grid(path_S2tilinggrid = path_S2tilinggrid)
+    path_S2_tiling_grid <- check_s2_tiling_grid(path_S2_tiling_grid = path_S2_tiling_grid)
     S2_grid <- get_s2_tiles(plots = plots, dsn_bbox = aoi_path,
-                            output_dir = output_dir, siteName = siteName,
-                            path_S2tilinggrid = path_S2tilinggrid,
+                            output_dir = output_dir, site_name = site_name,
+                            path_S2_tiling_grid = path_S2_tiling_grid,
                             overwrite = overwrite)
 
     # get token for authentication on CDSE
@@ -100,26 +100,26 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
     # id <- Sys.getenv("PREPROCS2_CDSE_ID")
     # pwd <- Sys.getenv("PREPROCS2_CDSE_SECRET")
 
-    if (geomAcq & (nchar(id)==0 | nchar(pwd)==0)){
+    if (geom_acq & (nchar(id)==0 | nchar(pwd)==0)){
       message('Please provide authentication for CDSE if you want to get geometry of acquisition')
       message('Activate OAuth clients following this link')
       message('https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings')
-    } else if (geomAcq & nchar(id)>0 & nchar(pwd)>0){
+    } else if (geom_acq & nchar(id)>0 & nchar(pwd)>0){
       message('get S2 geometry of acquisition of tiles overlapping with aoi')
       # limit to 10 CPU for download using CDSE (errors raised when too many CPUs)
       nbCPU_CDSE <- min(c(8, nbCPU))
-      get_s2_geom_acq(dsn_S2tiles = S2_grid$dsn_S2tiles, datetime = datetime,
+      get_s2_geom_acq(dsn_s2_tiles = S2_grid$dsn_s2_tiles, datetime = datetime,
                      cloudcover = cloudcover,
                      output_dir = output_dir, overwrite = overwrite, nbCPU = nbCPU_CDSE)
     }
     # download S2 data
     message('download S2 collection')
     stac_info <- get_stac_info(stac_info)
-    S2tiles <- S2_grid$S2tiles
+    s2_tiles <- S2_grid$s2_tiles
     S2_items <- get_s2_collection(plots = plots[missing],
                                   datetime = datetime,
                                   nbCPU = nbCPU,
-                                  S2tiles = S2tiles,
+                                  s2_tiles = s2_tiles,
                                   output_dir = output_dir,
                                   cloudcover = cloudcover,
                                   mask_path = mask_path,
@@ -127,18 +127,18 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                                   resolution = resolution,
                                   stac_info = stac_info,
                                   overwrite = overwrite,
-                                  siteName = siteName,
+                                  site_name = site_name,
                                   doublecheckColl = doublecheckColl,
                                   offset = offset,
                                   offset_B2 = offset_B2,
                                   corr_BRF = corr_BRF,
-                                  RadiometricFilter = RadiometricFilter,
+                                  radiometric_filter = radiometric_filter,
                                   rast_out = F,
                                   crs_target = crs_target,
                                   additional_process = additional_process,
                                   original_clouds = original_clouds,
                                   argsin = argsin, writeoutput = writeoutput,
-                                  bands2correct = bands2correct)
+                                  bands_to_correct = bands_to_correct)
   }
   tilingInfo <- list('plots' = plots,
                      'dsn_grid' = path_grid$dsn_grid,

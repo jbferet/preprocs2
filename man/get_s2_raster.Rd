@@ -9,7 +9,7 @@ get_s2_raster(
   bbox = NULL,
   datetime,
   output_dir,
-  siteName = NULL,
+  site_name = NULL,
   stac_info = NULL,
   options = NULL
 )
@@ -23,22 +23,22 @@ get_s2_raster(
 
 \item{output_dir}{character. path for output directory}
 
-\item{siteName}{character. name of the study site}
+\item{site_name}{character. name of the study site}
 
 \item{stac_info}{list. stac provider, name of collection url for stac}
 
 \item{options}{may include
 \itemize{
 \item cloudcover numeric. cloud cover
-\item path_S2tilinggrid character. path for the Sentinel-2_tiling_grid.kml file
+\item path_S2_tiling_grid character. path for the Sentinel-2_tiling_grid.kml file
 \item overwrite boolean.
-\item geomAcq boolean.
+\item geom_acq boolean.
 \item collection character.
 \item stac_url character.
 \item additional_process additional process to be applied to S2_items once downloaded
-\item bands2correct character. name of bands to correct from geometry
+\item bands_to_correct character. name of bands to correct from geometry
 \item fraction_vegetation numeric. minimum fraction vegetation to consider acquisition
-\item RadiometricFilter list.
+\item radiometric_filter list.
 }}
 }
 \value{

@@ -16,21 +16,21 @@
 get_s2_geom_acq_collection <- function(aoi, datetime, collection = "sentinel-2-l2a",
                                 OAuthToken, cloudcover, output_dir, overwrite = F){
   # create directories
-  collection_dir_geom <- file.path(output_dir, 'collections', 'geomAcq_S2')
+  collection_dir_geom <- file.path(output_dir, 'collections', 'geom_acq_S2')
   dir.create(collection_dir_geom, showWarnings = F, recursive = T)
   FileName <- file.path(collection_dir_geom,'collection_CDSE_geometry.rds')
   if (! file.exists(FileName) | overwrite==T){
-    collection_GeomAcq_S2 <- CDSE::SearchCatalog(aoi = sf::st_zm(aoi),
+    collection_geom_acq_S2 <- CDSE::SearchCatalog(aoi = sf::st_zm(aoi),
                                                  from = datetime$from, to = datetime$to,
                                                  collection = collection,
                                                  filter = paste0("eo:cloud_cover < ",cloudcover),
                                                  token = OAuthToken)
     # filter tile
-    sel <- which(get_tile(collection_GeomAcq_S2$sourceId) %in% aoi$Name)
-    collection_GeomAcq_S2 <- collection_GeomAcq_S2[sel,]
-    saveRDS(object = collection_GeomAcq_S2, file = FileName)
+    sel <- which(get_tile(collection_geom_acq_S2$sourceId) %in% aoi$Name)
+    collection_geom_acq_S2 <- collection_geom_acq_S2[sel,]
+    saveRDS(object = collection_geom_acq_S2, file = FileName)
   } else {
-    collection_GeomAcq_S2 <- readRDS(file = FileName)
+    collection_geom_acq_S2 <- readRDS(file = FileName)
   }
-  return(collection_GeomAcq_S2)
+  return(collection_geom_acq_S2)
 }

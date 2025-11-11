@@ -13,8 +13,8 @@ apply_radiometric_filter(
   mask_path = NULL,
   aoiplot,
   fraction_vegetation,
-  siteName = NULL,
-  RadiometricFilter = NULL,
+  site_name = NULL,
+  radiometric_filter = NULL,
   asset_cloud,
   original_clouds = TRUE,
   overwrite = TRUE,
@@ -38,9 +38,9 @@ apply_radiometric_filter(
 
 \item{fraction_vegetation}{minimum fraction of vegetation required to keep the acquisition}
 
-\item{siteName}{character. name of the study site}
+\item{site_name}{character. name of the study site}
 
-\item{RadiometricFilter}{list. criterions for cloud, shade, non vegetation}
+\item{radiometric_filter}{list. criterions for cloud, shade, non vegetation}
 
 \item{asset_cloud}{character. asset name for cloud mask}
 

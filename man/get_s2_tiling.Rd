@@ -11,10 +11,10 @@ get_s2_tiling(
   output_dir,
   cloudcover = 99,
   overwrite = T,
-  siteName = NULL,
-  path_S2tilinggrid = "Sentinel-2_tiling_grid.kml",
+  site_name = NULL,
+  path_S2_tiling_grid = "Sentinel-2_tiling_grid.kml",
   stac_info,
-  geomAcq = F,
+  geom_acq = F,
   nbCPU = 1,
   mask_path = NULL,
   resolution = 10,
@@ -24,7 +24,7 @@ get_s2_tiling(
   offset_B2 = F,
   corr_BRF = F,
   crs_target = NULL,
-  RadiometricFilter = NULL,
+  radiometric_filter = NULL,
   additional_process = NULL,
   original_clouds = T,
   cellsize = 10000,
@@ -32,7 +32,7 @@ get_s2_tiling(
   argsin = NULL,
   writeoutput = T,
   bypassDL = F,
-  bands2correct = c("B8A", "B11", "B12")
+  bands_to_correct = c("B8A", "B11", "B12")
 )
 }
 \arguments{
@@ -48,13 +48,13 @@ get_s2_tiling(
 
 \item{overwrite}{boolean.}
 
-\item{siteName}{character. name of the study site}
+\item{site_name}{character. name of the study site}
 
-\item{path_S2tilinggrid}{character. path for the Sentinel-2_tiling_grid.kml file}
+\item{path_S2_tiling_grid}{character. path for the Sentinel-2_tiling_grid.kml file}
 
 \item{stac_info}{list. stac provider, name of collection url for stac}
 
-\item{geomAcq}{boolean.}
+\item{geom_acq}{boolean.}
 
 \item{nbCPU}{numeric.}
 
@@ -74,7 +74,7 @@ get_s2_tiling(
 
 \item{crs_target}{numeric.}
 
-\item{RadiometricFilter}{list.}
+\item{radiometric_filter}{list.}
 
 \item{additional_process}{additional process to be applied to S2_items once downloaded}
 
@@ -90,7 +90,7 @@ get_s2_tiling(
 
 \item{bypassDL}{boolean. the download of S2 data is not performed}
 
-\item{bands2correct}{character. name of bands to correct from geometry}
+\item{bands_to_correct}{character. name of bands to correct from geometry}
 }
 \value{
 plots list of plots

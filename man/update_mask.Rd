@@ -16,8 +16,8 @@ update_mask(
   resolution = 10,
   offset = 1000,
   overwrite = FALSE,
-  RadiometricFilter = NULL,
-  siteName = NULL,
+  radiometric_filter = NULL,
+  site_name = NULL,
   crs_target = NULL,
   original_clouds = TRUE,
   S2_items = NULL,
@@ -47,9 +47,9 @@ update_mask(
 
 \item{overwrite}{boolean.}
 
-\item{RadiometricFilter}{list.}
+\item{radiometric_filter}{list.}
 
-\item{siteName}{character. name of the study site}
+\item{site_name}{character. name of the study site}
 
 \item{crs_target}{numeric.}
 

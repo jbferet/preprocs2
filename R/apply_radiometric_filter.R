@@ -8,9 +8,9 @@
 #' @param mask_path path for binary mask
 #' @param aoiplot sf.
 #' @param fraction_vegetation minimum fraction of vegetation required to keep the acquisition
-#' @param RadiometricFilter list. criterions for cloud, shade, non vegetation
+#' @param radiometric_filter list. criterions for cloud, shade, non vegetation
 #' @param asset_cloud character. asset name for cloud mask
-#' @param siteName character. name of the study site
+#' @param site_name character. name of the study site
 #' @param original_clouds boolean
 #' @param overwrite boolean
 #' @param writeoutput boolean. should output file be saved?
@@ -21,23 +21,23 @@
 #'
 apply_radiometric_filter <- function(S2_item, acq, iChar, raster_dir,
                                      cloudmask, mask_path = NULL, aoiplot,
-                                     fraction_vegetation, siteName = NULL,
-                                     RadiometricFilter = NULL, asset_cloud,
+                                     fraction_vegetation, site_name = NULL,
+                                     radiometric_filter = NULL, asset_cloud,
                                      original_clouds = TRUE, overwrite = TRUE,
                                      writeoutput = TRUE){
 
   # define root path for output files
-  if (is.null(siteName))
+  if (is.null(site_name))
     prefix <- file.path(raster_dir, paste0('plot_',iChar,'_',acq))
-  if (!is.null(siteName))
-    prefix <- file.path(raster_dir, paste0(siteName,'_',iChar,'_',acq))
+  if (!is.null(site_name))
+    prefix <- file.path(raster_dir, paste0(site_name,'_',iChar,'_',acq))
   bin_mask_file <- paste0(prefix, '_BIN.tiff')
   bin_mask_filtered <- paste0(prefix, '_BIN_v2.tiff')
   cloudmask_path <- paste0(prefix, '_',asset_cloud,'.tiff')
   mask_update <- NULL
   # radiometric filter
-  if (is.null(RadiometricFilter))
-    RadiometricFilter <- list('cloudMask' = 350,
+  if (is.null(radiometric_filter))
+    radiometric_filter <- list('cloudMask' = 350,
                               'shadeMask' = 1500,
                               'NDVIMask' = 0.65)
   validity <- TRUE
@@ -46,9 +46,9 @@ apply_radiometric_filter <- function(S2_item, acq, iChar, raster_dir,
                              S2_dl = S2_item,
                              aoiplot = aoiplot)
     ndvi <- (S2_item$B08-S2_item$B04)/(S2_item$B08+S2_item$B04)
-    sel <- S2_item$B02 < RadiometricFilter$cloudMask &
-      S2_item$B08 > RadiometricFilter$shadeMask &
-      ndvi > RadiometricFilter$NDVIMask
+    sel <- S2_item$B02 < radiometric_filter$cloudMask &
+      S2_item$B08 > radiometric_filter$shadeMask &
+      ndvi > radiometric_filter$NDVIMask
     # get SCL
     if (asset_cloud == 'SCL') {
       bin_mask <- cloudmask
