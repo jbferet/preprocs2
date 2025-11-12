@@ -13,6 +13,9 @@
 #'
 #'
 #' @return filename_si list of file paths produced
+#' @importFrom tools file_path_sans_ext
+#' @importFrom terra vrt
+#' @importFrom progressr handlers progressor with_progress
 #' @export
 
 compute_si_from_grid <- function(rast_path, mask_path = NULL, plots, site_name, si_list,
@@ -42,7 +45,23 @@ compute_si_from_grid <- function(rast_path, mask_path = NULL, plots, site_name, 
                                             sensor_name = sensor_name,
                                             site_name = site_name,
                                             overwrite = overwrite,
+                                            ReflFactor = ReflFactor,
                                             p = p),
                             SIMPLIFY = F)}))
+
+  # create vrt for spectral indices
+  output_vrt <- file.path(output_dir, 'spectral_indices_vrt')
+  dir.create(path = output_vrt, showWarnings = FALSE, recursive = TRUE)
+  si_path_vrt <- list()
+  raster_name <- tools::file_path_sans_ext(basename(rast_path))
+  si_dir <- file.path(output_dir_si, 'spectral_indices')
+  for (si in si_list){
+    output_vrt_path <- file.path(output_vrt, paste0(raster_name, '_', si, '.vrt'))
+    si_path_vrt[[si]] <- lapply(output_dir_si, '[[', si)
+    v <- terra::vrt(x = unlist(si_path_vrt[[si]]),
+                    filename = output_vrt_path, overwrite = TRUE)
+  }
+
+
   return(output_dir_si)
 }

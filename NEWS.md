@@ -9,6 +9,9 @@
   - GeomAcq ->  geom_acq 
   - S2tiles ->  s2_tiles
 
+## addition
+- computes vrt when running 'compute_si_from_grid'
+
 # preprocS2 v2.5.15
 
 ## addition
