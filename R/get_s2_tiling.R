@@ -140,6 +140,35 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                                   argsin = argsin, writeoutput = writeoutput,
                                   bands_to_correct = bands_to_correct)
   }
+  # produce a vrt if acquisition over a unique day
+  if (datetime$from == (datetime$to-1)){
+    if (writeoutput){
+      message('writing VRT for reflectance data')
+      listfiles <- list.files(s2_raster_dir,
+                              pattern = paste0(datetime$from, '.tiff'),
+                              full.names = TRUE)
+      output_vrt_path <- file.path(output_dir,
+                                   paste0(site_name, '_',
+                                          datetime$to,'_mosaic.vrt'))
+      message(output_vrt_path)
+      v <- terra::vrt(x = listfiles, filename = output_vrt_path)
+    }
+    if (!is.null(argsin$output_path)){
+      if (dir.exists(argsin$output_path)){
+        if (!is.null(argsin$SI_list)){
+          message('writing VRT for spectral indices')
+          for (si in argsin$SI_list){
+            listfiles <- list.files(argsin$output_path,
+                                    pattern = paste0(si,'.tiff'),
+                                    full.names = TRUE)
+            output_vrt_path <- file.path(output_dir, paste0(site_name, '_', si, '_', datetime$to,'_mosaic.vrt'))
+            v <- terra::vrt(x = listfiles, filename = output_vrt_path)
+          }
+        }
+      }
+    }
+  }
+
   tilingInfo <- list('plots' = plots,
                      'dsn_grid' = path_grid$dsn_grid,
                      'cellsize' = cellsize)

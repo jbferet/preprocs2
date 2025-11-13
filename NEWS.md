@@ -11,6 +11,7 @@
 
 ## addition
 - computes vrt when running 'compute_si_from_grid'
+- computes vrt when running 'get_s2_tiling' for a unique date of acquisition
 
 # preprocS2 v2.5.15
 
