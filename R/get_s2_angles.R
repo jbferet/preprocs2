@@ -15,7 +15,7 @@ get_s2_angles <- function(path_angles, path_bbox, dateAcq = NULL){
   if (inherits(x = path_angles, what = 'list')){
     if (FALSE %in% file.exists(unlist(path_angles))){
       message('please provide either')
-      message('- path for geometry of acquisition saved by preprocS2 in "geomAcq_S2" directory')
+      message('- path for geometry of acquisition saved by preprocS2 in "geom_acq_S2" directory')
       message('or' )
       message('- list of files "saa", "sza", "vaa" and "vza" including aoi')
       stop_quietly()
@@ -33,7 +33,7 @@ get_s2_angles <- function(path_angles, path_bbox, dateAcq = NULL){
       message('These files are needed but were not found:')
       print(path_angles)
       message('please provide either')
-      message('- path for geometry of acquisition saved by preprocS2 in "geomAcq_S2" directory')
+      message('- path for geometry of acquisition saved by preprocS2 in "geom_acq_S2" directory')
       message('or' )
       message('- list of files "saa", "sza", "vaa" and "vza" including aoi')
       stop_quietly()

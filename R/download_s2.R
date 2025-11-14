@@ -10,10 +10,10 @@
 #' @param offset_B2 boolean.
 #' @param stac_info list.
 #' @param corr_BRF boolean.
-#' @param siteName character. name of the study site
+#' @param site_name character. name of the study site
 #' @param crs_target numeric.
 #' @param writeoutput boolean. should output file be saved?
-#' @param bands2correct character. name of bands to correct from geometry
+#' @param bands_to_correct character. name of bands to correct from geometry
 #' @param overwrite boolean.
 #'
 #' @return list of collections per plot
@@ -25,8 +25,8 @@
 download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                         S2_items = NULL, offset = 1000, offset_B2 = F,
                         stac_info, corr_BRF = F,
-                        siteName = NULL, crs_target = NULL, writeoutput = T,
-                        bands2correct = c('B8A', 'B11', 'B12'), overwrite = T){
+                        site_name = NULL, crs_target = NULL, writeoutput = T,
+                        bands_to_correct = c('B8A', 'B11', 'B12'), overwrite = T){
 
   item_collection <- readRDS(file = collection_path)
   asset_cloud <- get_cloud_asset(stac_info = stac_info)
@@ -76,10 +76,10 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
     acq <- as.character(item_collection$acquisitionDate[[i]])
 
     # define reflectance file name and check if exists
-    if (is.null(siteName))
+    if (is.null(site_name))
       filename <- file.path(raster_dir, paste0('plot_',iChar,'_', acq, '.tiff'))
-    if (!is.null(siteName))
-      filename <- file.path(raster_dir, paste0(siteName,'_',iChar,'_', acq, '.tiff'))
+    if (!is.null(site_name))
+      filename <- file.path(raster_dir, paste0(site_name,'_',iChar,'_', acq, '.tiff'))
 
     if (file.exists(filename) & overwrite == FALSE){
       s2_items[[acq]] <- terra::rast(x = filename)
@@ -88,7 +88,7 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                                           acq = acq, raster_dir = raster_dir,
                                           aoi = aoi, offset_B2 = offset_B2,
                                           corr_BRF = corr_BRF,
-                                          bands2correct = bands2correct)
+                                          bands_to_correct = bands_to_correct)
       # save reflectance file
       if (writeoutput)
         terra::writeRaster(x = s2_items[[acq]], filename = filename, overwrite = T)

@@ -1,3 +1,18 @@
+# preprocS2 v2.6.0
+
+## change
+- renamed variable names to harmonize with biodivMapR and prosail
+  - siteName ->  site_name
+  - RadiometricFilter ->  radiometric_filter 
+  - path_S2tilinggrid ->  path_S2_tiling_grid  
+  - bands2correct ->  bands_to_correct 
+  - GeomAcq ->  geom_acq 
+  - S2tiles ->  s2_tiles
+
+## addition
+- computes vrt when running 'compute_si_from_grid'
+- computes vrt when running 'get_s2_tiling' for a unique date of acquisition
+
 # preprocS2 v2.5.15
 
 ## addition

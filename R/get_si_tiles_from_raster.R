@@ -10,7 +10,7 @@
 #' @param overwrite boolean.
 #' @param spectral_bands numeric.
 #' @param sensor_name character. either sentinel-2 or landsat
-#' @param siteName character.
+#' @param site_name character.
 #' @param ReflFactor numeric.
 #' @param p object
 #'
@@ -23,7 +23,7 @@
 get_si_tiles_from_raster <- function(aoi, aoi_ID, rast_path, mask_path = NULL,
                                      si_list, output_dir, overwrite = FALSE,
                                      spectral_bands, sensor_name = 'sentinel-2',
-                                     siteName, ReflFactor = 10000, p = NULL){
+                                     site_name, ReflFactor = 10000, p = NULL){
 
   rast_obj <- terra::rast(rast_path)
   if (!is.null(mask_path)){
@@ -41,7 +41,7 @@ get_si_tiles_from_raster <- function(aoi, aoi_ID, rast_path, mask_path = NULL,
   # which files are expected as outputs
   # filename_mask <- file.path(output_dir_mask, paste0('mask_',aoi_ID,'.tiff'))
   filename_si <- as.list(file.path(output_dir_si,
-                                   paste0(siteName, '_', aoi_ID,
+                                   paste0(site_name, '_', aoi_ID,
                                           '_', si_list, '.tiff')))
   names(filename_si) <- si_list
 

@@ -10,8 +10,8 @@
 #' @param stac_info list.
 #' @param fraction_vegetation numeric. minimum % of vegetatiomn to have on plot footprint
 #' @param offset numeric. value of S2 offset
-#' @param RadiometricFilter list. list of radiometric filters for shade, clouds and vegetation
-#' @param siteName character. name of the study site
+#' @param radiometric_filter list. list of radiometric filters for shade, clouds and vegetation
+#' @param site_name character. name of the study site
 #' @param crs_target numeric.
 #' @param original_clouds boolean
 #' @param overwrite boolean
@@ -27,7 +27,7 @@
 get_B248_filter <- function(raster_dir, mask_path, item_collection, cloudmasks,
                             iChar, aoi, resolution,
                             stac_info, fraction_vegetation, offset = 1000,
-                            RadiometricFilter = NULL, siteName,
+                            radiometric_filter = NULL, site_name,
                             crs_target = NULL,
                             original_clouds = original_clouds, overwrite = F,
                             S2_items = NULL, writeoutput = T){
@@ -65,9 +65,9 @@ get_B248_filter <- function(raster_dir, mask_path, item_collection, cloudmasks,
                                            iChar = iChar,
                                            aoiplot = aoi,
                                            fraction_vegetation = fraction_vegetation,
-                                           RadiometricFilter = RadiometricFilter,
+                                           radiometric_filter = radiometric_filter,
                                            asset_cloud = asset_cloud,
-                                           siteName = siteName,
+                                           site_name = site_name,
                                            original_clouds = original_clouds,
                                            overwrite = overwrite,
                                            writeoutput = writeoutput),

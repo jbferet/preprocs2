@@ -9,7 +9,7 @@ correct_geom(
   output_dir,
   aoi,
   acq,
-  bands2correct = c("B8A", "B11", "B12")
+  bands_to_correct = c("B8A", "B11", "B12")
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ correct_geom(
 
 \item{acq}{date of acquisition}
 
-\item{bands2correct}{character. name of bands to correct from geometry}
+\item{bands_to_correct}{character. name of bands to correct from geometry}
 }
 \value{
 list of collections per plot

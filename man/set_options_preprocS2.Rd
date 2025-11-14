@@ -12,13 +12,13 @@ set_options_preprocS2(fun, options = NULL)
 \item{options}{list. including
 \itemize{
 \item cloudcover
-\item path_S2tilinggrid
+\item path_S2_tiling_grid
 \item overwrite
-\item geomAcq
+\item geom_acq
 \item additional_process
-\item bands2correct
+\item bands_to_correct
 \item fraction_vegetation
-\item RadiometricFilter
+\item radiometric_filter
 }}
 }
 \value{

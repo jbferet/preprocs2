@@ -12,16 +12,16 @@
 #' @param offset_B2 boolean.
 #' @param corr_BRF boolean.
 #' @param p list.
-#' @param RadiometricFilter list. values for radiometric filter shade cloud vegetation
+#' @param radiometric_filter list. values for radiometric filter shade cloud vegetation
 #' @param overwrite boolean.
-#' @param siteName character. name of the study site
+#' @param site_name character. name of the study site
 #' @param rast_out boolean. should S2 SpatRaster be obtained as output?
 #' @param additional_process additional process to be applied to S2_items once downloaded
 #' @param crs_target numeric.
 #' @param original_clouds boolean
 #' @param argsin list
 #' @param writeoutput boolean. should output file be saved?
-#' @param bands2correct character. name of bands to correct from geometry
+#' @param bands_to_correct character. name of bands to correct from geometry
 #'
 #'
 #' @return list of collections per plot
@@ -31,16 +31,16 @@ download_s2_collection <- function(collection_path, aoi, iChar, raster_dir,
                                   mask_path = NULL, fraction_vegetation = 5,
                                   stac_info, resolution = 10,
                                   offset = 1000, offset_B2 = F, corr_BRF = F,
-                                  p = NULL, RadiometricFilter = NULL,
-                                  overwrite = T, siteName = NULL, rast_out = T,
+                                  p = NULL, radiometric_filter = NULL,
+                                  overwrite = T, site_name = NULL, rast_out = T,
                                   additional_process = NULL, crs_target = NULL,
                                   original_clouds = TRUE, argsin = NULL,
                                   writeoutput = T,
-                                  bands2correct = c('B8A', 'B11', 'B12')){
+                                  bands_to_correct = c('B8A', 'B11', 'B12')){
   # get collection cloud masks
   cloudmasks <- get_cloudmask(collection_path = collection_path, aoi = aoi,
                               iChar = iChar, raster_dir = raster_dir,
-                              overwrite = overwrite, siteName = siteName,
+                              overwrite = overwrite, site_name = site_name,
                               fraction_vegetation = fraction_vegetation,
                               stac_info = stac_info, resolution = resolution,
                               crs_target = crs_target)
@@ -50,9 +50,9 @@ download_s2_collection <- function(collection_path, aoi, iChar, raster_dir,
                         iChar = iChar, raster_dir = raster_dir,
                         mask_path = mask_path, cloudmasks = cloudmasks,
                         fraction_vegetation = fraction_vegetation,
-                        siteName = siteName, offset = offset,
+                        site_name = site_name, offset = offset,
                         stac_info = stac_info, resolution = resolution,
-                        RadiometricFilter = RadiometricFilter,
+                        radiometric_filter = radiometric_filter,
                         overwrite = overwrite, crs_target = crs_target,
                         original_clouds = original_clouds,
                         writeoutput = writeoutput)
@@ -65,9 +65,9 @@ download_s2_collection <- function(collection_path, aoi, iChar, raster_dir,
                             collection_path = collection_path,
                             S2_items = S2data$S2_items, resolution = resolution,
                             offset = offset, offset_B2 = offset_B2,
-                            corr_BRF = corr_BRF, siteName = siteName,
+                            corr_BRF = corr_BRF, site_name = site_name,
                             crs_target = crs_target, writeoutput = writeoutput,
-                            bands2correct = bands2correct,
+                            bands_to_correct = bands_to_correct,
                             overwrite = overwrite)
 
     # if (corr_BRF | offset_B2){
@@ -75,9 +75,9 @@ download_s2_collection <- function(collection_path, aoi, iChar, raster_dir,
     #                         iChar = iChar, raster_dir = raster_dir,
     #                         mask_path = mask_path, cloudmasks = cloudmasks,
     #                         fraction_vegetation = fraction_vegetation,
-    #                         siteName = siteName, offset = offset,
+    #                         site_name = site_name, offset = offset,
     #                         collection = collection, resolution = resolution,
-    #                         RadiometricFilter = RadiometricFilter,
+    #                         radiometric_filter = radiometric_filter,
     #                         overwrite = T, crs_target = crs_target,
     #                         original_clouds = original_clouds,
     #                         S2_items = S2_items)

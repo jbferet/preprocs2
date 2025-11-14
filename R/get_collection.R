@@ -1,7 +1,7 @@
 #' gets collections for plot network using microsoft planetary
 #'
 #' @param aoi simple feature including a unique polygon
-#' @param S2tiles list. list of S2 tiles including each sf from list_aoi
+#' @param s2_tiles list. list of S2 tiles including each sf from list_aoi
 #' @param datetime list. define period 'from' / 'to' day of acquisition
 #' @param FileName character. filename for collection
 #' @param overwrite boolean. should collection and S2 data be overwritten?
@@ -15,7 +15,7 @@
 #' @importFrom magrittr %>%
 #' @export
 #'
-get_collection <- function(aoi, S2tiles = NULL, datetime, FileName, overwrite = T,
+get_collection <- function(aoi, s2_tiles = NULL, datetime, FileName, overwrite = T,
                            cloudcover = 100, stac_info){
 
   # get collection for plot, datetime and cloud cover
@@ -51,13 +51,13 @@ get_collection <- function(aoi, S2tiles = NULL, datetime, FileName, overwrite = 
       stop_quietly()
     }
     # select tiles which are identified as wanted (== fully contains plot)
-    if (!is.null(S2tiles) & unique(!is.na(S2tiles)))
-        collection_plot <- eliminate_incompleteTiles(collection_plot, S2tiles = S2tiles)
+    if (!is.null(s2_tiles) & unique(!is.na(s2_tiles)))
+        collection_plot <- eliminate_incompleteTiles(collection_plot, s2_tiles = s2_tiles)
     if (length(collection_plot$features)>0){
       # eliminates doublons in terms of date of acquisition
       s2id <- unlist(lapply(collection_plot$features,'[[','id'))
       tileID <- get_tile(s2id)
-      if  (!is.null(S2tiles) & unique(!is.na(S2tiles)))
+      if  (!is.null(s2_tiles) & unique(!is.na(s2_tiles)))
         collection_plot <- eliminate_doublons_dateAcq(collection_plot)
     }
   } else if (file.exists(FileName) & overwrite==F){

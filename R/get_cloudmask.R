@@ -9,7 +9,7 @@
 #' @param stac_info list.
 #' @param resolution numeric. spatial resolution (10 or 20)
 #' @param nbCPU numeric. number of CPU
-#' @param siteName character. name of the study site
+#' @param site_name character. name of the study site
 #' @param crs_target numeric.
 #'
 #' @return list of cloudmasks
@@ -18,7 +18,7 @@
 #'
 get_cloudmask <- function(collection_path, aoi, iChar, raster_dir, overwrite = F,
                           fraction_vegetation = 10, stac_info,
-                          resolution = 10, nbCPU = 1, siteName = NULL, crs_target = NULL){
+                          resolution = 10, nbCPU = 1, site_name = NULL, crs_target = NULL){
 
   # days of acquisition in ascending order
   cloudmasks <- NULL
@@ -39,15 +39,15 @@ get_cloudmask <- function(collection_path, aoi, iChar, raster_dir, overwrite = F
                                      stac_info = stac_info,
                                      item_collection = item_collection, iChar = iChar,
                                      resolution = resolution, asset_names = asset_names,
-                                     siteName = siteName, crs_target = crs_target)
+                                     site_name = site_name, crs_target = crs_target)
 
     # check if sufficient vegetation fraction cover
     elim <- NULL
     for (dateAcq in names(cloudmasks)){
-      if (is.null(siteName))
+      if (is.null(site_name))
         filename <- file.path(raster_dir,paste0('plot_',iChar,'_',dateAcq,suffix))
-      if (!is.null(siteName))
-        filename <- file.path(raster_dir,paste0(siteName,'_',iChar,'_',dateAcq,suffix))
+      if (!is.null(site_name))
+        filename <- file.path(raster_dir,paste0(site_name,'_',iChar,'_',dateAcq,suffix))
       total_pix <- length(which((terra::values(cloudmasks[[dateAcq]]))>0))
       # if using SCL allowing identifying vegetation pixels
       if (asset_names == 'SCL'){

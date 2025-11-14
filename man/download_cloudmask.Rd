@@ -12,7 +12,7 @@ download_cloudmask(
   stac_info,
   asset_names,
   resolution,
-  siteName = NULL,
+  site_name = NULL,
   crs_target = NULL
 )
 }
@@ -31,7 +31,7 @@ download_cloudmask(
 
 \item{resolution}{numeric. spatial resolution (10 or 20)}
 
-\item{siteName}{character. name of the study site}
+\item{site_name}{character. name of the study site}
 
 \item{crs_target}{numeric.}
 }

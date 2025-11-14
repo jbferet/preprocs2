@@ -15,8 +15,8 @@ get_B248_filter(
   stac_info,
   fraction_vegetation,
   offset = 1000,
-  RadiometricFilter = NULL,
-  siteName,
+  radiometric_filter = NULL,
+  site_name,
   crs_target = NULL,
   original_clouds = original_clouds,
   overwrite = F,
@@ -45,9 +45,9 @@ get_B248_filter(
 
 \item{offset}{numeric. value of S2 offset}
 
-\item{RadiometricFilter}{list. list of radiometric filters for shade, clouds and vegetation}
+\item{radiometric_filter}{list. list of radiometric filters for shade, clouds and vegetation}
 
-\item{siteName}{character. name of the study site}
+\item{site_name}{character. name of the study site}
 
 \item{crs_target}{numeric.}
 

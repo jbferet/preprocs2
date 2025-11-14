@@ -8,7 +8,7 @@ compute_si_from_grid(
   rast_path,
   mask_path = NULL,
   plots,
-  siteName,
+  site_name,
   si_list,
   output_dir,
   overwrite = FALSE,
@@ -24,7 +24,7 @@ compute_si_from_grid(
 
 \item{plots}{list. list of plots (sf object)}
 
-\item{siteName}{character.}
+\item{site_name}{character.}
 
 \item{si_list}{character.}
 

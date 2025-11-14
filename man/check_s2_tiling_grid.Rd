@@ -4,10 +4,10 @@
 \alias{check_s2_tiling_grid}
 \title{check if S2 tiling grid is available}
 \usage{
-check_s2_tiling_grid(path_S2tilinggrid = NULL)
+check_s2_tiling_grid(path_S2_tiling_grid = NULL)
 }
 \arguments{
-\item{path_S2tilinggrid}{character. path for S2 tiling grid}
+\item{path_S2_tiling_grid}{character. path for S2 tiling grid}
 }
 \value{
 valid path for S2 tiling grid

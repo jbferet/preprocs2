@@ -12,7 +12,7 @@ correct_s2_stack(
   aoi,
   offset_B2 = F,
   corr_BRF = F,
-  bands2correct = c("B8A", "B11", "B12")
+  bands_to_correct = c("B8A", "B11", "B12")
 )
 }
 \arguments{
@@ -28,7 +28,7 @@ correct_s2_stack(
 
 \item{corr_BRF}{boolean.}
 
-\item{bands2correct}{character. name of bands to correct from geometry}
+\item{bands_to_correct}{character. name of bands to correct from geometry}
 }
 \value{
 list of collections per plot

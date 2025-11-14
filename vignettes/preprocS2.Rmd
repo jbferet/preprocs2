@@ -89,14 +89,14 @@ sf::st_crs(x = bbox) <- 4326
 # make sure you define a CRS corresponding to S2 product if you do not want reprojection and asociated resampling
 
 # get tiling grid kml from https://sentiwiki.copernicus.eu/web/s2-products
-path_S2tilinggrid <- 'Sentinel-2_tiling_grid.kml'
+path_S2_tiling_grid <- 'Sentinel-2_tiling_grid.kml'
 
 # 3- get S2 acquisition 
 list_files <- get_s2_raster(bbox = bbox, datetime = datetime, 
                             output_dir = output_dir, 
-                            path_S2tilinggrid = path_S2tilinggrid, 
-                            siteName = 'FrenchGuiana',
-                            overwrite = F, geomAcq = T)
+                            path_S2_tiling_grid = path_S2_tiling_grid, 
+                            site_name = 'FrenchGuiana',
+                            overwrite = F, geom_acq = T)
 
 # Sentinel-2 L2A reflectance
 Refl_L2A <- list_files$Refl_L2A
@@ -113,7 +113,7 @@ Different subdirectories are created.
 
 -   `collections` includes the item collection corresponding to the scene of interest
 -   `raster_samples` includes rasters corresponding to BOA reflectance, scene classification (SCL) and a binary mask identifying vegetated pixels after radiometric filters excluding shaded pixels, cloudy pixels and non-vegetated pixels
--   `geomAcq_S2` includes rasters corresponding to the geometry of acquisition (SAA, SZA, VAA, VZA)
+-   `geom_acq_S2` includes rasters corresponding to the geometry of acquisition (SAA, SZA, VAA, VZA)
 
 ## Download S2 subset from a STAC catalog based on a vector footprint
 
@@ -142,14 +142,14 @@ aoi_path <- file.path(output_dir, 'S2_FrenchGuiana_aoi.GPKG')
 sf::st_write(obj = bbox_to_poly(x = bbox), dsn = aoi_path, 
              driver = 'GPKG', delete_layer = TRUE)
 # get tiling grid kml from https://sentiwiki.copernicus.eu/web/s2-products
-path_S2tilinggrid <- 'Sentinel-2_tiling_grid.kml'
+path_S2_tiling_grid <- 'Sentinel-2_tiling_grid.kml'
 
 # 3- get S2 acquisition 
 list_files <- get_s2_raster(aoi_path = aoi_path, datetime = datetime, 
                             output_dir = output_dir, 
-                            path_S2tilinggrid = path_S2tilinggrid, 
-                            siteName = 'FrenchGuiana',
-                            overwrite = F, geomAcq = T)
+                            path_S2_tiling_grid = path_S2_tiling_grid, 
+                            site_name = 'FrenchGuiana',
+                            overwrite = F, geom_acq = T)
 # Sentinel-2 L2A reflectance
 Refl_L2A <- list_files$Refl_L2A
 # Sentinel-2 binary mask identifying vegetation, discarding clouds & shadows

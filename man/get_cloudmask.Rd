@@ -14,7 +14,7 @@ get_cloudmask(
   stac_info,
   resolution = 10,
   nbCPU = 1,
-  siteName = NULL,
+  site_name = NULL,
   crs_target = NULL
 )
 }
@@ -37,7 +37,7 @@ get_cloudmask(
 
 \item{nbCPU}{numeric. number of CPU}
 
-\item{siteName}{character. name of the study site}
+\item{site_name}{character. name of the study site}
 
 \item{crs_target}{numeric.}
 }

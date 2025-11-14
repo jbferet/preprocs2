@@ -15,10 +15,10 @@ download_s2(
   offset_B2 = F,
   stac_info,
   corr_BRF = F,
-  siteName = NULL,
+  site_name = NULL,
   crs_target = NULL,
   writeoutput = T,
-  bands2correct = c("B8A", "B11", "B12"),
+  bands_to_correct = c("B8A", "B11", "B12"),
   overwrite = T
 )
 }
@@ -43,13 +43,13 @@ download_s2(
 
 \item{corr_BRF}{boolean.}
 
-\item{siteName}{character. name of the study site}
+\item{site_name}{character. name of the study site}
 
 \item{crs_target}{numeric.}
 
 \item{writeoutput}{boolean. should output file be saved?}
 
-\item{bands2correct}{character. name of bands to correct from geometry}
+\item{bands_to_correct}{character. name of bands to correct from geometry}
 
 \item{overwrite}{boolean.}
 }

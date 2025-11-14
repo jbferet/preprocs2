@@ -6,7 +6,7 @@
 \usage{
 get_s2_collection(
   plots,
-  S2tiles = NULL,
+  s2_tiles = NULL,
   datetime,
   output_dir,
   mask_path = NULL,
@@ -20,21 +20,21 @@ get_s2_collection(
   offset = 1000,
   offset_B2 = F,
   corr_BRF = F,
-  RadiometricFilter = NULL,
-  siteName = NULL,
+  radiometric_filter = NULL,
+  site_name = NULL,
   rast_out = T,
   additional_process = NULL,
   crs_target = NULL,
   original_clouds = TRUE,
   argsin = NULL,
   writeoutput = T,
-  bands2correct = c("B8A", "B11", "B12")
+  bands_to_correct = c("B8A", "B11", "B12")
 )
 }
 \arguments{
 \item{plots}{list. sf objects corresponding to polygons}
 
-\item{S2tiles}{list. S2 tiles corresponding to the plots}
+\item{s2_tiles}{list. S2 tiles corresponding to the plots}
 
 \item{datetime}{list. define period 'from' / 'to' day of acquisition}
 
@@ -62,9 +62,9 @@ get_s2_collection(
 
 \item{corr_BRF}{boolean.}
 
-\item{RadiometricFilter}{list.}
+\item{radiometric_filter}{list.}
 
-\item{siteName}{character. name of the study site}
+\item{site_name}{character. name of the study site}
 
 \item{rast_out}{boolean. should S2 SpatRaster be obtained as output?}
 
@@ -78,7 +78,7 @@ get_s2_collection(
 
 \item{writeoutput}{boolean. should output file be saved?}
 
-\item{bands2correct}{character. name of bands to correct from geometry}
+\item{bands_to_correct}{character. name of bands to correct from geometry}
 }
 \value{
 list of collections per plot

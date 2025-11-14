@@ -15,7 +15,7 @@ get_si_tiles_from_raster(
   overwrite = FALSE,
   spectral_bands,
   sensor_name = "sentinel-2",
-  siteName,
+  site_name,
   ReflFactor = 10000,
   p = NULL
 )
@@ -39,7 +39,7 @@ get_si_tiles_from_raster(
 
 \item{sensor_name}{character. either sentinel-2 or landsat}
 
-\item{siteName}{character.}
+\item{site_name}{character.}
 
 \item{ReflFactor}{numeric.}
 

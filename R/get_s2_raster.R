@@ -4,26 +4,26 @@
 #' @param bbox bbox
 #' @param datetime character or date or list defining date of acquisition or time range
 #' @param output_dir character. path for output directory
-#' @param siteName character. name of the study site
+#' @param site_name character. name of the study site
 #' @param stac_info list. stac provider, name of collection url for stac
 #' @param options may include
 #'  - cloudcover numeric. cloud cover
-#'  - path_S2tilinggrid character. path for the Sentinel-2_tiling_grid.kml file
+#'  - path_S2_tiling_grid character. path for the Sentinel-2_tiling_grid.kml file
 #'  - overwrite boolean.
-#'  - geomAcq boolean.
+#'  - geom_acq boolean.
 #'  - collection character.
 #'  - stac_url character.
 #'  - additional_process additional process to be applied to S2_items once downloaded
-#'  - bands2correct character. name of bands to correct from geometry
+#'  - bands_to_correct character. name of bands to correct from geometry
 #'  - fraction_vegetation numeric. minimum fraction vegetation to consider acquisition
-#'  - RadiometricFilter list.
+#'  - radiometric_filter list.
 #'
 #' @return list of path corresponding to output files
 #' @importFrom sf st_write st_bbox st_read st_crs st_transform
 #' @export
 
 get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
-                          siteName = NULL, stac_info = NULL, options = NULL){
+                          site_name = NULL, stac_info = NULL, options = NULL){
 
   # set default options when not defined
   options <- set_options_preprocS2(fun = 'get_s2_raster', options = options)
@@ -41,10 +41,10 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
 
   # define s2 tiles corresponding to aoi
   message('get S2 tiles corresponding to aoi')
-  path_S2tilinggrid <- check_s2_tiling_grid(path_S2tilinggrid = options$path_S2tilinggrid)
+  path_S2_tiling_grid <- check_s2_tiling_grid(path_S2_tiling_grid = options$path_S2_tiling_grid)
   S2_grid <- get_s2_tiles(plots = plots, output_dir = output_dir,
-                          dsn_bbox = aoi$footprint_path, siteName = siteName,
-                          path_S2tilinggrid = path_S2tilinggrid,
+                          dsn_bbox = aoi$footprint_path, site_name = site_name,
+                          path_S2_tiling_grid = path_S2_tiling_grid,
                           overwrite = options$overwrite)
 
   path_geomfiles <- 'No geometry files requested'
@@ -54,13 +54,13 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
   pwd <- OAuth_client$pwd
   # id <- Sys.getenv("PREPROCS2_CDSE_ID")
   # pwd <- Sys.getenv("PREPROCS2_CDSE_SECRET")
-  if (options$geomAcq & (nchar(id)==0 | nchar(pwd)==0)){
+  if (options$geom_acq & (nchar(id)==0 | nchar(pwd)==0)){
     message('Please provide authentication for CDSE if you want to get geometry of acquisition')
     message('Activate OAuth clients following this link')
     message('https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings')
-  } else if (options$geomAcq & nchar(id)>0 & nchar(pwd)>0){
+  } else if (options$geom_acq & nchar(id)>0 & nchar(pwd)>0){
     message('get S2 geometry of acquisition of tiles overlapping with aoi')
-    path_geomfiles <- get_s2_geom_acq(dsn_S2tiles = S2_grid$dsn_S2tiles,
+    path_geomfiles <- get_s2_geom_acq(dsn_s2_tiles = S2_grid$dsn_s2_tiles,
                                       datetime = datetime,
                                       output_dir = output_dir,
                                       cloudcover = options$cloudcover,
@@ -70,25 +70,25 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
   # download S2 data
   message('download S2 collection')
   stac_info <- get_stac_info(stac_info)
-  S2tiles <- S2_grid$S2tiles
+  s2_tiles <- S2_grid$s2_tiles
   S2_items <- get_s2_collection(plots = plots,
                                 datetime = datetime,
-                                S2tiles = S2tiles,
+                                s2_tiles = s2_tiles,
                                 output_dir = output_dir,
                                 stac_info = stac_info,
-                                siteName = siteName,
+                                site_name = site_name,
                                 additional_process = options$additional_process,
-                                bands2correct = options$bands2correct,
-                                RadiometricFilter = options$RadiometricFilter,
+                                bands_to_correct = options$bands_to_correct,
+                                radiometric_filter = options$radiometric_filter,
                                 fraction_vegetation = options$fraction_vegetation,
                                 overwrite = options$overwrite)
 
   raster_dir <- file.path(output_dir, 'raster_samples')
   dir.create(path = raster_dir, showWarnings = F, recursive = T)
-  if (is.null(siteName))
+  if (is.null(site_name))
     prefix <- file.path(raster_dir, paste0('plot_001_',names(S2_items$`001`)))
-  if (!is.null(siteName))
-    prefix <- file.path(raster_dir, paste0(siteName,'_001_',
+  if (!is.null(site_name))
+    prefix <- file.path(raster_dir, paste0(site_name,'_001_',
                                            names(S2_items$`001`)))
 
   if (stac_info$collection =='sentinel-2-l2a')
