@@ -67,7 +67,8 @@ on the S2 tiling grid system.
 User can either download the corresponding kml 
 [`here`](https://sentiwiki.copernicus.eu/web/s2-products), or let `preprocS2` 
 download it.
-Access online is requested to download the tiling grid system.
+Access online is requested to download the tiling grid system during the first 
+run.
 
 ```{r get s2 from bbox}
 # library
@@ -84,19 +85,15 @@ bbox <- sf::st_bbox(obj = c('xmin' = -54.1, 'ymin' = 5.0,
                             'xmax' = -54.0, 'ymax' = 5.1))
 sf::st_crs(x = bbox) <- 4326
 
-# a CRS is required for the bbox. 
-# downloaded Sentinel-2 image will be reprojected using this CRS
-# make sure you define a CRS corresponding to S2 product if you do not want reprojection and asociated resampling
-
-# get tiling grid kml from https://sentiwiki.copernicus.eu/web/s2-products
-path_S2_tiling_grid <- 'Sentinel-2_tiling_grid.kml'
-
 # 3- get S2 acquisition 
-list_files <- get_s2_raster(bbox = bbox, datetime = datetime, 
+options <- set_options_preprocS2(fun = 'get_s2_raster')
+options$overwrite <- FALSE
+options$geom_acq <- TRUE
+list_files <- get_s2_raster(bbox = bbox, 
+                            datetime = datetime, 
                             output_dir = output_dir, 
-                            path_S2_tiling_grid = path_S2_tiling_grid, 
                             site_name = 'FrenchGuiana',
-                            overwrite = F, geom_acq = T)
+                            options = options)
 
 # Sentinel-2 L2A reflectance
 Refl_L2A <- list_files$Refl_L2A
@@ -136,20 +133,17 @@ sf::st_crs(x = bbox) <- 4326
 
 # a CRS is required for the bbox. 
 # downloaded Sentinel-2 image will be reprojected using this CRS
-# make sure you define a CRS corresponding to S2 product if you do not want reprojection and asociated resampling
-
+# make sure you define a CRS corresponding to S2 product if you do not want reprojection and associated resampling
 aoi_path <- file.path(output_dir, 'S2_FrenchGuiana_aoi.GPKG')
 sf::st_write(obj = bbox_to_poly(x = bbox), dsn = aoi_path, 
              driver = 'GPKG', delete_layer = TRUE)
-# get tiling grid kml from https://sentiwiki.copernicus.eu/web/s2-products
-path_S2_tiling_grid <- 'Sentinel-2_tiling_grid.kml'
 
 # 3- get S2 acquisition 
-list_files <- get_s2_raster(aoi_path = aoi_path, datetime = datetime, 
+list_files <- get_s2_raster(aoi_path = aoi_path, 
+                            datetime = datetime, 
                             output_dir = output_dir, 
-                            path_S2_tiling_grid = path_S2_tiling_grid, 
                             site_name = 'FrenchGuiana',
-                            overwrite = F, geom_acq = T)
+                            options = options)
 # Sentinel-2 L2A reflectance
 Refl_L2A <- list_files$Refl_L2A
 # Sentinel-2 binary mask identifying vegetation, discarding clouds & shadows
