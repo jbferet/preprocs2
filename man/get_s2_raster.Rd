@@ -7,6 +7,7 @@
 get_s2_raster(
   aoi_path = NULL,
   bbox = NULL,
+  mask_path = NULL,
   datetime,
   output_dir,
   site_name = NULL,
@@ -18,6 +19,8 @@ get_s2_raster(
 \item{aoi_path}{character. path for vector file defining aoi}
 
 \item{bbox}{bbox}
+
+\item{mask_path}{character. path for a vector or raster mask}
 
 \item{datetime}{character or date or list defining date of acquisition or time range}
 

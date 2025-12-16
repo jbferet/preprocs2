@@ -23,6 +23,8 @@ set_options_preprocS2 <- function(fun, options = NULL){
       options$path_S2_tiling_grid <- NULL
     if (is.null(options$overwrite))
       options$overwrite <- T
+    if (is.null(options$overwrite_geom_acq))
+      options$overwrite_geom_acq <- T
     if (is.null(options$geom_acq))
       options$geom_acq <- F
     if (is.null(options$additional_process))
@@ -31,8 +33,12 @@ set_options_preprocS2 <- function(fun, options = NULL){
       options$bands_to_correct <- c('B8A', 'B11', 'B12')
     if (is.null(options$fraction_vegetation))
       options$fraction_vegetation <- 5
+    if (is.null(options$resampling))
+      options$resampling <- 'near'
     if (is.null(options$radiometric_filter))
       options$radiometric_filter <- NULL
+    if (is.null(options$original_clouds))
+      options$original_clouds <- TRUE
   }
   return(options)
 }

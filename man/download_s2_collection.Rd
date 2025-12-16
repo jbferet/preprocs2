@@ -26,6 +26,7 @@ download_s2_collection(
   original_clouds = TRUE,
   argsin = NULL,
   writeoutput = T,
+  resampling = "near",
   bands_to_correct = c("B8A", "B11", "B12")
 )
 }
@@ -71,6 +72,8 @@ download_s2_collection(
 \item{argsin}{list}
 
 \item{writeoutput}{boolean. should output file be saved?}
+
+\item{resampling}{character. resampling method for terra::resample}
 
 \item{bands_to_correct}{character. name of bands to correct from geometry}
 }

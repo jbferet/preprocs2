@@ -23,6 +23,7 @@
 #' @param original_clouds should original cloud mask be used or not?
 #' @param argsin list
 #' @param writeoutput boolean. should output file be saved?
+#' @param resampling character. resampling method for terra::resample
 #' @param bands_to_correct character. name of bands to correct from geometry
 #'
 #' @return list of collections per plot
@@ -40,7 +41,7 @@ get_s2_collection <- function(plots, s2_tiles = NULL, datetime, output_dir,
                               radiometric_filter = NULL, site_name = NULL,
                               rast_out = T, additional_process = NULL,
                               crs_target = NULL, original_clouds = TRUE,
-                              argsin = NULL, writeoutput = T,
+                              argsin = NULL, writeoutput = T, resampling = 'near',
                               bands_to_correct = c('B8A', 'B11', 'B12')){
 
   # get collection for each plot
@@ -53,7 +54,7 @@ get_s2_collection <- function(plots, s2_tiles = NULL, datetime, output_dir,
                                      cloudcover = cloudcover,
                                      overwrite = overwrite,
                                      stac_info = stac_info,
-                                     nbCPU = nbCPU, 
+                                     nbCPU = nbCPU,
                                      doublecheckColl = doublecheckColl)
   # define paths
   raster_dir <- file.path(output_dir, 'raster_samples')
@@ -79,6 +80,7 @@ get_s2_collection <- function(plots, s2_tiles = NULL, datetime, output_dir,
                                        overwrite = overwrite,
                                        site_name = site_name, crs_target = crs_target,
                                        original_clouds = original_clouds,
+                                       resampling = resampling,
                                        additional_process = additional_process,
                                        argsin = argsin, writeoutput = writeoutput,
                                        bands_to_correct = bands_to_correct),

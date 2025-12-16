@@ -50,7 +50,7 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
   SensorName <- 'Sentinel_2'
   if (utils::packageVersion("prosail")<'3.0.0'){
     lambda <- prosail::SpecPROSPECT_FullRange$lambda
-    SRF <- prosail::GetRadiometry(SensorName)
+    srf <- prosail::GetRadiometry(SensorName)
     InputPROSAIL <- prosail::get_InputPROSAIL(atbd = TRUE, nbSamples = nbsamples,
                                               geom_acq = geom_acq)
     res <- Generate_LUT_PROSAIL(SAILversion = '4SAIL',
@@ -60,7 +60,7 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
                                 SpecATM = prosail::SpecATM)
     BRF_LUT_1nm <- res$BRF
     BRF_LUT <- applySensorCharacteristics(wvl = lambda,
-                                          SRF = SRF, InRefl = BRF_LUT_1nm)
+                                          SRF = srf, InRefl = BRF_LUT_1nm)
 
     # produce prosail LUT in standard nadir conditions
     InputPROSAIL_standard <- InputPROSAIL
@@ -73,11 +73,11 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
                                 SpecSOIL = prosail::SpecSOIL,
                                 SpecATM = prosail::SpecATM)
     BRF_LUT_1nm <- res$BRF
-    BRF_LUT_ref <- applySensorCharacteristics(wvl = lambda, SRF = SRF,
+    BRF_LUT_ref <- applySensorCharacteristics(wvl = lambda, SRF = srf,
                                                    InRefl = BRF_LUT_1nm)
   } else {
     lambda <- prosail::spec_prospect_fullrange$lambda
-    SRF <- prosail::get_radiometry(sensor_name = SensorName)
+    srf <- prosail::get_spectral_response_function(sensor_name = SensorName)
     InputPROSAIL <- prosail::get_input_prosail(atbd = TRUE,
                                                nb_samples = nbsamples,
                                                geom_acq = geom_acq)
@@ -87,7 +87,7 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
                                 spec_soil = prosail::spec_soil,
                                 spec_atm = prosail::spec_atm)
     BRF_LUT_1nm <- res$brf
-    BRF_LUT <- apply_sensor_characteristics(wvl = lambda, srf = SRF,
+    BRF_LUT <- apply_sensor_characteristics(wvl = lambda, srf = srf,
                                             input_refl_table = BRF_LUT_1nm)
 
     # produce prosail LUT in standard nadir conditions
@@ -101,17 +101,17 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
                                 spec_soil = prosail::spec_soil,
                                 spec_atm = prosail::spec_atm)
     BRF_LUT_1nm <- res$brf
-    BRF_LUT_ref <- apply_sensor_characteristics(wvl = lambda, srf = SRF,
+    BRF_LUT_ref <- apply_sensor_characteristics(wvl = lambda, srf = srf,
                                                 input_refl_table = BRF_LUT_1nm)
 
   }
   BRF_LUT <- t(as.matrix(BRF_LUT))
   BRF_LUT_ref <- t(as.matrix(BRF_LUT_ref))
-  colnames(BRF_LUT) <- colnames(BRF_LUT_ref) <- SRF$Spectral_Bands
+  colnames(BRF_LUT) <- colnames(BRF_LUT_ref) <- srf$Spectral_Bands
   ratioBRF <- 1+(BRF_LUT_ref-BRF_LUT)/BRF_LUT
   ratioCorr <- colMeans(ratioBRF)
   originalnames <- names(S2_rast)
-  names(S2_rast) <- SRF$Spectral_Bands
+  names(S2_rast) <- srf$Spectral_Bands
   # bands_to_correct <- c('B8A', 'B11', 'B12')
   # bands_to_correct <- names(S2_rast)
 

@@ -18,6 +18,7 @@ get_s2_tiling(
   nbCPU = 1,
   mask_path = NULL,
   resolution = 10,
+  resampling = "near",
   fraction_vegetation = 0,
   doublecheckColl = T,
   offset = 1000,
@@ -61,6 +62,8 @@ get_s2_tiling(
 \item{mask_path}{character.}
 
 \item{resolution}{numeric.}
+
+\item{resampling}{character. resampling method for terra::resample}
 
 \item{fraction_vegetation}{numeric.}
 

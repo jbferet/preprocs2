@@ -1,3 +1,13 @@
+# preprocS2 v2.6.1
+
+## fix
+- use correct date of acquisition for date of mosaic
+- use regular expression to identify spectral indices in get_s2_tiling
+
+## addition
+- option to overwrite geometry of acquisition added
+- prepare for option to use alternative resampling methods for 20 m bands
+
 # preprocS2 v2.6.0
 
 ## change

@@ -14,8 +14,8 @@
 #' @export
 
 get_s2_geom_acq <- function(dsn_s2_tiles, datetime, cloudcover = 100,
-                           collection = "sentinel-2-l2a", output_dir,
-                           nbCPU = 1, overwrite = F){
+                            collection = "sentinel-2-l2a", output_dir,
+                            nbCPU = 1, overwrite = F){
 
   # create directory where geometry of acquisition rasters are stored
   geom_dir <- file.path(output_dir, 'geom_acq_S2')
@@ -38,11 +38,11 @@ get_s2_geom_acq <- function(dsn_s2_tiles, datetime, cloudcover = 100,
                                       secret = pwd)
     # get collection for geometry of acquisition corresponding to the aoi
     collection_geom_acq_S2 <- get_s2_geom_acq_collection(aoi = aoi, datetime = datetime,
-                                                 collection = collection,
-                                                 OAuthToken = OAuthToken,
-                                                 cloudcover = cloudcover,
-                                                 output_dir = output_dir,
-                                                 overwrite = overwrite)
+                                                         collection = collection,
+                                                         OAuthToken = OAuthToken,
+                                                         cloudcover = cloudcover,
+                                                         output_dir = output_dir,
+                                                         overwrite = overwrite)
     # download geometry of acquisition corresponding to the aoi stored in collection
     path_geomfiles <- download_s2_geom_acq(aoi = aoi,
                                            geom_dir = geom_dir,

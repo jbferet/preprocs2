@@ -2,6 +2,7 @@
 #'
 #' @param aoi_path character. path for vector file defining aoi
 #' @param bbox bbox
+#' @param mask_path character. path for a vector or raster mask
 #' @param datetime character or date or list defining date of acquisition or time range
 #' @param output_dir character. path for output directory
 #' @param site_name character. name of the study site
@@ -22,8 +23,9 @@
 #' @importFrom sf st_write st_bbox st_read st_crs st_transform
 #' @export
 
-get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
-                          site_name = NULL, stac_info = NULL, options = NULL){
+get_s2_raster <- function(aoi_path = NULL, bbox = NULL, mask_path = NULL,
+                          datetime, output_dir, site_name = NULL,
+                          stac_info = NULL, options = NULL){
 
   # set default options when not defined
   options <- set_options_preprocS2(fun = 'get_s2_raster', options = options)
@@ -64,7 +66,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
                                       datetime = datetime,
                                       output_dir = output_dir,
                                       cloudcover = options$cloudcover,
-                                      overwrite = options$overwrite)
+                                      overwrite = options$overwrite_geom_acq)
   }
 
   # download S2 data
@@ -72,16 +74,19 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, datetime, output_dir,
   stac_info <- get_stac_info(stac_info)
   s2_tiles <- S2_grid$s2_tiles
   S2_items <- get_s2_collection(plots = plots,
+                                mask_path = mask_path,
                                 datetime = datetime,
                                 s2_tiles = s2_tiles,
                                 output_dir = output_dir,
                                 stac_info = stac_info,
                                 site_name = site_name,
+                                resampling = options$resampling,
                                 additional_process = options$additional_process,
                                 bands_to_correct = options$bands_to_correct,
                                 radiometric_filter = options$radiometric_filter,
                                 fraction_vegetation = options$fraction_vegetation,
-                                overwrite = options$overwrite)
+                                overwrite = options$overwrite,
+                                original_clouds = options$original_clouds)
 
   raster_dir <- file.path(output_dir, 'raster_samples')
   dir.create(path = raster_dir, showWarnings = F, recursive = T)

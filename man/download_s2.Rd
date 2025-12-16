@@ -15,6 +15,7 @@ download_s2(
   offset_B2 = F,
   stac_info,
   corr_BRF = F,
+  resampling = "near",
   site_name = NULL,
   crs_target = NULL,
   writeoutput = T,
@@ -42,6 +43,8 @@ download_s2(
 \item{stac_info}{list.}
 
 \item{corr_BRF}{boolean.}
+
+\item{resampling}{character. resampling method for terra::resample}
 
 \item{site_name}{character. name of the study site}
 

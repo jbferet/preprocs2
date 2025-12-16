@@ -10,6 +10,7 @@
 #' @param offset_B2 boolean.
 #' @param stac_info list.
 #' @param corr_BRF boolean.
+#' @param resampling character. resampling method for terra::resample
 #' @param site_name character. name of the study site
 #' @param crs_target numeric.
 #' @param writeoutput boolean. should output file be saved?
@@ -24,7 +25,7 @@
 #'
 download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                         S2_items = NULL, offset = 1000, offset_B2 = F,
-                        stac_info, corr_BRF = F,
+                        stac_info, corr_BRF = F, resampling = 'near',
                         site_name = NULL, crs_target = NULL, writeoutput = T,
                         bands_to_correct = c('B8A', 'B11', 'B12'), overwrite = T){
 
@@ -54,25 +55,33 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                                      FUN = function(x, offset){x - offset},
                                      offset)
   }
-  S2_items_final <- list()
+  S2_items_raw <- S2_items_final <- list()
   for (dateAcq in as.character(item_collection$acquisitionDate)){
+    #
     if (is.null(S2_items[[dateAcq]]))
-      S2_items_final[[dateAcq]] <- S2_items_update[[dateAcq]]
+      S2_items_raw[[dateAcq]] <- S2_items_update[[dateAcq]]
     if (is.null(S2_items_update[[dateAcq]]))
-      S2_items_final[[dateAcq]] <- S2_items[[dateAcq]]
+      S2_items_raw[[dateAcq]] <- S2_items[[dateAcq]]
     if (! is.null(S2_items_update[[dateAcq]]) & ! is.null(S2_items_update[[dateAcq]]))
-      S2_items_final[[dateAcq]] <- c(S2_items[[dateAcq]], S2_items_update[[dateAcq]])
-    S2_items_final[[dateAcq]] <- S2_items_final[[dateAcq]][asset_names]
+      S2_items_raw[[dateAcq]] <- c(S2_items[[dateAcq]], S2_items_update[[dateAcq]])
+    S2_items_raw[[dateAcq]] <- S2_items_raw[[dateAcq]][asset_names]
   }
 
   s2_items <- list()
-  for (i in seq_len(length(item_collection$acquisitionDate))){
-    resitems <- lapply(lapply(S2_items_final[[i]], terra::res), '[[', 1)
+  for (i in seq_along(item_collection$acquisitionDate)){
+    resitems <- lapply(lapply(S2_items_raw[[i]], terra::res), '[[', 1)
     # harmonize spatial resolution
-    template_Rast <- S2_items_final[[i]][which(round(unlist(resitems))==resolution)[1]]
-    S2_items_final[[i]]  <- lapply(X = S2_items_final[[i]],
+    template_Rast <- S2_items_raw[[i]][which(round(unlist(resitems))==resolution)[1]]
+    S2_items_final[[i]]  <- lapply(X = S2_items_raw[[i]],
                                    FUN = terra::resample,
-                                   template_Rast[[1]], method = 'near')
+                                   template_Rast[[1]], method = resampling)
+    # for (j in seq_along(S2_items_final[[i]])){
+    #   S2_items_final[[i]][[j]]  <- terra::resample(x = S2_items_raw[[i]][[j]],
+    #                                                y = template_Rast[[1]],
+    #                                                method = resampling,
+    #                                                by_util = TRUE)+1
+    #   S2_items_final[[i]][[j]] <- S2_items_final[[i]][[j]]-1
+    # }
     acq <- as.character(item_collection$acquisitionDate[[i]])
 
     # define reflectance file name and check if exists
