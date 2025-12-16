@@ -26,5 +26,6 @@ write_geomplot <- function(DatesofAcq, geom_dir, geom_subdir, list_aoi, p = NULL
       }
     }
   }
-  if (!is.null(p)) p()
+  if (!is.null(p))
+    p()
 }

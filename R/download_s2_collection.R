@@ -21,6 +21,7 @@
 #' @param original_clouds boolean
 #' @param argsin list
 #' @param writeoutput boolean. should output file be saved?
+#' @param resampling character. resampling method for terra::resample
 #' @param bands_to_correct character. name of bands to correct from geometry
 #'
 #'
@@ -35,7 +36,7 @@ download_s2_collection <- function(collection_path, aoi, iChar, raster_dir,
                                   overwrite = T, site_name = NULL, rast_out = T,
                                   additional_process = NULL, crs_target = NULL,
                                   original_clouds = TRUE, argsin = NULL,
-                                  writeoutput = T,
+                                  writeoutput = T, resampling = 'near',
                                   bands_to_correct = c('B8A', 'B11', 'B12')){
   # get collection cloud masks
   cloudmasks <- get_cloudmask(collection_path = collection_path, aoi = aoi,
@@ -68,7 +69,7 @@ download_s2_collection <- function(collection_path, aoi, iChar, raster_dir,
                             corr_BRF = corr_BRF, site_name = site_name,
                             crs_target = crs_target, writeoutput = writeoutput,
                             bands_to_correct = bands_to_correct,
-                            overwrite = overwrite)
+                            overwrite = overwrite, resampling = resampling)
 
     # if (corr_BRF | offset_B2){
     #   S2data <- update_mask(aoi = aoi, collection_path = collection_path,

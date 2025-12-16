@@ -13,11 +13,11 @@ get_cloud_asset <- function(stac_info){
     asset_names <- 'CLM'
   } else if (stac_info$provider =='theia'){
     asset_names <- 'CLM_R1'
-  } else if (stac_info$provider =='mtd_esa'){
+  } else if (stac_info$provider %in% c('mtd_esa')){
     asset_names <- 'SCL'
   } else {
     message('STAC URL unidentified from get_cloud_asset')
-    message('assuming standard oESA products and looking for SCL')
+    message('assuming standard ESA products and looking for SCL')
     asset_names <- 'SCL'
   }
   return(asset_names)

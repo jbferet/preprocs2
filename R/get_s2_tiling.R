@@ -13,6 +13,7 @@
 #' @param nbCPU numeric.
 #' @param mask_path character.
 #' @param resolution numeric.
+#' @param resampling character. resampling method for terra::resample
 #' @param fraction_vegetation numeric.
 #' @param doublecheckColl boolean.
 #' @param offset numeric.
@@ -36,7 +37,7 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                           cloudcover = 99, overwrite = T, site_name = NULL,
                           path_S2_tiling_grid = 'Sentinel-2_tiling_grid.kml',
                           stac_info, geom_acq = F, nbCPU = 1,
-                          mask_path = NULL, resolution = 10,
+                          mask_path = NULL, resolution = 10, resampling = 'near',
                           fraction_vegetation = 0, doublecheckColl = T,
                           offset = 1000, offset_B2 = F, corr_BRF = F, crs_target = NULL,
                           radiometric_filter = NULL, additional_process = NULL,
@@ -135,6 +136,7 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                                   radiometric_filter = radiometric_filter,
                                   rast_out = F,
                                   crs_target = crs_target,
+                                  resampling = resampling,
                                   additional_process = additional_process,
                                   original_clouds = original_clouds,
                                   argsin = argsin, writeoutput = writeoutput,
@@ -149,7 +151,7 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                               full.names = TRUE)
       output_vrt_path <- file.path(output_dir,
                                    paste0(site_name, '_',
-                                          datetime$to,'_mosaic.vrt'))
+                                          datetime$from,'_mosaic.vrt'))
       message(output_vrt_path)
       v <- terra::vrt(x = listfiles, filename = output_vrt_path)
     }
@@ -159,9 +161,10 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
           message('writing VRT for spectral indices')
           for (si in argsin$SI_list){
             listfiles <- list.files(argsin$output_path,
-                                    pattern = paste0(si,'.tiff'),
+                                    pattern = paste0('^', site_name, '_',
+                                                     "\\d+", '_' , si,'.tiff'),
                                     full.names = TRUE)
-            output_vrt_path <- file.path(output_dir, paste0(site_name, '_', si, '_', datetime$to,'_mosaic.vrt'))
+            output_vrt_path <- file.path(output_dir, paste0(site_name, '_', si, '_', datetime$from,'_mosaic.vrt'))
             v <- terra::vrt(x = listfiles, filename = output_vrt_path)
           }
         }
