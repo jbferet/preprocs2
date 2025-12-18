@@ -60,9 +60,17 @@ get_s2_collection <- function(plots, s2_tiles = NULL, datetime, output_dir,
   raster_dir <- file.path(output_dir, 'raster_samples')
   dir.create(raster_dir, showWarnings = F, recursive = T)
 
+  # identify empty plots
+  sel_plots <- which(!is.na(collection_path))
+  collection_path <- collection_path[sel_plots]
+  plots <- plots[sel_plots]
+
   # identify plots and discard first ones if needed
   nbPlots <- length(plots)
   ID_aoi <- names(plots)
+  if (nbPlots<nbCPU)
+    nbCPU <- nbPlots
+
   if (nbCPU==1){
     S2_items <- mapply(FUN = download_s2_collection,
                        collection_path = collection_path,

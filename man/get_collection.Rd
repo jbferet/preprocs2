@@ -30,7 +30,7 @@ get_collection(
 \item{stac_info}{list. stac provider, name of collection url for stac}
 }
 \value{
-list of collections per plot
+file name for collection associated with a plot
 }
 \description{
 gets collections for plot network using microsoft planetary

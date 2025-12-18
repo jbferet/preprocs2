@@ -39,6 +39,8 @@ set_options_preprocS2 <- function(fun, options = NULL){
       options$radiometric_filter <- NULL
     if (is.null(options$original_clouds))
       options$original_clouds <- TRUE
+    if (is.null(options$nbCPU))
+      options$nbCPU <- 1
   }
   return(options)
 }

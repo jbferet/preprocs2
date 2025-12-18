@@ -27,6 +27,9 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, mask_path = NULL,
                           datetime, output_dir, site_name = NULL,
                           stac_info = NULL, options = NULL){
 
+  nbCPU_max <- parallel::detectCores(all.tests = FALSE, logical = FALSE)
+  if (nbCPU_max<options$nbCPU)
+    options$nbCPU <- nbCPU_max
   # set default options when not defined
   options <- set_options_preprocS2(fun = 'get_s2_raster', options = options)
   # make sure output directory is created
@@ -62,11 +65,13 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, mask_path = NULL,
     message('https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings')
   } else if (options$geom_acq & nchar(id)>0 & nchar(pwd)>0){
     message('get S2 geometry of acquisition of tiles overlapping with aoi')
+    nbCPU_CDSE <- min(c(8, options$nbCPU))
     path_geomfiles <- get_s2_geom_acq(dsn_s2_tiles = S2_grid$dsn_s2_tiles,
                                       datetime = datetime,
                                       output_dir = output_dir,
                                       cloudcover = options$cloudcover,
-                                      overwrite = options$overwrite_geom_acq)
+                                      overwrite = options$overwrite_geom_acq,
+                                      nbCPU = nbCPU_CDSE)
   }
 
   # download S2 data
@@ -86,6 +91,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, mask_path = NULL,
                                 radiometric_filter = options$radiometric_filter,
                                 fraction_vegetation = options$fraction_vegetation,
                                 overwrite = options$overwrite,
+                                nbCPU = options$nbCPU,
                                 original_clouds = options$original_clouds)
 
   raster_dir <- file.path(output_dir, 'raster_samples')
