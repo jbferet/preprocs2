@@ -16,10 +16,10 @@
 #' @export
 #'
 get_collection <- function(aoi, s2_tiles = NULL, datetime, FileName,
-                           overwrite = T, cloudcover = 100, stac_info){
+                           overwrite = TRUE, cloudcover = 100, stac_info){
 
   # get collection for plot, datetime and cloud cover
-  if (! file.exists(FileName) | overwrite==T){
+  if (! file.exists(FileName) | overwrite==TRUE){
     stac_source <- rstac::stac(stac_info$stac_url)
     aoistac <- aoi |>
       sf::st_transform(4326)
@@ -59,10 +59,12 @@ get_collection <- function(aoi, s2_tiles = NULL, datetime, FileName,
         s2id <- unlist(lapply(collection_plot$features,'[[','id'))
         tileID <- get_tile(s2id)
         if  (!is.null(s2_tiles) & unique(!is.na(s2_tiles)))
-          collection_plot <- eliminate_doublons_dateAcq(collection_plot)
+          collection_plot <- eliminate_doublons_dateAcq(item_collection = collection_plot,
+                                                        aoistac = aoistac,
+                                                        stac_info = stac_info)
       }
     }
-  } else if (file.exists(FileName) & overwrite==F){
+  } else if (file.exists(FileName) & overwrite==FALSE){
     # if file already exists, download it
     collection_plot <- readRDS(file = FileName)
   }

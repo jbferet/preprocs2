@@ -9,7 +9,7 @@ get_collection(
   s2_tiles = NULL,
   datetime,
   FileName,
-  overwrite = T,
+  overwrite = TRUE,
   cloudcover = 100,
   stac_info
 )

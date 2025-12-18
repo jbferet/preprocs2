@@ -4,10 +4,14 @@
 \alias{eliminate_doublons_dateAcq}
 \title{eliminates doublons in terms of date of acquisition from collection}
 \usage{
-eliminate_doublons_dateAcq(item_collection)
+eliminate_doublons_dateAcq(item_collection, aoistac = NULL, stac_info = NULL)
 }
 \arguments{
 \item{item_collection}{collection STAC item collection}
+
+\item{aoistac}{spatVector}
+
+\item{stac_info}{list}
 }
 \value{
 collection STAC item collection

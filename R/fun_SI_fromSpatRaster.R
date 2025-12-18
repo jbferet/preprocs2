@@ -21,7 +21,7 @@ fun_SI_fromSpatRaster <- function(S2_refl, S2_mask, argsin){
   # get SI for each S2 acquisition
   SI_val <- lapply(X = S2_refl,
                    FUN = spinR::compute_S2SI_Raster,
-                   ReflFactor = ReflFactor, StackOut = F,
+                   ReflFactor = ReflFactor, StackOut = FALSE,
                    SensorBands = HDR$wavelength, Sel_Indices = SI_list)
 
   # mask unwanted pixels
@@ -48,7 +48,7 @@ fun_SI_fromSpatRaster <- function(S2_refl, S2_mask, argsin){
   sirast <- sirast_median <- list()
   for (idx in SI_list){
     sirast[[idx]] <- terra::rast(SI_masked[[idx]])
-    sirast_median[[idx]] <- terra::median(sirast[[idx]], na.rm = T)
+    sirast_median[[idx]] <- terra::median(sirast[[idx]], na.rm = TRUE)
     # file name
     filename <- stringr::str_replace(string = argsin$template_file,
                                      pattern = '_ID_',
@@ -59,7 +59,7 @@ fun_SI_fromSpatRaster <- function(S2_refl, S2_mask, argsin){
     filename <- stringr::str_replace(string = filename,
                                      pattern = 'plot_',
                                      replacement = paste0(site_name, '_'))
-    dir.create(path = output_path, showWarnings = F, recursive = T)
+    dir.create(path = output_path, showWarnings = FALSE, recursive = TRUE)
     # write composites
     filename <- file.path(output_path, filename)
     if (argsin$overwrite | ! file.exists(filename))

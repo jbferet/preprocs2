@@ -9,7 +9,7 @@ get_s2_tiles(
   dsn_bbox,
   output_dir,
   site_name = NULL,
-  overwrite = T,
+  overwrite = TRUE,
   path_S2_tiling_grid = "Sentinel-2_tiling_grid.kml"
 )
 }

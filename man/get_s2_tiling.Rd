@@ -10,29 +10,29 @@ get_s2_tiling(
   datetime,
   output_dir,
   cloudcover = 99,
-  overwrite = T,
+  overwrite = TRUE,
   site_name = NULL,
   path_S2_tiling_grid = "Sentinel-2_tiling_grid.kml",
   stac_info,
-  geom_acq = F,
+  geom_acq = FALSE,
   nbCPU = 1,
   mask_path = NULL,
   resolution = 10,
   resampling = "near",
   fraction_vegetation = 0,
-  doublecheckColl = T,
+  overwrite_collection = TRUE,
   offset = 1000,
-  offset_B2 = F,
-  corr_BRF = F,
+  offset_B2 = FALSE,
+  corr_BRF = FALSE,
   crs_target = NULL,
   radiometric_filter = NULL,
   additional_process = NULL,
-  original_clouds = T,
+  original_clouds = TRUE,
   cellsize = 10000,
-  pursue_existing = T,
+  pursue_existing = TRUE,
   argsin = NULL,
-  writeoutput = T,
-  bypassDL = F,
+  writeoutput = TRUE,
+  bypassDL = FALSE,
   bands_to_correct = c("B8A", "B11", "B12")
 )
 }
@@ -67,7 +67,7 @@ get_s2_tiling(
 
 \item{fraction_vegetation}{numeric.}
 
-\item{doublecheckColl}{boolean.}
+\item{overwrite_collection}{boolean.}
 
 \item{offset}{numeric.}
 

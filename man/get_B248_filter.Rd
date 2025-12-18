@@ -19,9 +19,9 @@ get_B248_filter(
   site_name,
   crs_target = NULL,
   original_clouds = original_clouds,
-  overwrite = F,
+  overwrite = FALSE,
   S2_items = NULL,
-  writeoutput = T
+  writeoutput = TRUE
 )
 }
 \arguments{

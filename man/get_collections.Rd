@@ -9,11 +9,11 @@ get_collections(
   s2_tiles = NULL,
   datetime,
   output_dir,
-  overwrite = T,
+  overwrite = TRUE,
   cloudcover = 100,
   stac_info,
   nbCPU = 1,
-  doublecheckColl = T
+  overwrite_collection = TRUE
 )
 }
 \arguments{
@@ -33,7 +33,7 @@ get_collections(
 
 \item{nbCPU}{numeric. number of CPU}
 
-\item{doublecheckColl}{boolean. set TRUE to double check collection}
+\item{overwrite_collection}{boolean. set TRUE to double check collection}
 }
 \value{
 list of collections per plot

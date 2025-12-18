@@ -105,9 +105,9 @@ download_s2_geom_acq <- function(aoi, geom_dir, collection_geom_acq_S2, nbCPU=1)
                                                                  format = "image/tiff",
                                                                  mosaicking_order = "leastCC",
                                                                  resolution = 1000, buffer = 0,
-                                                                 mask = F, token = OAuthToken,
+                                                                 mask = FALSE, token = OAuthToken,
                                                                  p = p),
-                                                 future.seed = T, SIMPLIFY = F)
+                                                 future.seed = TRUE, SIMPLIFY = FALSE)
         })
         parallel::stopCluster(cl)
         plan(sequential)

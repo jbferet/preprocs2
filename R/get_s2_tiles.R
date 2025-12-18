@@ -11,7 +11,8 @@
 #' @importFrom sf read_sf st_intersects st_collection_extract st_write
 #' @export
 
-get_s2_tiles <- function(plots, dsn_bbox, output_dir, site_name = NULL, overwrite = T,
+get_s2_tiles <- function(plots, dsn_bbox, output_dir, site_name = NULL,
+                         overwrite = TRUE,
                          path_S2_tiling_grid = 'Sentinel-2_tiling_grid.kml'){
 
   # add site name if provided
@@ -21,13 +22,13 @@ get_s2_tiles <- function(plots, dsn_bbox, output_dir, site_name = NULL, overwrit
   s2_tiles_path <- file.path(output_dir,paste0('s2_tiles',site_name,'.rds'))
   dsn_s2_tiles_footprint <- file.path(output_dir, paste0('s2_footprint',site_name,'.gpkg'))            # path where vector is saved
   # read S2 tile info file if exists
-  if (file.exists(s2_tiles_path) & overwrite == F)
+  if (file.exists(s2_tiles_path) & overwrite == FALSE)
     s2_tiles <- readRDS(file = s2_tiles_path)
-  if (!file.exists(s2_tiles_path) | overwrite == T){
+  if (!file.exists(s2_tiles_path) | overwrite == TRUE){
     # get footprint for bounding box including the plot network
     footprint <- get_s2_footprint(dsn = dsn_bbox)
     # identify S2 tiles fully including plots
-    S2tilingGrid <- sf::read_sf(path_S2_tiling_grid, quiet = T)
+    S2tilingGrid <- sf::read_sf(path_S2_tiling_grid, quiet = TRUE)
     if (! sf::st_crs(S2tilingGrid) == sf::st_crs(footprint))
       footprint <- sf::st_transform(x = footprint, crs = sf::st_crs(S2tilingGrid))
 
@@ -48,7 +49,7 @@ get_s2_tiles <- function(plots, dsn_bbox, output_dir, site_name = NULL, overwrit
     # save S2 tiles intersecting with aoi as gpkg
     tilefp <- sf::st_collection_extract(x = S2tilingGridsub, type = "POLYGON")
     sf::st_write(obj = tilefp, dsn = dsn_s2_tiles_footprint, driver = 'GPKG',
-                 delete_dsn = T, quiet = T)
+                 delete_dsn = TRUE, quiet = TRUE)
   }
   return(list('s2_tiles' = s2_tiles,
               'dsn_s2_tiles' = dsn_s2_tiles_footprint))

@@ -14,20 +14,20 @@ get_s2_collection(
   fraction_vegetation = 5,
   resolution = 10,
   stac_info,
-  overwrite = F,
+  overwrite = FALSE,
   nbCPU = 1,
-  doublecheckColl = T,
+  overwrite_collection = TRUE,
   offset = 1000,
-  offset_B2 = F,
-  corr_BRF = F,
+  offset_B2 = FALSE,
+  corr_BRF = FALSE,
   radiometric_filter = NULL,
   site_name = NULL,
-  rast_out = T,
+  rast_out = TRUE,
   additional_process = NULL,
   crs_target = NULL,
   original_clouds = TRUE,
   argsin = NULL,
-  writeoutput = T,
+  writeoutput = TRUE,
   resampling = "near",
   bands_to_correct = c("B8A", "B11", "B12")
 )
@@ -55,7 +55,7 @@ get_s2_collection(
 
 \item{nbCPU}{numeric. number of threads to work with}
 
-\item{doublecheckColl}{boolean.}
+\item{overwrite_collection}{boolean.}
 
 \item{offset}{numeric. S2 reflectance offset}
 

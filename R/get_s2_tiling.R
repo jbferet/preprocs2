@@ -15,7 +15,7 @@
 #' @param resolution numeric.
 #' @param resampling character. resampling method for terra::resample
 #' @param fraction_vegetation numeric.
-#' @param doublecheckColl boolean.
+#' @param overwrite_collection boolean.
 #' @param offset numeric.
 #' @param offset_B2 boolean.
 #' @param corr_BRF boolean.
@@ -35,15 +35,16 @@
 #' @export
 
 get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
-                          cloudcover = 99, overwrite = T, site_name = NULL,
+                          cloudcover = 99, overwrite = TRUE, site_name = NULL,
                           path_S2_tiling_grid = 'Sentinel-2_tiling_grid.kml',
-                          stac_info, geom_acq = F, nbCPU = 1,
+                          stac_info, geom_acq = FALSE, nbCPU = 1,
                           mask_path = NULL, resolution = 10, resampling = 'near',
-                          fraction_vegetation = 0, doublecheckColl = T,
-                          offset = 1000, offset_B2 = F, corr_BRF = F, crs_target = NULL,
-                          radiometric_filter = NULL, additional_process = NULL,
-                          original_clouds = T, cellsize = 10000, pursue_existing = T,
-                          argsin = NULL, writeoutput = T, bypassDL = F,
+                          fraction_vegetation = 0, overwrite_collection = TRUE,
+                          offset = 1000, offset_B2 = FALSE, corr_BRF = FALSE,
+                          crs_target = NULL, radiometric_filter = NULL,
+                          additional_process = NULL, original_clouds = TRUE,
+                          cellsize = 10000, pursue_existing = TRUE,
+                          argsin = NULL, writeoutput = TRUE, bypassDL = FALSE,
                           bands_to_correct = c('B8A', 'B11', 'B12')){
 
 
@@ -75,7 +76,7 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
   }
 
   s2_raster_dir <- file.path(output_dir, 'raster_samples')
-  dir.create(path = s2_raster_dir, showWarnings = F, recursive = T)
+  dir.create(path = s2_raster_dir, showWarnings = FALSE, recursive = TRUE)
   if (!bypassDL){
     # check if already existing and list plots to process
     if (is.null(argsin)){
@@ -136,12 +137,12 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                                   stac_info = stac_info,
                                   overwrite = overwrite,
                                   site_name = site_name,
-                                  doublecheckColl = doublecheckColl,
+                                  overwrite_collection = overwrite_collection,
                                   offset = offset,
                                   offset_B2 = offset_B2,
                                   corr_BRF = corr_BRF,
                                   radiometric_filter = radiometric_filter,
-                                  rast_out = F,
+                                  rast_out = FALSE,
                                   crs_target = crs_target,
                                   resampling = resampling,
                                   additional_process = additional_process,

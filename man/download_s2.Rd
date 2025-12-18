@@ -12,15 +12,15 @@ download_s2(
   resolution,
   S2_items = NULL,
   offset = 1000,
-  offset_B2 = F,
+  offset_B2 = FALSE,
   stac_info,
-  corr_BRF = F,
+  corr_BRF = FALSE,
   resampling = "near",
   site_name = NULL,
   crs_target = NULL,
-  writeoutput = T,
+  writeoutput = TRUE,
   bands_to_correct = c("B8A", "B11", "B12"),
-  overwrite = T
+  overwrite = TRUE
 )
 }
 \arguments{
