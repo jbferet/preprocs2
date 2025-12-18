@@ -31,6 +31,7 @@
 #' @param bands_to_correct character. name of bands to correct from geometry
 #'
 #' @return plots list of plots
+#' @importFrom parallel detectCores
 #' @export
 
 get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
@@ -44,6 +45,11 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                           original_clouds = T, cellsize = 10000, pursue_existing = T,
                           argsin = NULL, writeoutput = T, bypassDL = F,
                           bands_to_correct = c('B8A', 'B11', 'B12')){
+
+
+  nbCPU_max <- parallel::detectCores(all.tests = FALSE, logical = FALSE)
+  if (nbCPU_max<nbCPU)
+    nbCPU <- nbCPU_max
 
   # create proper datetime if only one date provided
   if (inherits(x = datetime, what = c('character', 'Date')))
@@ -111,7 +117,8 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
       nbCPU_CDSE <- min(c(8, nbCPU))
       get_s2_geom_acq(dsn_s2_tiles = S2_grid$dsn_s2_tiles, datetime = datetime,
                      cloudcover = cloudcover,
-                     output_dir = output_dir, overwrite = overwrite, nbCPU = nbCPU_CDSE)
+                     output_dir = output_dir, overwrite = overwrite,
+                     nbCPU = nbCPU_CDSE)
     }
     # download S2 data
     message('download S2 collection')

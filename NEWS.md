@@ -1,3 +1,11 @@
+# preprocS2 v2.6.2
+
+## fix
+- fix bug stopping process when empty collection for a plot (e.g. edge of orbit)
+
+## addition
+- option use parallel computing as option with get_s2_raster
+
 # preprocS2 v2.6.1
 
 ## fix

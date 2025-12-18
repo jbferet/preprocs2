@@ -17,7 +17,7 @@
 #' @export
 #'
 get_collections <- function(list_aoi, s2_tiles = NULL, datetime, output_dir,
-                            overwrite = T, cloudcover = 100, stac_info, 
+                            overwrite = T, cloudcover = 100, stac_info,
                             nbCPU = 1, doublecheckColl = T){
 
   # create output collection directory
@@ -36,29 +36,31 @@ get_collections <- function(list_aoi, s2_tiles = NULL, datetime, output_dir,
 
   if (is.null(s2_tiles)){
     s2_tiles <- list()
-    for (ni in names(list_aoi)) 
+    for (ni in names(list_aoi))
       s2_tiles[[ni]] <- NA
   }
   if (dl_collection){
     if (nbCPU==1){
-      mapply(FUN = get_collection, aoi = list_aoi, s2_tiles = s2_tiles,
-             FileName = FileName_fullcoll,
-             MoreArgs = list(overwrite = overwrite,
-                             datetime = datetime, 
-                             stac_info = stac_info,
-                             cloudcover = cloudcover),
-             SIMPLIFY = F)
-    } else if (nbCPU>1){
-      cl <- parallel::makeCluster(nbCPU)
-      plan("cluster", workers = cl)
-      future.apply::future_mapply(FUN = get_collection,
-                                  aoi = list_aoi, s2_tiles = s2_tiles,
+      FileName_fullcoll <- mapply(FUN = get_collection, aoi = list_aoi,
+                                  s2_tiles = s2_tiles,
                                   FileName = FileName_fullcoll,
                                   MoreArgs = list(overwrite = overwrite,
                                                   datetime = datetime,
                                                   stac_info = stac_info,
                                                   cloudcover = cloudcover),
-                                  future.seed = T, SIMPLIFY = F)
+                                  SIMPLIFY = F)
+
+    } else if (nbCPU>1){
+      cl <- parallel::makeCluster(nbCPU)
+      plan("cluster", workers = cl)
+      FileName_fullcoll <- future.apply::future_mapply(FUN = get_collection,
+                                                       aoi = list_aoi, s2_tiles = s2_tiles,
+                                                       FileName = FileName_fullcoll,
+                                                       MoreArgs = list(overwrite = overwrite,
+                                                                       datetime = datetime,
+                                                                       stac_info = stac_info,
+                                                                       cloudcover = cloudcover),
+                                                       future.seed = T, SIMPLIFY = F)
       parallel::stopCluster(cl)
       plan(sequential)
     }
