@@ -5,6 +5,11 @@
 
 ## addition
 - option use parallel computing as option with get_s2_raster
+- deal with overlapping orbits at the same date of acquisition to get acquisitions with the most valid pixels
+
+## change
+- change name of parameter doublecheckColl to overwrite_collection in get_s2_tiling
+
 
 # preprocS2 v2.6.1
 

@@ -14,7 +14,7 @@
 #' @export
 #'
 correct_s2_stack <- function(s2_items, acq, raster_dir, aoi,
-                            offset_B2 = F, corr_BRF = F,
+                            offset_B2 = FALSE, corr_BRF = FALSE,
                             bands_to_correct = c('B8A', 'B11', 'B12')){
   # correct for geometry of acquisition: get correcting factors
   output_dir <- dirname(raster_dir)

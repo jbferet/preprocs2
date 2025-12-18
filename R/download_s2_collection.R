@@ -30,13 +30,14 @@
 #'
 download_s2_collection <- function(collection_path, aoi, iChar, raster_dir,
                                   mask_path = NULL, fraction_vegetation = 5,
-                                  stac_info, resolution = 10,
-                                  offset = 1000, offset_B2 = F, corr_BRF = F,
+                                  stac_info, resolution = 10, offset = 1000,
+                                  offset_B2 = FALSE, corr_BRF = FALSE,
                                   p = NULL, radiometric_filter = NULL,
-                                  overwrite = T, site_name = NULL, rast_out = T,
-                                  additional_process = NULL, crs_target = NULL,
-                                  original_clouds = TRUE, argsin = NULL,
-                                  writeoutput = T, resampling = 'near',
+                                  overwrite = TRUE, site_name = NULL,
+                                  rast_out = TRUE, additional_process = NULL,
+                                  crs_target = NULL, original_clouds = TRUE,
+                                  argsin = NULL, writeoutput = TRUE,
+                                  resampling = 'near',
                                   bands_to_correct = c('B8A', 'B11', 'B12')){
   # get collection cloud masks
   cloudmasks <- get_cloudmask(collection_path = collection_path, aoi = aoi,

@@ -29,8 +29,8 @@ get_B248_filter <- function(raster_dir, mask_path, item_collection, cloudmasks,
                             stac_info, fraction_vegetation, offset = 1000,
                             radiometric_filter = NULL, site_name,
                             crs_target = NULL,
-                            original_clouds = original_clouds, overwrite = F,
-                            S2_items = NULL, writeoutput = T){
+                            original_clouds = original_clouds, overwrite = FALSE,
+                            S2_items = NULL, writeoutput = TRUE){
 
   asset_cloud <- get_cloud_asset(stac_info)
   suffix <- paste0('_',asset_cloud,'.tiff')
@@ -71,7 +71,7 @@ get_B248_filter <- function(raster_dir, mask_path, item_collection, cloudmasks,
                                            original_clouds = original_clouds,
                                            overwrite = overwrite,
                                            writeoutput = writeoutput),
-                           SIMPLIFY = F)
+                           SIMPLIFY = FALSE)
 
     validity <- lapply(updatedMasks, '[[',1)
     mask_update <- lapply(updatedMasks, '[[',2)

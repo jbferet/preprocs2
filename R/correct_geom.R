@@ -21,7 +21,8 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
   angle <- c('saa', 'sza', 'vaa', 'vza')
   mean_angle <- list()
   for (jj in 1:4){
-    fileName <- file.path(geom_dir, paste0(angle[jj], '_', as.character(acq), '.tiff'))
+    fileName <- file.path(geom_dir, paste0(angle[jj], '_',
+                                           as.character(acq), '.tiff'))
     anglerast <- terra::rast(fileName)
     if (!terra::same.crs(anglerast, aoi))
       aoi <- sf::st_transform(x = aoi, terra::crs(anglerast))

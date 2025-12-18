@@ -19,9 +19,9 @@ get_s2_geom_acq <- function(dsn_s2_tiles, datetime, cloudcover = 100,
 
   # create directory where geometry of acquisition rasters are stored
   geom_dir <- file.path(output_dir, 'geom_acq_S2')
-  dir.create(geom_dir, showWarnings = F, recursive = T)
+  dir.create(geom_dir, showWarnings = FALSE, recursive = TRUE)
   # read aoi
-  aoi <- sf::st_read(dsn = dsn_s2_tiles, as_tibble = F, quiet = T)
+  aoi <- sf::st_read(dsn = dsn_s2_tiles, as_tibble = FALSE, quiet = TRUE)
   # get token for authentication on CDSE
   OAuth_client <- get_OAuth_client()
   id <- OAuth_client$id

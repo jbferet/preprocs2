@@ -8,7 +8,7 @@
 #' @param cloudcover numeric. maximum cloud cover over tile
 #' @param stac_info list. stac provider, name of collection url for stac
 #' @param nbCPU numeric. number of CPU
-#' @param doublecheckColl boolean. set TRUE to double check collection
+#' @param overwrite_collection boolean. set TRUE to double check collection
 #'
 #' @return list of collections per plot
 #' @importFrom future.apply future_mapply
@@ -17,21 +17,21 @@
 #' @export
 #'
 get_collections <- function(list_aoi, s2_tiles = NULL, datetime, output_dir,
-                            overwrite = T, cloudcover = 100, stac_info,
-                            nbCPU = 1, doublecheckColl = T){
+                            overwrite = TRUE, cloudcover = 100, stac_info,
+                            nbCPU = 1, overwrite_collection = TRUE){
 
   # create output collection directory
   collection_dir <- file.path(output_dir,'collections')
-  dir.create(path = collection_dir, showWarnings = F, recursive = T)
+  dir.create(path = collection_dir, showWarnings = FALSE, recursive = TRUE)
   # define file names for collection
   FileName_fullcoll <- file.path(collection_dir,paste0('plot_',names(list_aoi),'.rds'))
   names(FileName_fullcoll) <- names(list_aoi)
   # already existing collections
   alreadyExists <- which(file.exists(FileName_fullcoll))
   # should collections be double checked?
-  # if doublecheckColl = F, assumes all collections are ok of file exists
+  # if overwrite_collection = F, assumes all collections are ok of file exists
   dl_collection <- TRUE
-  if (!doublecheckColl & length(alreadyExists)==length(list_aoi))
+  if (!overwrite_collection & length(alreadyExists)==length(list_aoi))
     dl_collection <- FALSE
 
   if (is.null(s2_tiles)){
@@ -48,7 +48,7 @@ get_collections <- function(list_aoi, s2_tiles = NULL, datetime, output_dir,
                                                   datetime = datetime,
                                                   stac_info = stac_info,
                                                   cloudcover = cloudcover),
-                                  SIMPLIFY = F)
+                                  SIMPLIFY = FALSE)
 
     } else if (nbCPU>1){
       cl <- parallel::makeCluster(nbCPU)
@@ -60,7 +60,7 @@ get_collections <- function(list_aoi, s2_tiles = NULL, datetime, output_dir,
                                                                        datetime = datetime,
                                                                        stac_info = stac_info,
                                                                        cloudcover = cloudcover),
-                                                       future.seed = T, SIMPLIFY = F)
+                                                       future.seed = TRUE, SIMPLIFY = FALSE)
       parallel::stopCluster(cl)
       plan(sequential)
     }

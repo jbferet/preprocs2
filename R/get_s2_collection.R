@@ -11,7 +11,7 @@
 #' @param stac_info list. stac provider, name of collection url for stac
 #' @param overwrite boolean. should collection and S2 data be overwritten?
 #' @param nbCPU numeric. number of threads to work with
-#' @param doublecheckColl boolean.
+#' @param overwrite_collection boolean.
 #' @param offset numeric. S2 reflectance offset
 #' @param offset_B2 boolean. should an offset be applied to normalize B2?
 #' @param corr_BRF boolean.
@@ -36,12 +36,13 @@
 get_s2_collection <- function(plots, s2_tiles = NULL, datetime, output_dir,
                               mask_path = NULL, cloudcover = 100,
                               fraction_vegetation = 5, resolution = 10,
-                              stac_info, overwrite = F, nbCPU = 1, doublecheckColl = T,
-                              offset = 1000, offset_B2 = F, corr_BRF = F,
+                              stac_info, overwrite = FALSE, nbCPU = 1,
+                              overwrite_collection = TRUE,
+                              offset = 1000, offset_B2 = FALSE, corr_BRF = FALSE,
                               radiometric_filter = NULL, site_name = NULL,
-                              rast_out = T, additional_process = NULL,
+                              rast_out = TRUE, additional_process = NULL,
                               crs_target = NULL, original_clouds = TRUE,
-                              argsin = NULL, writeoutput = T, resampling = 'near',
+                              argsin = NULL, writeoutput = TRUE, resampling = 'near',
                               bands_to_correct = c('B8A', 'B11', 'B12')){
 
   # get collection for each plot
@@ -55,10 +56,10 @@ get_s2_collection <- function(plots, s2_tiles = NULL, datetime, output_dir,
                                      overwrite = overwrite,
                                      stac_info = stac_info,
                                      nbCPU = nbCPU,
-                                     doublecheckColl = doublecheckColl)
+                                     overwrite_collection = overwrite_collection)
   # define paths
   raster_dir <- file.path(output_dir, 'raster_samples')
-  dir.create(raster_dir, showWarnings = F, recursive = T)
+  dir.create(raster_dir, showWarnings = FALSE, recursive = TRUE)
 
   # identify empty plots
   sel_plots <- which(!is.na(collection_path))
@@ -92,7 +93,7 @@ get_s2_collection <- function(plots, s2_tiles = NULL, datetime, output_dir,
                                        additional_process = additional_process,
                                        argsin = argsin, writeoutput = writeoutput,
                                        bands_to_correct = bands_to_correct),
-                       SIMPLIFY = F)
+                       SIMPLIFY = FALSE)
   } else if (nbCPU>1){
     cl <- parallel::makeCluster(nbCPU)
     plan("cluster", workers = cl)
@@ -122,10 +123,10 @@ get_s2_collection <- function(plots, s2_tiles = NULL, datetime, output_dir,
                                                               argsin = argsin,
                                                               writeoutput = writeoutput,
                                                               bands_to_correct = bands_to_correct),
-                                              future.seed = T,
+                                              future.seed = TRUE,
                                               future.chunk.size = NULL,
                                               future.scheduling = structure(TRUE, ordering = "random"),
-                                              SIMPLIFY = F)
+                                              SIMPLIFY = FALSE)
     })
     parallel::stopCluster(cl)
     plan(sequential)

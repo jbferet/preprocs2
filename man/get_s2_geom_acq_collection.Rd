@@ -11,7 +11,7 @@ get_s2_geom_acq_collection(
   OAuthToken,
   cloudcover,
   output_dir,
-  overwrite = F
+  overwrite = FALSE
 )
 }
 \arguments{

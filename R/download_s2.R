@@ -24,10 +24,11 @@
 #' @export
 #'
 download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
-                        S2_items = NULL, offset = 1000, offset_B2 = F,
-                        stac_info, corr_BRF = F, resampling = 'near',
-                        site_name = NULL, crs_target = NULL, writeoutput = T,
-                        bands_to_correct = c('B8A', 'B11', 'B12'), overwrite = T){
+                        S2_items = NULL, offset = 1000, offset_B2 = FALSE,
+                        stac_info, corr_BRF = FALSE, resampling = 'near',
+                        site_name = NULL, crs_target = NULL, writeoutput = TRUE,
+                        bands_to_correct = c('B8A', 'B11', 'B12'),
+                        overwrite = TRUE){
 
   item_collection <- readRDS(file = collection_path)
   asset_cloud <- get_cloud_asset(stac_info = stac_info)
@@ -46,7 +47,7 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                             MoreArgs = list(collection = stac_info$collection,
                                             aoi = aoi,
                                             crs_target = crs_target),
-                            SIMPLIFY = F)
+                            SIMPLIFY = FALSE)
   names(S2_items_update) <- item_collection$acquisitionDate
 
   for (i in seq_len(length(baseline))){
@@ -100,7 +101,8 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                                           bands_to_correct = bands_to_correct)
       # save reflectance file
       if (writeoutput)
-        terra::writeRaster(x = s2_items[[acq]], filename = filename, overwrite = T)
+        terra::writeRaster(x = s2_items[[acq]], filename = filename,
+                           overwrite = TRUE)
     }
   }
   return(s2_items)

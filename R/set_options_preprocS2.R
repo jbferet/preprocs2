@@ -22,11 +22,11 @@ set_options_preprocS2 <- function(fun, options = NULL){
     if (is.null(options$path_S2_tiling_grid))
       options$path_S2_tiling_grid <- NULL
     if (is.null(options$overwrite))
-      options$overwrite <- T
+      options$overwrite <- TRUE
     if (is.null(options$overwrite_geom_acq))
-      options$overwrite_geom_acq <- T
+      options$overwrite_geom_acq <- TRUE
     if (is.null(options$geom_acq))
-      options$geom_acq <- F
+      options$geom_acq <- FALSE
     if (is.null(options$additional_process))
       options$additional_process <- NULL
     if (is.null(options$bands_to_correct))
