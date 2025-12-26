@@ -6,6 +6,12 @@ get_cdse_credentials <- function() {
   return(creds)
 }
 
+#' get token for CDSE
+#'
+#' @return list of collections per plot
+#' @importFrom httr2 oauth_client oauth_flow_password
+#' @export
+#'
 get_cdse_token <- function() {
   creds <- get_cdse_credentials()
   if (any(sapply(creds, function(x) x == ""))) {
@@ -46,6 +52,8 @@ get_cdse_token <- function() {
 #' @param overwrite logical. If TRUE, existing files are overwritten.
 #'
 #' @return list of downloaded files
+#' @importFrom httr2 request req_auth_bearer_token req_options req_perform req_progress
+#' @importFrom utils unzip
 #'
 #' @examples
 #' \dontrun{

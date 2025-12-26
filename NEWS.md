@@ -1,3 +1,8 @@
+# preprocS2 v2.6.3
+
+## addition 
+- uses overwrite = T when writing vrt
+
 # preprocS2 v2.6.2
 
 ## fix
