@@ -161,7 +161,7 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                                    paste0(site_name, '_',
                                           datetime$from,'_mosaic.vrt'))
       message(output_vrt_path)
-      v <- terra::vrt(x = listfiles, filename = output_vrt_path)
+      v <- terra::vrt(x = listfiles, filename = output_vrt_path, overwrite = T)
     }
     if (!is.null(argsin$output_path)){
       if (dir.exists(argsin$output_path)){
@@ -173,7 +173,7 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                                                      "\\d+", '_' , si,'.tiff'),
                                     full.names = TRUE)
             output_vrt_path <- file.path(output_dir, paste0(site_name, '_', si, '_', datetime$from,'_mosaic.vrt'))
-            v <- terra::vrt(x = listfiles, filename = output_vrt_path)
+            v <- terra::vrt(x = listfiles, filename = output_vrt_path, overwrite = T)
           }
         }
       }
