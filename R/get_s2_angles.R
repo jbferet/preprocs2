@@ -5,7 +5,7 @@
 #' @param dateAcq date. date of aquisition
 #'
 #' @return list
-#' @importFrom terra rast crop values
+#' @importFrom terra rast crop values project
 #' @export
 
 get_s2_angles <- function(path_angles, path_bbox, dateAcq = NULL){
