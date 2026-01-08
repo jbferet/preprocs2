@@ -1,3 +1,8 @@
+# preprocS2 v2.6.4
+
+## fix
+- fix bug introduced when accounting for S2A acquired at the same time as S2B or S2C
+
 # preprocS2 v2.6.3
 
 ## addition 

@@ -1,8 +1,9 @@
-#' gets acquisition date from planetary URL
+#' gets acquisition date from planetary URL / S2 products / item collection
 #'
 #' @param band_url character.
 #' @param S2product character.
 #' @param stac_info list.
+#' @param item_collection list.
 #' @param collection character.
 #'
 #' @return DateAcq dates of acquisition
@@ -10,7 +11,7 @@
 #' @export
 #'
 get_dateAcq <- function (band_url = NULL, S2product = NULL, stac_info = NULL,
-                         collection = 'sentinel-2-l2a') {
+                         item_collection = NULL, collection = 'sentinel-2-l2a'){
   if (! is.null(band_url)){
     band_url <- basename(band_url)
     if (collection == 'sentinel-2-l2a'){
@@ -29,7 +30,19 @@ get_dateAcq <- function (band_url = NULL, S2product = NULL, stac_info = NULL,
     if (stac_info$provider %in% c('lasrc'))
       band_url2 <- lapply(stringr::str_split(string = S2product,
                                              pattern = "_"),'[[',3)
+  } else if (! is.null(item_collection)){
+    S2product <- unlist(lapply(X = item_collection$features, '[[', 'id'))
+    if (stac_info$provider %in% c('mpc', 'esa', 'mtd_esa'))
+      band_url2 <- lapply(stringr::str_split(string = S2product,
+                                             pattern = "_"),'[[',3)
+    if (stac_info$provider %in% c('theia'))
+      band_url2 <- lapply(stringr::str_split(string = S2product,
+                                             pattern = "_"),'[[',2)
+    if (stac_info$provider %in% c('lasrc'))
+      band_url2 <- lapply(stringr::str_split(string = S2product,
+                                             pattern = "_"),'[[',3)
   }
+
   if (stac_info$provider %in% c('mpc', 'esa', 'mtd_esa', 'lasrc'))
     band_url_acq <- lapply(stringr::str_split(string = band_url2,
                                               pattern = "T"),'[[',1)

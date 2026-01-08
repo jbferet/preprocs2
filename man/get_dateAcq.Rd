@@ -2,12 +2,13 @@
 % Please edit documentation in R/get_dateAcq.R
 \name{get_dateAcq}
 \alias{get_dateAcq}
-\title{gets acquisition date from planetary URL}
+\title{gets acquisition date from planetary URL / S2 products / item collection}
 \usage{
 get_dateAcq(
   band_url = NULL,
   S2product = NULL,
   stac_info = NULL,
+  item_collection = NULL,
   collection = "sentinel-2-l2a"
 )
 }
@@ -18,11 +19,13 @@ get_dateAcq(
 
 \item{stac_info}{list.}
 
+\item{item_collection}{list.}
+
 \item{collection}{character.}
 }
 \value{
 DateAcq dates of acquisition
 }
 \description{
-gets acquisition date from planetary URL
+gets acquisition date from planetary URL / S2 products / item collection
 }

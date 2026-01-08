@@ -7,7 +7,7 @@
 #' @param bands_to_correct character. name of bands to correct from geometry
 #'
 #' @return list of collections per plot
-#' @importFrom terra rast values na.omit crop buffer
+#' @importFrom terra rast values na.omit crop buffer project
 #' @import prosail
 #' @importFrom methods as
 #' @importFrom utils packageVersion

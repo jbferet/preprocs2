@@ -7,7 +7,7 @@
 #' @param collection character.
 #'
 #' @return features
-#' @importFrom terra same.crs crs crop
+#' @importFrom terra same.crs crs crop project
 #' @importFrom sf st_transform
 #' @importFrom rstac items_sign sign_planetary_computer assets_url
 #' @importFrom stats setNames
