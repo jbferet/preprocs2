@@ -95,9 +95,15 @@ cdse_download <- function(
     unzipfile <- file.path(outdir, f$id)
     zipfile <- paste0(unzipfile, ".zip")
     outfile <- ifelse(unzip, unzipfile, zipfile)
-    if ((file.exists(outfile) | dir.exists(outfile)) && !overwrite) {
+    safedir <- paste0(outfile,'.SAFE')
+    if ((file.exists(outfile) | dir.exists(outfile)) |
+        dir.exists(safedir)  && !overwrite) {
       message(sprintf("Already exists, skipping: %s", outfile))
-      outfiles <- c(outfiles, outfile)
+      if (dir.exists(safedir)){
+        outfiles <- c(outfiles, safedir)
+      } else {
+        outfiles <- c(outfiles, outfile)
+      }
       next
     }
     print(sprintf("Downloading: %s", f$id))
@@ -192,39 +198,45 @@ cdse_download <- function(
 #'   items_fetch()
 #' }
 #' @export
+
 s2_search <- function(
     start, end = NULL, tile = NULL,
     level = "L2A", id_pat = NULL) {
   # TODO: add filter on orbit number
-  collections <- "SENTINEL-2"
+
+  stac_endpoint <- "https://stac.dataspace.copernicus.eu/v1"
+
   start <- as.Date(start)
   if (is.null(end)) {
     end <- start + 1
   } else {
     end <- as.Date(end)
   }
-  stac_endpoint <- "https://catalogue.dataspace.copernicus.eu/stac"
+
+  if (level == "L1C") {
+    collections <- "sentinel-2-l1c"
+  } else if (level == "L2A") {
+    collections <- "sentinel-2-l2a"
+  } else {
+    stop("Level must be L1C or L2A")
+  }
+
   catalog <- rstac::stac(stac_endpoint)
+
+  start <- format(as.POSIXct(start), format = "%Y-%m-%dT%H:%M:%SZ")
+  end <- format(as.POSIXct(end), format = "%Y-%m-%dT%H:%M:%SZ")
   request <- rstac::stac_search(
     q = catalog,
     collections = collections,
     datetime = paste0(start, "/", end)
   )
 
-  # add level filter
-  if (level == "L1C") {
-    product_type <- "S2MSI1C"
-  } else if (level == "L2A") {
-    product_type <- "S2MSI2A"
-  } else {
-    stop("Level must be L1C or L2A")
-  }
-  ef <- "productType == {{product_type}}"
-
   # add tile filter
+  ef <- c()
   if (!is.null(tile)) {
     tile <- gsub("^T", "", tile, perl = TRUE)
-    ef <- c(ef, "tileId == {{tile}}")
+    mgrs_tile = glue::glue("MGRS-{tile}")
+    ef <- c(ef, '`grid:code` == {{mgrs_tile}}')
   }
 
   # add id filter
@@ -232,12 +244,163 @@ s2_search <- function(
     ef <- c(ef, "id %like% {{id_pat}}")
   }
 
-  ef <- paste0(ef, collapse = " && ")
-  request <- eval(parse(text = sprintf("request |> rstac::ext_filter(%s)", ef)))
+  if (length(ef) > 0) {
+    ef <- paste0(ef, collapse = " && ")
+    request <- eval(parse(text = sprintf("request |> rstac::ext_filter(%s)", ef)))
+  }
 
   items <- request |>
     rstac::post_request() |>
     rstac::items_fetch()
 
   return(items)
+}
+
+
+
+
+# s2_search <- function(
+#     start, end = NULL, tile = NULL,
+#     level = "L2A", id_pat = NULL) {
+#   # TODO: add filter on orbit number
+#   collections <- "SENTINEL-2"
+#   start <- as.Date(start)
+#   if (is.null(end)) {
+#     end <- start + 1
+#   } else {
+#     end <- as.Date(end)
+#   }
+#   stac_endpoint <- "https://catalogue.dataspace.copernicus.eu/stac"
+#   catalog <- rstac::stac(stac_endpoint)
+#   request <- rstac::stac_search(
+#     q = catalog,
+#     collections = collections,
+#     datetime = paste0(start, "/", end)
+#   )
+#
+#   # add level filter
+#   if (level == "L1C") {
+#     product_type <- "S2MSI1C"
+#   } else if (level == "L2A") {
+#     product_type <- "S2MSI2A"
+#   } else {
+#     stop("Level must be L1C or L2A")
+#   }
+#   ef <- "productType == {{product_type}}"
+#
+#   # add tile filter
+#   if (!is.null(tile)) {
+#     tile <- gsub("^T", "", tile, perl = TRUE)
+#     ef <- c(ef, "tileId == {{tile}}")
+#   }
+#
+#   # add id filter
+#   if (!is.null(id_pat)) {
+#     ef <- c(ef, "id %like% {{id_pat}}")
+#   }
+#
+#   ef <- paste0(ef, collapse = " && ")
+#   request <- eval(parse(text = sprintf("request |> rstac::ext_filter(%s)", ef)))
+#
+#   items <- request |>
+#     rstac::post_request() |>
+#     rstac::items_fetch()
+#
+#   return(items)
+# }
+
+
+#' search items from Copernicus DataSpace
+#'
+#' @param collection character. 'SENTINEL-2' as default
+#' @param asset_names character.
+#' @param productType character.
+#' @param tileId character.
+#' @param bbox numeric.
+#' @param SpatVect SpatVector.
+#' @param cloudcover numeric.
+#' @param datetime character.
+#'
+#' @return list of items corresponding to input parameters
+#' @importFrom rstac stac stac_search ext_filter post_request items_fetch assets_select items_filter
+#' @importFrom terra ext
+#' @export
+
+search_items <- function(collection = 'SENTINEL-2', asset_names = 'PRODUCT',
+                         productType = "S2MSI2A",
+                         tileId = NULL, bbox = NULL, SpatVect = NULL,
+                         cloudcover = 100, datetime){
+
+  s_obj <- rstac::stac("https://catalogue.dataspace.copernicus.eu/stac")
+  # if SpatVect provided: define bounding box
+  if (!is.null(SpatVect)){
+    bbox <- terra::ext(SpatVect)
+    bbox <- c(bbox$xmin, bbox$ymin, bbox$xmax, bbox$ymax)
+  }
+
+  if (!is.null(tileId) & is.null(bbox)){
+    products <- s_obj |> stac_search(
+      collections = collection,
+      datetime = datetime) |>
+      ext_filter(tileId == {{tileId}} &&
+                   productType == {{productType}}) |>
+      post_request() |>
+      items_fetch() |>
+      assets_select(asset_names=asset_names) |>
+      items_filter(properties$cloudCover < cloudcover)
+  } else if (!is.null(bbox) & !is.null(tileId)){
+    products <- s_obj |> stac_search(
+      collections = collection,
+      datetime = datetime, bbox = bbox) |>
+      ext_filter(tileId == {{tileId}} &&
+                   productType == {{productType}}) |>
+      post_request() |>
+      items_fetch() |>
+      assets_select(asset_names=asset_names) |>
+      items_filter(properties$cloudCover < cloudcover)
+
+  } else if (!is.null(bbox) & is.null(tileId)){
+    products <- s_obj |> stac_search(
+      collections = collection,
+      datetime = datetime, bbox = bbox) |>
+      ext_filter(productType == {{productType}}) |>
+      post_request() |>
+      items_fetch() |>
+      assets_select(asset_names=asset_names) |>
+      items_filter(properties$cloudCover < cloudcover)
+  } else if (is.null(bbox) & is.null(tileId)){
+    message('define spatial extent as tileID or bbox')
+  }
+
+
+  # check processing baseline and select latest for each acquisition
+  processing_baseline_items <- unlist(lapply(lapply(products$features,
+                                                    '[[', 'properties'),
+                                             '[[', 'processorVersion'))
+  processing_baseline_items <- gsub(x = processing_baseline_items, pattern = '99.99', replacement = '00.00')
+  datetime_items <- as.Date(unlist(lapply(lapply(products$features,
+                                                 '[[', 'properties'),
+                                          '[[', 'datetime')))
+  name_items <- unlist(lapply(products$features,'[[', 'id'))
+  uniqueDate <- unique(datetime_items)
+  sel_pb <- c()
+  for (acq in uniqueDate){
+    sel1 <- which(datetime_items==acq)
+    pbl <- processing_baseline_items[sel1]
+    if (max(as.numeric(pbl))>0) {
+      selpn <- which(as.numeric(pbl)==max(as.numeric(pbl)))
+      sel_pb <- c(sel_pb, sel1[selpn])
+    }
+  }
+  if (length(sel_pb)==0) message('no items correspond to processing_baseline')
+  products$features <- products$features[sel_pb]
+  # get items in chronological order
+  if (length(products$features)>0){
+    datetime_items <- as.Date(unlist(lapply(lapply(products$features,
+                                                   '[[', 'properties'),
+                                            '[[', 'datetime')))
+    sdate <- sort(as.numeric(datetime_items), index.return = T)
+    products$features <- products$features[sdate$ix]
+  }
+  return(products)
 }

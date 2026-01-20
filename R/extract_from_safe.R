@@ -40,7 +40,10 @@ extract_from_safe <- function(safe_path, path_aoi = NULL, resolution = 10,
   # Save Reflectance file as ENVI image with BIL interleaves
   # metadata files are important to account for offset applied on S2 L2A products
   tile_S2 <- get_tile(S2obj$S2_Bands$GRANULE)
-  dateAcq_S2 <- get_dateAcq(S2product = dirname(dirname(S2obj$S2_Bands$GRANULE)))
+  stac_info <- list('provider' = 'esa')
+  dateAcq_S2 <- get_dateAcq(S2product = dirname(dirname(S2obj$S2_Bands$GRANULE)),
+                            stac_info = stac_info)
+  # dateAcq_S2 <- get_dateAcq(S2product = dirname(dirname(S2obj$S2_Bands$GRANULE)))
   safename <- basename(safe_path)
   sensor <- strsplit(x = safename, split = '_')[[1]][1]
   s2mission <- gsub(pattern = 'S', x = sensor, replacement = '')

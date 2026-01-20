@@ -1,3 +1,12 @@
+# preprocS2 v2.6.5
+
+## fix
+- update stac endpoint and cdse_download (see sen2proc package)
+- corrected datatype into filetype in fun_SI_fromSpatRaster.R
+
+## addition
+- added function test_s2_collection.R
+
 # preprocS2 v2.6.4
 
 ## fix
