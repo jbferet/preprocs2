@@ -19,7 +19,7 @@ get_missing_plots <- function(plots, pursue_existing, datetime, output_dir,
   missing <- seq_len(length(plots))
   if (pursue_existing){
     minyear <- lubridate::year(datetime$from)
-    s2dl <- stringr::str_split(string = list.files(output_dir),
+    s2dl <- stringr::str_split(string = list.files(output_dir, pattern = '.tiff'),
                                pattern = paste0('_', minyear))
     s2dl <- unlist(unique(lapply(X = s2dl, '[[', 1)))
     pattern_ <- paste0(pattern, '_')

@@ -1,3 +1,19 @@
+# preprocS2 v2.6.6
+
+## change
+- add variables in test_s2_collection
+- specify '.tiff' files when listing files in get_missing_plots
+- use install_gitlab instead of install_github
+
+# preprocS2 v2.6.5
+
+## fix
+- update stac endpoint and cdse_download (see sen2proc package)
+- corrected datatype into filetype in fun_SI_fromSpatRaster.R
+
+## addition
+- added function test_s2_collection.R
+
 # preprocS2 v2.6.4
 
 ## fix

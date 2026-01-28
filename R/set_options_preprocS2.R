@@ -42,6 +42,18 @@ set_options_preprocS2 <- function(fun, options = NULL){
     if (is.null(options$nbCPU))
       options$nbCPU <- 1
   }
+  if (fun == 'test_s2_collection'){
+    if (is.null(options$cloudcover))
+      options$cloudcover <- 100
+    if (is.null(options$path_S2_tiling_grid))
+      options$path_S2_tiling_grid <- 'Sentinel-2_tiling_grid.kml'
+    if (is.null(options$overwrite))
+      options$overwrite <- TRUE
+    if (is.null(options$crs_target))
+      options$crs_target <- TRUE
+    if (is.null(options$cellsize))
+      options$cellsize <- 10000
+  }
   return(options)
 }
 
