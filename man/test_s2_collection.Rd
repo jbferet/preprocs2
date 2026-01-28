@@ -10,7 +10,9 @@ test_s2_collection(
   output_dir,
   site_name = NULL,
   stac_info,
-  mask_path = NULL
+  mask_path = NULL,
+  cellsize,
+  collection
 )
 }
 \arguments{
@@ -25,6 +27,10 @@ test_s2_collection(
 \item{stac_info}{list. stac provider, name of collection url for stac}
 
 \item{mask_path}{character.}
+
+\item{cellsize}{numeric.}
+
+\item{collection}{character.}
 }
 \value{
 plots list of plots

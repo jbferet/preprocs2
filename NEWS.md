@@ -1,3 +1,9 @@
+# preprocS2 v2.6.6
+
+## change
+- add variables in test_s2_collection
+- specify '.tiff' files when listing files in get_missing_plots
+
 # preprocS2 v2.6.5
 
 ## fix

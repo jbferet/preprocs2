@@ -125,6 +125,7 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
     message('download S2 collection')
     stac_info <- get_stac_info(stac_info)
     s2_tiles <- S2_grid$s2_tiles
+    rast_out <- FALSE
     S2_items <- get_s2_collection(plots = plots[missing],
                                   datetime = datetime,
                                   nbCPU = nbCPU,
@@ -142,7 +143,7 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                                   offset_B2 = offset_B2,
                                   corr_BRF = corr_BRF,
                                   radiometric_filter = radiometric_filter,
-                                  rast_out = FALSE,
+                                  rast_out = rast_out,
                                   crs_target = crs_target,
                                   resampling = resampling,
                                   additional_process = additional_process,

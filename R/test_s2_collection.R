@@ -6,6 +6,8 @@
 #' @param site_name character. name of the study site
 #' @param stac_info list. stac provider, name of collection url for stac
 #' @param mask_path character.
+#' @param cellsize numeric.
+#' @param collection character.
 #'
 #' @return plots list of plots
 #' @importFrom rstac stac ext_filter post_request
@@ -15,7 +17,8 @@
 #' @export
 
 test_s2_collection <- function(aoi_path, datetime, output_dir, site_name = NULL,
-                               stac_info, mask_path = NULL){
+                               stac_info, mask_path = NULL, cellsize,
+                               collection){
 
   message('creating a output_dir/test subdirectory')
   output_dir <- file.path(output_dir, 'test')
@@ -126,4 +129,4 @@ test_s2_collection <- function(aoi_path, datetime, output_dir, site_name = NULL,
     }
   }
   return(item_collection)
-s}
+}
