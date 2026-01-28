@@ -3,6 +3,7 @@
 ## change
 - add variables in test_s2_collection
 - specify '.tiff' files when listing files in get_missing_plots
+- use install_gitlab instead of install_github
 
 # preprocS2 v2.6.5
 
