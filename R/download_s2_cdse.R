@@ -108,7 +108,7 @@ cdse_download <- function(
     }
     print(sprintf("Downloading: %s", f$id))
 
-    product_url <- f$assets[["PRODUCT"]]$href
+    product_url <- f$assets[["Product"]]$href
 
     if (Sys.time() >= token$expires_at) {
       token <- httr2::oauth_flow_refresh(client, token$refresh_token)
