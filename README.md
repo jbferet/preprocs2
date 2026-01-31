@@ -17,7 +17,7 @@ It aims at downloading and preparing Sentinel-2 images for further processings u
 ## Installation
 
 ```
-devtools::install_gitlab('jbferet/preprocS2')
+devtools::install_github('jbferet/preprocS2')
 ```
 
 ## Access to CDSE STAC catalog

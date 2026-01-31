@@ -77,19 +77,19 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
     BRF_LUT_ref <- applySensorCharacteristics(wvl = lambda, SRF = srf,
                                                    InRefl = BRF_LUT_1nm)
   } else {
-    lambda <- prosail::spec_prospect_fullrange$lambda
+    lambda <- prosail::spec_prospect_full_range$lambda
     srf <- prosail::get_spectral_response_function(sensor_name = SensorName)
     InputPROSAIL <- prosail::get_input_prosail(atbd = TRUE,
                                                nb_samples = nbsamples,
                                                geom_acq = geom_acq)
     res <- generate_lut_prosail(SAILversion = '4SAIL',
                                 input_prosail = InputPROSAIL,
-                                spec_prospect = prosail::spec_prospect_fullrange,
+                                spec_prospect = prosail::spec_prospect_full_range,
                                 spec_soil = prosail::spec_soil,
                                 spec_atm = prosail::spec_atm)
-    BRF_LUT_1nm <- res$brf
-    BRF_LUT <- apply_sensor_characteristics(wvl = lambda, srf = srf,
-                                            input_refl_table = BRF_LUT_1nm)
+    refl_LUT_1nm <- res$surf_refl
+    refl_LUT <- apply_sensor_characteristics(wvl = lambda, srf = srf,
+                                            refl = refl_LUT_1nm)
 
     # produce prosail LUT in standard nadir conditions
     InputPROSAIL_standard <- InputPROSAIL
@@ -98,12 +98,12 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
     InputPROSAIL_standard$psi <- 90
     res <- generate_lut_prosail(SAILversion = '4SAIL',
                                 input_prosail = InputPROSAIL_standard,
-                                spec_prospect = prosail::spec_prospect_fullrange,
+                                spec_prospect = prosail::spec_prospect_full_range,
                                 spec_soil = prosail::spec_soil,
                                 spec_atm = prosail::spec_atm)
-    BRF_LUT_1nm <- res$brf
-    BRF_LUT_ref <- apply_sensor_characteristics(wvl = lambda, srf = srf,
-                                                input_refl_table = BRF_LUT_1nm)
+    refl_LUT_1nm <- res$surf_refl
+    refl_LUT_ref <- apply_sensor_characteristics(wvl = lambda, srf = srf,
+                                                refl = refl_LUT_1nm)
 
   }
   BRF_LUT <- t(as.matrix(BRF_LUT))

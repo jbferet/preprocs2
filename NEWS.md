@@ -4,6 +4,11 @@
 - add variables in test_s2_collection
 - specify '.tiff' files when listing files in get_missing_plots
 - use install_gitlab instead of install_github
+- update github mirror
+- update functions related to prosail v3.0
+
+## fix
+- fix cdse_download based on sen2proc
 
 # preprocS2 v2.6.5
 
