@@ -70,7 +70,7 @@ displayed in the User Info of your account settings.
 
 
 <p float="left">
-   <img src="../man/figures/Oauth.png" width="100%" />
+   <img src="../man/figures/Oauth.png" width="50%" />
 </p>
 
 
