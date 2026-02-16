@@ -35,7 +35,7 @@ Catalog API via [Copernicus Dataspace](https://dataspace.copernicus.eu/).
 
 To be able to download data from the Sentinel-hub STAC Catalog API via 
 [Copernicus Dataspace](https://dataspace.copernicus.eu/), 
-create an account on the CDSE plateform, then add your credentials to your 
+create an account on the CDSE platform, then add your credentials to your 
 `~/.Renviron`. 
 
 First, open the `~/.Renviron` file for your R install: 
@@ -64,14 +64,17 @@ Save the `~/.Renviron` file and restart your R session. You should then be able
 to use all functionalities included in `preprocS2`.
 
 **Warning**: to activate the **OAuth clients**, please click on the `+ Create`
-button, and make sure you save your ID and password. 
-The ID should start with `sh-` and this is **not** the User ID and Account ID 
-displayed in the User Info of your account settings.
+button, in the `Account settings` of the CDSE platform (See screenshot below).
 
 
 <p float="left">
-   <img src="../man/figures/Oauth.png" width="50%" />
+   <img src="./man/figures/Oauth.png" width="70%" />
 </p>
+
+
+Make sure you save your ID and password which will be displayed once only. 
+The ID should start with `sh-` and this is **not** the User ID and Account ID 
+displayed in the User Info of your account settings.
 
 
 ## Example
