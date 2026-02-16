@@ -53,6 +53,21 @@ CDSE_PASSWORD = "My_PaSsW0rD"
 
 Finally, activate the **OAuth clients** following 
 [this link](https://shapps.dataspace.copernicus.eu/dashboard/#/account/settings).
+
+
+**Warning**: to activate the **OAuth clients**, please click on the `+ Create`
+button, in the `Account settings` of the CDSE platform (See screenshot below).
+Make sure you save your ID and password which will be displayed once only. 
+The ID should start with `sh-` and this is **not** the User ID and Account ID 
+displayed in the User Info of your account settings.
+
+
+<p float="left">
+   <img src="./man/figures/Oauth.png" width="70%" />
+</p>
+
+
+
 Then add your **OAuth clients** credentials to your `~/.Renviron`:
 
 ```r
@@ -63,18 +78,7 @@ OAUTH_CDSE_PWD = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 Save the `~/.Renviron` file and restart your R session. You should then be able 
 to use all functionalities included in `preprocS2`.
 
-**Warning**: to activate the **OAuth clients**, please click on the `+ Create`
-button, in the `Account settings` of the CDSE platform (See screenshot below).
 
-
-<p float="left">
-   <img src="./man/figures/Oauth.png" width="70%" />
-</p>
-
-
-Make sure you save your ID and password which will be displayed once only. 
-The ID should start with `sh-` and this is **not** the User ID and Account ID 
-displayed in the User Info of your account settings.
 
 
 ## Example
