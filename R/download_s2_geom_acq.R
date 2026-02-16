@@ -90,7 +90,7 @@ download_s2_geom_acq <- function(aoi, geom_dir, collection_geom_acq_S2, nbCPU=1)
                                             secret = pwd)
         bbox <- sf::st_bbox(aoi)
         cl <- parallel::makeCluster(nbCPU)
-        plan("cluster", workers = cl)
+        with(plan("cluster", workers = cl), local = TRUE)
         handlers(global = TRUE)
         handlers("cli")
         with_progress({

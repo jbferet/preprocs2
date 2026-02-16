@@ -43,9 +43,14 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
   # produce prosail LUT corresponding to mean geometry of acquisition
   geom_acq <- list()
   psi <- abs(mean_angle$saa-mean_angle$vaa)
-  if (psi>180) psi <- 360-psi
-  geom_acq$min <- data.frame('tto' = mean_angle$vza, 'tts' = mean_angle$sza, 'psi' = psi)
-  geom_acq$max <- data.frame('tto' = mean_angle$vza, 'tts' = mean_angle$sza, 'psi' = psi)
+  if (psi>180)
+    psi <- 360-psi
+  geom_acq$min <- data.frame('tto' = mean_angle$vza,
+                             'tts' = mean_angle$sza,
+                             'psi' = psi)
+  geom_acq$max <- data.frame('tto' = mean_angle$vza,
+                             'tts' = mean_angle$sza,
+                             'psi' = psi)
   # get prosail simulations for current acquisition and for standard configuration
   nbsamples <- 100
   SensorName <- 'Sentinel_2'
@@ -59,9 +64,9 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
                                 SpecPROSPECT = prosail::SpecPROSPECT_FullRange,
                                 SpecSOIL = prosail::SpecSOIL,
                                 SpecATM = prosail::SpecATM)
-    BRF_LUT_1nm <- res$BRF
-    BRF_LUT <- applySensorCharacteristics(wvl = lambda,
-                                          SRF = srf, InRefl = BRF_LUT_1nm)
+    refl_LUT_1nm <- res$BRF
+    refl_LUT <- applySensorCharacteristics(wvl = lambda,
+                                          SRF = srf, InRefl = refl_LUT_1nm)
 
     # produce prosail LUT in standard nadir conditions
     InputPROSAIL_standard <- InputPROSAIL
@@ -73,19 +78,19 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
                                 SpecPROSPECT = prosail::SpecPROSPECT_FullRange,
                                 SpecSOIL = prosail::SpecSOIL,
                                 SpecATM = prosail::SpecATM)
-    BRF_LUT_1nm <- res$BRF
-    BRF_LUT_ref <- applySensorCharacteristics(wvl = lambda, SRF = srf,
-                                                   InRefl = BRF_LUT_1nm)
+    refl_LUT_1nm <- res$BRF
+    refl_LUT_ref <- applySensorCharacteristics(wvl = lambda, SRF = srf,
+                                                   InRefl = refl_LUT_1nm)
   } else {
     lambda <- prosail::spec_prospect_full_range$lambda
-    srf <- prosail::get_spectral_response_function(sensor_name = SensorName)
+    srf <- prosail::get_srf_sensor(sensor_name = SensorName)
     InputPROSAIL <- prosail::get_input_prosail(atbd = TRUE,
                                                nb_samples = nbsamples,
                                                geom_acq = geom_acq)
     res <- generate_lut_prosail(SAILversion = '4SAIL',
                                 input_prosail = InputPROSAIL,
                                 spec_prospect = prosail::spec_prospect_full_range,
-                                spec_soil = prosail::spec_soil,
+                                spec_soil = prosail::spec_soil_atbd_v2,
                                 spec_atm = prosail::spec_atm)
     refl_LUT_1nm <- res$surf_refl
     refl_LUT <- apply_sensor_characteristics(wvl = lambda, srf = srf,
@@ -99,17 +104,17 @@ correct_geom <- function(S2_rast, output_dir, aoi, acq,
     res <- generate_lut_prosail(SAILversion = '4SAIL',
                                 input_prosail = InputPROSAIL_standard,
                                 spec_prospect = prosail::spec_prospect_full_range,
-                                spec_soil = prosail::spec_soil,
+                                spec_soil = prosail::spec_soil_atbd_v2,
                                 spec_atm = prosail::spec_atm)
     refl_LUT_1nm <- res$surf_refl
     refl_LUT_ref <- apply_sensor_characteristics(wvl = lambda, srf = srf,
                                                 refl = refl_LUT_1nm)
 
   }
-  BRF_LUT <- t(as.matrix(BRF_LUT))
-  BRF_LUT_ref <- t(as.matrix(BRF_LUT_ref))
-  colnames(BRF_LUT) <- colnames(BRF_LUT_ref) <- srf$Spectral_Bands
-  ratioBRF <- 1+(BRF_LUT_ref-BRF_LUT)/BRF_LUT
+  refl_LUT <- t(as.matrix(refl_LUT))
+  refl_LUT_ref <- t(as.matrix(refl_LUT_ref))
+  colnames(refl_LUT) <- colnames(refl_LUT_ref) <- srf$Spectral_Bands
+  ratioBRF <- 1+(refl_LUT_ref-refl_LUT)/refl_LUT
   ratioCorr <- colMeans(ratioBRF)
   originalnames <- names(S2_rast)
   names(S2_rast) <- srf$Spectral_Bands

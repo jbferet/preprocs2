@@ -9,7 +9,9 @@ get_asset_terra(
   asset_names,
   aoi,
   crs_target = NULL,
-  collection = "sentinel-2-l2a"
+  collection = "sentinel-2-l2a",
+  resampling = "near",
+  resolution = 10
 )
 }
 \arguments{
@@ -22,6 +24,10 @@ get_asset_terra(
 \item{crs_target}{numeric.}
 
 \item{collection}{character.}
+
+\item{resampling}{character.}
+
+\item{resolution}{numeric.}
 }
 \value{
 features

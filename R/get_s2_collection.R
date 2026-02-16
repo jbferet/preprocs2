@@ -96,7 +96,7 @@ get_s2_collection <- function(plots, s2_tiles = NULL, datetime, output_dir,
                        SIMPLIFY = FALSE)
   } else if (nbCPU>1){
     cl <- parallel::makeCluster(nbCPU)
-    plan("cluster", workers = cl)
+    with(plan("cluster", workers = cl), local = TRUE)
     handlers(global = TRUE)
     handlers("cli")
     with_progress({

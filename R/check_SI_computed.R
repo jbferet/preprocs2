@@ -22,8 +22,10 @@ check_SI_computed <- function(dsn_grid, output_SI, SI_list, site_name){
   listSI <- ID <- list()
   for (si in SI_list){
     listSI[[si]] <- list.files(path = output_SI, pattern = si)
-    ID[[si]] <- gsub(pattern = paste0(site_name, '_'), replacement = '', x = listSI[[si]])
-    ID[[si]] <- gsub(pattern = paste0('_', si, '.tiff'), replacement = '', x = ID[[si]])
+    ID[[si]] <- gsub(pattern = paste0(site_name, '_'),
+                     replacement = '', x = listSI[[si]])
+    ID[[si]] <- gsub(pattern = paste0('_', si, '\\.tiff'),
+                     replacement = '', x = ID[[si]])
   }
   ID_all <- unlist(ID)
   already_computed <- names(which(table(ID_all)==length(SI_list)))

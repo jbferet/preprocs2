@@ -29,7 +29,7 @@ get_s2_tiling(
   additional_process = NULL,
   original_clouds = TRUE,
   cellsize = 10000,
-  pursue_existing = TRUE,
+  resume = TRUE,
   argsin = NULL,
   writeoutput = TRUE,
   bypassDL = FALSE,
@@ -85,7 +85,7 @@ get_s2_tiling(
 
 \item{cellsize}{numeric. cell size}
 
-\item{pursue_existing}{boolean. should previously downloaded data be accounted for?}
+\item{resume}{boolean. should previously downloaded data be accounted for?}
 
 \item{argsin}{list. list of arguments for additional_process}
 

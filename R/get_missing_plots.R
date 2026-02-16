@@ -1,7 +1,7 @@
 #' return vector grid corresponding to an area of interest
 #'
 #' @param plots character. list of vector plots
-#' @param pursue_existing boolean. set TRUE if continue already started process
+#' @param resume boolean. set TRUE if continue already started process
 #' @param datetime list. datetime of acquisition
 #' @param output_dir character. output dir
 #' @param pattern character. pattern to look for in output_dir
@@ -11,13 +11,13 @@
 #' @importFrom lubridate year
 #' @export
 
-get_missing_plots <- function(plots, pursue_existing, datetime, output_dir,
+get_missing_plots <- function(plots, resume, datetime, output_dir,
                               pattern = NULL){
 
   if (is.null(pattern))
     pattern <- 'plot'
   missing <- seq_len(length(plots))
-  if (pursue_existing){
+  if (resume){
     minyear <- lubridate::year(datetime$from)
     s2dl <- stringr::str_split(string = list.files(output_dir, pattern = '.tiff'),
                                pattern = paste0('_', minyear))

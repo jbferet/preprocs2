@@ -24,7 +24,7 @@
 #' @param additional_process additional process to be applied to S2_items once downloaded
 #' @param original_clouds boolean. should original cloud mask be used or not?
 #' @param cellsize numeric. cell size
-#' @param pursue_existing boolean. should previously downloaded data be accounted for?
+#' @param resume boolean. should previously downloaded data be accounted for?
 #' @param argsin list. list of arguments for additional_process
 #' @param writeoutput boolean. should output file be saved?
 #' @param bypassDL boolean. the download of S2 data is not performed
@@ -43,7 +43,7 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                           offset = 1000, offset_B2 = FALSE, corr_BRF = FALSE,
                           crs_target = NULL, radiometric_filter = NULL,
                           additional_process = NULL, original_clouds = TRUE,
-                          cellsize = 10000, pursue_existing = TRUE,
+                          cellsize = 10000, resume = TRUE,
                           argsin = NULL, writeoutput = TRUE, bypassDL = FALSE,
                           bands_to_correct = c('B8A', 'B11', 'B12')){
 
@@ -81,13 +81,13 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
     # check if already existing and list plots to process
     if (is.null(argsin)){
       missing <- get_missing_plots(plots = plots,
-                                   pursue_existing = pursue_existing,
+                                   resume = resume,
                                    datetime = datetime,
                                    output_dir = s2_raster_dir,
                                    pattern = site_name)
     } else {
       missing <- get_missing_plots(plots = plots,
-                                   pursue_existing = pursue_existing,
+                                   resume = resume,
                                    datetime = datetime,
                                    output_dir = argsin$output_path,
                                    pattern = argsin$site_name)

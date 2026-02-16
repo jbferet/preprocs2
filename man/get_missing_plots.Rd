@@ -4,12 +4,12 @@
 \alias{get_missing_plots}
 \title{return vector grid corresponding to an area of interest}
 \usage{
-get_missing_plots(plots, pursue_existing, datetime, output_dir, pattern = NULL)
+get_missing_plots(plots, resume, datetime, output_dir, pattern = NULL)
 }
 \arguments{
 \item{plots}{character. list of vector plots}
 
-\item{pursue_existing}{boolean. set TRUE if continue already started process}
+\item{resume}{boolean. set TRUE if continue already started process}
 
 \item{datetime}{list. datetime of acquisition}
 

@@ -9,11 +9,14 @@
 #'
 clean_rasters <- function(raster_dir, Acqdates, iChar){
   for (dayt in Acqdates){
-    imgName <- file.path(raster_dir,paste0('plot_',iChar,'_',as.Date(dayt),'_SCL.tiff'))
+    imgName <- file.path(raster_dir,paste0('plot_',iChar,'_',
+                                           as.Date(dayt),'_SCL.tiff'))
     unlink(imgName)
-    imgName <- file.path(raster_dir,paste0('plot_',iChar,'_',as.Date(dayt),'_CLM.tiff'))
+    imgName <- file.path(raster_dir,paste0('plot_',iChar,'_',
+                                           as.Date(dayt),'_CLM.tiff'))
     unlink(imgName)
-    imgName <- file.path(raster_dir,paste0('plot_',iChar,'_',as.Date(dayt),'.tiff'))
+    imgName <- file.path(raster_dir,paste0('plot_',iChar,'_',
+                                           as.Date(dayt),'.tiff'))
     unlink(imgName)
   }
   return()

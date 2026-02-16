@@ -92,7 +92,8 @@ download_s2_collection <- function(collection_path, aoi, iChar, raster_dir,
                                     argsin = argsin)
     }
   }
-  if (!is.null(p)) p()
+  if (!is.null(p))
+    p()
   if (!rast_out)
     S2_items <- NULL
   return(S2_items)

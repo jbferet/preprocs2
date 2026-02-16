@@ -9,9 +9,10 @@
 #' @importFrom stringr str_detect
 #' @export
 #'
-check_existing_mask <- function(item_collection, band_url, collection = 'sentinel-2-l2a', rootname){
+check_existing_mask <- function(item_collection, band_url,
+                                collection = 'sentinel-2-l2a', rootname){
   # get bands per acquisition
-  selAcq <- list()
+  selected_acquisition <- list()
   collec_dl <- item_collection
   # prepare if part already processed
   # is mask already updated ? intitalize to FALSE
@@ -28,12 +29,12 @@ check_existing_mask <- function(item_collection, band_url, collection = 'sentine
       sel <- which(stringr::str_detect(string = band_url,
                                        pattern = paste0('MSIL2A-SEN2LASRC_',dateacq2)))
     }
-    selAcq[[dateacq1]] <- check_order_bands(acq = band_url[sel],
+    selected_acquisition[[dateacq1]] <- check_order_bands(acq = band_url[sel],
                                             patterns = asset_names)
     # check if mask exists and eliminate from collection to download
     out_udmask_file <- paste0(rootname, as.Date(dateacq), '_BIN_v2.tiff')
     if (file.exists(out_udmask_file)) {
-      selAcq[[dateacq1]] <- NULL
+      selected_acquisition[[dateacq1]] <- NULL
       elim <- which(collec_dl$acquisitionDate == dateacq1)
       collec_dl$acquisitionDate <- collec_dl$acquisitionDate[-elim]
       collec_dl$features <- collec_dl$features[-elim]
@@ -41,5 +42,6 @@ check_existing_mask <- function(item_collection, band_url, collection = 'sentine
       df_acq$already[elim2] <- T
     }
   }
-  return(list('collec_dl' = collec_dl, 'df_acq' = df_acq, 'selAcq' = selAcq))
+  return(list('collec_dl' = collec_dl, 'df_acq' = df_acq,
+              'selected_acquisition' = selected_acquisition))
 }
