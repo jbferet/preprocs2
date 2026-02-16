@@ -222,8 +222,10 @@ save_reflectance_s2(S2_stars = S2obj$S2_Stack,
                     MTD_MSI = S2obj$S2_Bands$metadata_MSI)
 ```
 
-## Additional functionalities
+# Go further and download larger regions
 
 S2 images corresponding to large extents can be downloaded using aoi tiling and 
 parallel download / process to speed it up.
-This will be documented soon.
+
+Tutorial vignettes describing these additional functionalities are available 
+[here](https://jbferet.github.io/biodivMapR/articles/biodivMapR_01.html).
