@@ -1,3 +1,11 @@
+# preprocS2 v2.6.7
+
+## change
+- cosmetic changes for internal variable naming
+
+## fix
+- allow resampling methods different from 'near'  when calling 'get_s2_raster'
+
 # preprocS2 v2.6.6
 
 ## change

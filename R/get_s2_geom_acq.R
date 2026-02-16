@@ -34,8 +34,7 @@ get_s2_geom_acq <- function(dsn_s2_tiles, datetime, cloudcover = 100,
     message('https://jbferet.gitlab.io/preprocs2/')
     message('no authentication possible to CDSE')
   } else {
-    OAuthToken <- CDSE::GetOAuthToken(id = id,
-                                      secret = pwd)
+    OAuthToken <- CDSE::GetOAuthToken(id = id, secret = pwd)
     # get collection for geometry of acquisition corresponding to the aoi
     collection_geom_acq_S2 <- get_s2_geom_acq_collection(aoi = aoi, datetime = datetime,
                                                          collection = collection,

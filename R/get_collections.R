@@ -24,10 +24,10 @@ get_collections <- function(list_aoi, s2_tiles = NULL, datetime, output_dir,
   collection_dir <- file.path(output_dir,'collections')
   dir.create(path = collection_dir, showWarnings = FALSE, recursive = TRUE)
   # define file names for collection
-  FileName_fullcoll <- file.path(collection_dir,paste0('plot_',names(list_aoi),'.rds'))
-  names(FileName_fullcoll) <- names(list_aoi)
+  filename_fullcoll <- file.path(collection_dir,paste0('plot_',names(list_aoi),'.rds'))
+  names(filename_fullcoll) <- names(list_aoi)
   # already existing collections
-  alreadyExists <- which(file.exists(FileName_fullcoll))
+  alreadyExists <- which(file.exists(filename_fullcoll))
   # should collections be double checked?
   # if overwrite_collection = F, assumes all collections are ok of file exists
   dl_collection <- TRUE
@@ -41,9 +41,9 @@ get_collections <- function(list_aoi, s2_tiles = NULL, datetime, output_dir,
   }
   if (dl_collection){
     if (nbCPU==1){
-      FileName_fullcoll <- mapply(FUN = get_collection, aoi = list_aoi,
+      filename_fullcoll <- mapply(FUN = get_collection, aoi = list_aoi,
                                   s2_tiles = s2_tiles,
-                                  FileName = FileName_fullcoll,
+                                  filename = filename_fullcoll,
                                   MoreArgs = list(overwrite = overwrite,
                                                   datetime = datetime,
                                                   stac_info = stac_info,
@@ -52,10 +52,10 @@ get_collections <- function(list_aoi, s2_tiles = NULL, datetime, output_dir,
 
     } else if (nbCPU>1){
       cl <- parallel::makeCluster(nbCPU)
-      plan("cluster", workers = cl)
-      FileName_fullcoll <- future.apply::future_mapply(FUN = get_collection,
+      with(plan("cluster", workers = cl), local = TRUE)
+      filename_fullcoll <- future.apply::future_mapply(FUN = get_collection,
                                                        aoi = list_aoi, s2_tiles = s2_tiles,
-                                                       FileName = FileName_fullcoll,
+                                                       filename = filename_fullcoll,
                                                        MoreArgs = list(overwrite = overwrite,
                                                                        datetime = datetime,
                                                                        stac_info = stac_info,
@@ -65,5 +65,5 @@ get_collections <- function(list_aoi, s2_tiles = NULL, datetime, output_dir,
       plan(sequential)
     }
   }
-  return(FileName_fullcoll)
+  return(filename_fullcoll)
 }

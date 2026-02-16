@@ -44,7 +44,7 @@ First, open the `~/.Renviron` file for your R install:
 usethis::edit_r_environ()
 ```
 Then write your CDSE username, corresponding to your email address, along with 
-the corresponding password: 
+the corresponding password in this `~/.Renviron` file: 
 
 ```r
 CDSE_USERNAME = "my_email_address@email.xx"
@@ -63,10 +63,23 @@ OAUTH_CDSE_PWD = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 Save the `~/.Renviron` file and restart your R session. You should then be able 
 to use all functionalities included in `preprocS2`.
 
+**Warning**: to activate the **OAuth clients**, please click on the `+ Create`
+button, and make sure you save your ID and password. 
+The ID should start with `sh-` and this is **not** the User ID and Account ID 
+displayed in the User Info of your account settings.
+
+
+<p float="left">
+   <img src="../man/figures/Oauth.png" width="100%" />
+</p>
+
 
 ## Example
 
 A tutorial vignette is available [here](https://jbferet.gitlab.io/preprocs2/articles/preprocS2.html).
+
+Tutorial vignettes describing additional functionalities are also available 
+[here](https://jbferet.github.io/biodivMapR/articles/biodivMapR_01.html).
 
 ## Acknowledgments / Fundings
 

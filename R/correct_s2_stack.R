@@ -30,6 +30,6 @@ correct_s2_stack <- function(s2_items, acq, raster_dir, aoi,
     for (bb in seq_along(s2_items))
       s2_items[[bb]] <- s2_items[[bb]] + offB2
   }
-  s2_items <- terra::rast(s2_items)
+  # s2_items <- terra::rast(s2_items)
   return(s2_items)
 }

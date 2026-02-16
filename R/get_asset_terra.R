@@ -5,6 +5,8 @@
 #' @param aoi sf.
 #' @param crs_target numeric.
 #' @param collection character.
+#' @param resampling character.
+#' @param resolution numeric.
 #'
 #' @return features
 #' @importFrom terra same.crs crs crop project
@@ -14,7 +16,8 @@
 #' @export
 #'
 get_asset_terra <- function(item, asset_names, aoi, crs_target = NULL,
-                            collection = 'sentinel-2-l2a'){
+                            collection = 'sentinel-2-l2a', 
+                            resampling = 'near', resolution = 10){
 
   if (collection =='sentinel-2-l2a')
     features <- item |>
@@ -42,7 +45,7 @@ get_asset_terra <- function(item, asset_names, aoi, crs_target = NULL,
                                       y = aoi, mask = TRUE))
   if (!is.null(crs_target))
     features <- lapply(X = features, FUN = terra::project,
-                       y = paste0('epsg:',crs_target),
-                       method = 'near')
+                       y = paste0('epsg:',crs_target), res = resolution,
+                       method = resampling)
   return(features)
 }

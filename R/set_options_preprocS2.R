@@ -36,7 +36,9 @@ set_options_preprocS2 <- function(fun, options = NULL){
     if (is.null(options$resampling))
       options$resampling <- 'near'
     if (is.null(options$radiometric_filter))
-      options$radiometric_filter <- NULL
+      options$radiometric_filter <- list('cloudMask' = 350,
+                                         'shadeMask' = 1500,
+                                         'NDVIMask' = 0.65)
     if (is.null(options$original_clouds))
       options$original_clouds <- TRUE
     if (is.null(options$nbCPU))

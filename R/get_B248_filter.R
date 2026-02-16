@@ -25,25 +25,25 @@
 #' @export
 #'
 get_B248_filter <- function(raster_dir, mask_path, item_collection, cloudmasks,
-                            iChar, aoi, resolution,
-                            stac_info, fraction_vegetation, offset = 1000,
+                            iChar, aoi, resolution, stac_info,
+                            fraction_vegetation, offset = 1000,
                             radiometric_filter = NULL, site_name,
-                            crs_target = NULL,
-                            original_clouds = original_clouds, overwrite = FALSE,
-                            S2_items = NULL, writeoutput = TRUE){
+                            crs_target = NULL, original_clouds = original_clouds,
+                            overwrite = FALSE, S2_items = NULL,
+                            writeoutput = TRUE){
 
   asset_cloud <- get_cloud_asset(stac_info)
   suffix <- paste0('_',asset_cloud,'.tiff')
   acq2keep <- NULL
   mask_update <- NULL
-  asset_names <- c('B02', 'B04', 'B08')
+  asset_names <- c('B02', 'B03', 'B04', 'B08')
   if (is.null(S2_items)){
     S2_items <- lapply(X = item_collection$features,
                        FUN = get_asset_terra,
                        asset_names = asset_names,
                        collection = stac_info$collection,
-                       aoi = aoi,
-                       crs_target = crs_target)
+                       aoi = aoi, resolution = resolution,
+                       resampling = 'near', crs_target = crs_target)
     names(S2_items) <- names(cloudmasks)
   }
 

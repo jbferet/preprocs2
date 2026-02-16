@@ -3,7 +3,7 @@
 #' @param aoi simple feature including a unique polygon
 #' @param s2_tiles list. list of S2 tiles including each sf from list_aoi
 #' @param datetime list. define period 'from' / 'to' day of acquisition
-#' @param FileName character. filename for collection
+#' @param filename character. filename for collection
 #' @param overwrite boolean. should collection and S2 data be overwritten?
 #' @param cloudcover numeric. maximum cloud cover over tile
 #' @param stac_info list. stac provider, name of collection url for stac
@@ -15,11 +15,11 @@
 #' @importFrom magrittr %>%
 #' @export
 #'
-get_collection <- function(aoi, s2_tiles = NULL, datetime, FileName,
+get_collection <- function(aoi, s2_tiles = NULL, datetime, filename,
                            overwrite = TRUE, cloudcover = 100, stac_info){
 
   # get collection for plot, datetime and cloud cover
-  if (! file.exists(FileName) | overwrite==TRUE){
+  if (! file.exists(filename) | overwrite==TRUE){
     stac_source <- rstac::stac(stac_info$stac_url)
     aoistac <- aoi |>
       sf::st_transform(4326)
@@ -48,9 +48,9 @@ get_collection <- function(aoi, s2_tiles = NULL, datetime, FileName,
       print(stac_info$collection)
       message('from provider')
       print(stac_source$base_url)
-      FileName <- NA
+      filename <- NA
     }
-    if (!is.na(FileName)){
+    if (!is.na(filename)){
       # select tiles which are identified as wanted (== fully contains plot)
       if (!is.null(s2_tiles) & unique(!is.na(s2_tiles)))
         collection_plot <- eliminate_incompleteTiles(collection_plot, s2_tiles = s2_tiles)
@@ -64,11 +64,11 @@ get_collection <- function(aoi, s2_tiles = NULL, datetime, FileName,
                                                         stac_info = stac_info)
       }
     }
-  } else if (file.exists(FileName) & overwrite==FALSE){
+  } else if (file.exists(filename) & overwrite==FALSE){
     # if file already exists, download it
-    collection_plot <- readRDS(file = FileName)
+    collection_plot <- readRDS(file = filename)
   }
-  if (!is.na(FileName)){
+  if (!is.na(filename)){
     # add acquisition date to collection
     dateacq <- unlist(lapply(lapply(collection_plot$features,'[[',"properties"), '[[', "datetime"))
     ID <- unlist(lapply(collection_plot$features,'[[',"id"))
@@ -79,10 +79,10 @@ get_collection <- function(aoi, s2_tiles = NULL, datetime, FileName,
     selunique <- match(x = uniqueDate, table = collection_plot$acquisitionDate)
     collection_plot$features <- collection_plot$features[selunique]
     collection_plot$acquisitionDate <- collection_plot$acquisitionDate[selunique]
-    saveRDS(object = collection_plot, file = FileName)
+    saveRDS(object = collection_plot, file = filename)
     rm(collection_plot)
   }
-  return(FileName)
+  return(filename)
 }
 
 

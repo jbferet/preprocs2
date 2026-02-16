@@ -73,7 +73,7 @@ get_si_tiles_from_raster <- function(aoi, aoi_ID, rast_path, mask_path = NULL,
                                package = 'preprocS2')
         sensor <- 'landsat'
       }
-      hdr <- read_envi_header(HDRpath = HDRpath)
+      hdr <- read_envi_header(hdr_path = HDRpath)
       SensorBands <- hdr$wavelength
     }
     # if (sensor == 'landsat'){

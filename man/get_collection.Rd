@@ -8,7 +8,7 @@ get_collection(
   aoi,
   s2_tiles = NULL,
   datetime,
-  FileName,
+  filename,
   overwrite = TRUE,
   cloudcover = 100,
   stac_info
@@ -21,7 +21,7 @@ get_collection(
 
 \item{datetime}{list. define period 'from' / 'to' day of acquisition}
 
-\item{FileName}{character. filename for collection}
+\item{filename}{character. filename for collection}
 
 \item{overwrite}{boolean. should collection and S2 data be overwritten?}
 

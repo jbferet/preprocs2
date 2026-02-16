@@ -26,7 +26,7 @@ produce_geom_acq_tile <- function(list_aoi, collection_dir_geom, geom_dir, nbCPU
   dir.create(path = geom_subdir, showWarnings = FALSE, recursive = TRUE)
   nbPlots <- length(list_aoi)
   cl <- parallel::makeCluster(nbCPU)
-  plan("cluster", workers = cl)  ## same as plan(multisession, workers = nbCPU)
+  with(plan("cluster", workers = cl), local = TRUE)
   handlers(global = TRUE)
   handlers("cli")
   with_progress({

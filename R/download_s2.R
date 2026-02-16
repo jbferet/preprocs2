@@ -46,7 +46,9 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                             asset_names = asset_names_list,
                             MoreArgs = list(collection = stac_info$collection,
                                             aoi = aoi,
-                                            crs_target = crs_target),
+                                            crs_target = crs_target, 
+                                            # resampling = resampling, 
+                                            resolution = 20),
                             SIMPLIFY = FALSE)
   names(S2_items_update) <- item_collection$acquisitionDate
 
@@ -56,26 +58,31 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                                      FUN = function(x, offset){x - offset},
                                      offset)
   }
-  S2_items_raw <- S2_items_final <- list()
+  s2_items <- S2_items_raw <- S2_items_final <- list()
   for (dateAcq in as.character(item_collection$acquisitionDate)){
     #
     if (is.null(S2_items[[dateAcq]]))
       S2_items_raw[[dateAcq]] <- S2_items_update[[dateAcq]]
     if (is.null(S2_items_update[[dateAcq]]))
       S2_items_raw[[dateAcq]] <- S2_items[[dateAcq]]
-    if (! is.null(S2_items_update[[dateAcq]]) & ! is.null(S2_items_update[[dateAcq]]))
-      S2_items_raw[[dateAcq]] <- c(S2_items[[dateAcq]], S2_items_update[[dateAcq]])
+    if (! is.null(S2_items_update[[dateAcq]]) &
+        ! is.null(S2_items_update[[dateAcq]]))
+      S2_items_raw[[dateAcq]] <- c(S2_items[[dateAcq]],
+                                   S2_items_update[[dateAcq]])
     S2_items_raw[[dateAcq]] <- S2_items_raw[[dateAcq]][asset_names]
   }
-
-  s2_items <- list()
   for (i in seq_along(item_collection$acquisitionDate)){
     resitems <- lapply(lapply(S2_items_raw[[i]], terra::res), '[[', 1)
     # harmonize spatial resolution
-    template_Rast <- S2_items_raw[[i]][which(round(unlist(resitems))==resolution)[1]]
-    S2_items_final[[i]]  <- lapply(X = S2_items_raw[[i]],
-                                   FUN = terra::resample,
-                                   template_Rast[[1]], method = resampling)
+    if (!all(unlist(resitems)==resolution)){
+      template_Rast <- S2_items_raw[[i]][which(round(unlist(resitems))==resolution)[1]]
+    } else {
+      template_Rast <- S2_items_raw[[i]]$B02
+    }
+    # S2_items_final[[i]]  <- lapply(X = S2_items_raw[[i]],
+    #                                FUN = terra::resample,
+    #                                template_Rast[[1]], 
+    #                                method = resampling)
     # for (j in seq_along(S2_items_final[[i]])){
     #   S2_items_final[[i]][[j]]  <- terra::resample(x = S2_items_raw[[i]][[j]],
     #                                                y = template_Rast[[1]],
@@ -94,16 +101,21 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
     if (file.exists(filename) & overwrite == FALSE){
       s2_items[[acq]] <- terra::rast(x = filename)
     } else {
-      s2_items[[acq]] <- correct_s2_stack(s2_items = S2_items_final[[i]],
+      s2_items[[acq]] <- correct_s2_stack(s2_items = S2_items_raw[[i]],
                                           acq = acq, raster_dir = raster_dir,
                                           aoi = aoi, offset_B2 = offset_B2,
                                           corr_BRF = corr_BRF,
                                           bands_to_correct = bands_to_correct)
+      S2_items_final[[acq]]  <- lapply(X = s2_items[[acq]],
+                                       FUN = terra::resample,
+                                       template_Rast[[1]],
+                                       method = resampling)
+      S2_items_final[[acq]] <- terra::rast(S2_items_final[[acq]])
       # save reflectance file
       if (writeoutput)
-        terra::writeRaster(x = s2_items[[acq]], filename = filename,
+        terra::writeRaster(x = S2_items_final[[acq]], filename = filename,
                            overwrite = TRUE)
     }
   }
-  return(s2_items)
+  return(S2_items_final)
 }
