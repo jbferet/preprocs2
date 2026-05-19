@@ -20,7 +20,6 @@
 #'  - radiometric_filter list.
 #'
 #' @return list of path corresponding to output files
-#' @importFrom sf st_write st_bbox st_read st_crs st_transform
 #' @export
 
 get_s2_raster <- function(aoi_path = NULL, bbox = NULL, mask_path = NULL,
@@ -28,10 +27,10 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, mask_path = NULL,
                           stac_info = NULL, options = NULL){
 
   nbCPU_max <- parallel::detectCores(all.tests = FALSE, logical = FALSE)
+  options <- set_options_preprocS2(fun = 'get_s2_raster', options = options)
   if (nbCPU_max<options$nbCPU)
     options$nbCPU <- nbCPU_max
   # set default options when not defined
-  options <- set_options_preprocS2(fun = 'get_s2_raster', options = options)
   # make sure output directory is created
   dir.create(path = output_dir, showWarnings = FALSE, recursive = TRUE)
 
