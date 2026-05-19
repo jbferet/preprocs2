@@ -16,8 +16,8 @@ fun_SI_fromSpatRaster <- function(S2_refl, S2_mask, argsin){
   output_path <- argsin$output_path
   site_name <- argsin$site_name
   # define parameters related to Sentinel-2
-  HDRpath <- system.file("extdata", "SENTINEL_2.hdr", package = "preprocS2")
-  HDR <- read_envi_header(HDRpath = HDRpath)
+  hdr_path <- system.file("extdata", "SENTINEL_2.hdr", package = "preprocS2")
+  HDR <- read_envi_header(hdr_path = hdr_path)
   # get SI for each S2 acquisition
   SI_val <- lapply(X = S2_refl,
                    FUN = spinR::compute_S2SI_Raster,

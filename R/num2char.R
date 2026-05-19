@@ -1,4 +1,4 @@
-#' downloads Sentinel-2 data and corresponding scene classification
+#' converts numeric value to characters with specific lengths, adding 0 at beginning
 #'
 #' @param val numeric. value to be converted into string
 #' @param nbdigits numeric. number pf digits for string

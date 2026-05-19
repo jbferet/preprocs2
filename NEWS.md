@@ -1,3 +1,8 @@
+# preprocS2 v2.6.8
+
+## fix
+- place 'set_options_preprocS2' at the beginning of get_s2_raster
+
 # preprocS2 v2.6.7
 
 ## change

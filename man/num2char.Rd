@@ -2,7 +2,7 @@
 % Please edit documentation in R/num2char.R
 \name{num2char}
 \alias{num2char}
-\title{downloads Sentinel-2 data and corresponding scene classification}
+\title{converts numeric value to characters with specific lengths, adding 0 at beginning}
 \usage{
 num2char(val, nbdigits = 3)
 }
@@ -15,5 +15,5 @@ num2char(val, nbdigits = 3)
 valchar string corresponding to val with 0 if needed
 }
 \description{
-downloads Sentinel-2 data and corresponding scene classification
+converts numeric value to characters with specific lengths, adding 0 at beginning
 }
