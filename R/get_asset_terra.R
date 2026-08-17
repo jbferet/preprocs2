@@ -33,7 +33,7 @@ get_asset_terra <- function(item, asset_names, aoi, crs_target = NULL,
                         'sentinel2-l2a-sen2cor'))
     features <- item |>
       # sign again if the signed url has expired
-      rstactheia::items_sign_theia() |>
+      rstactheia::sign_theia() |>
       # get the urls adding the vsicurl prefix for GDAL
       assets_url(asset_names = asset_names, append_gdalvsi = TRUE) |>
       lapply(rast) |>

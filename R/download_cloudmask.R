@@ -58,15 +58,15 @@ download_cloudmask <- function(aoi, raster_dir, item_collection, iChar,
       names(features_exist) <- dateAcq[read_exists]
       item_collection <- item_collection$features
     }
-    if (is.null(features_exist)) 
+    if (is.null(features_exist))
       cloudmask <- features_dl
-    if (is.null(features_dl)) 
+    if (is.null(features_dl))
       cloudmask <- features_exist
     if (! is.null(features_dl) & ! is.null(features_exist))
       cloudmask <- c(features_exist, features_dl)
 
     # get B2 asset as template for 10m band if needed
-    if (resolution == 10 & asset_names == 'SCL') {
+    if (resolution == 10 & asset_names %in% c('SCL', 'CLM_R1')) {
       asset_b2 <- 'B02'
       features_b2 <- get_asset_terra(item = item_collection[[1]],
                                      asset_names = asset_b2,
