@@ -15,7 +15,9 @@ check_s2_tiling_grid <- function(path_S2_tiling_grid = NULL){
     message('will be automatically downloaded and saved at this location')
     print(path_S2_tiling_grid)
     zip_S2tilinggrid <- 'Sentinel-2_tiling_grid.zip'
-    url_S2tilinggrid <- 'https://sentiwiki.copernicus.eu/__attachments/1692737/S2A_OPER_GIP_TILPAR_MPC__20151209T095117_V20150622T000000_21000101T000000_B00.zip?inst-v=d9cdf66c-96ab-4a2c-8d65-cc56a8f018b2'
+    # url_S2tilinggrid <- 'https://sentiwiki.copernicus.eu/__attachments/1692737/S2A_OPER_GIP_TILPAR_MPC__20151209T095117_V20150622T000000_21000101T000000_B00.zip?inst-v=d9cdf66c-96ab-4a2c-8d65-cc56a8f018b2'
+    url_S2tilinggrid <- 'https://sentiwiki.copernicus.eu/__attachments/a_69a662aa1cb30487acc66009f09b1dcfa9e4e32f92af1c3b2dd1fc8a3c011738/S2A_OPER_GIP_TILPAR_MPC__20151209T095117_V20150622T000000_21000101T000000_B00.zip'
+
     if (curl::has_internet()){
       utils::download.file(url = url_S2tilinggrid,
                            destfile = zip_S2tilinggrid, method = 'auto',

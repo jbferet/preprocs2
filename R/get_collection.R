@@ -38,7 +38,7 @@ get_collection <- function(aoi, s2_tiles = NULL, datetime, filename,
 
     if (stac_info$provider %in% c('lasrc', 'theia', 'mtd_esa'))
       collection_plot <- collection_plot |>
-      rstactheia::items_sign_theia()
+      rstactheia::sign_theia()
 
     # stop process if no image available
     if (length(collection_plot$features)==0){

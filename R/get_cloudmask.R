@@ -25,7 +25,7 @@ get_cloudmask <- function(collection_path, aoi, iChar, raster_dir, overwrite = F
   item_collection <- readRDS(file = collection_path)
   if (stac_info$provider %in% c('lasrc', 'theia', 'mtd_esa'))
     item_collection <- item_collection |>
-      rstactheia::items_sign_theia()
+      rstactheia::sign_theia()
   asset_names <- get_cloud_asset(stac_info = stac_info)
   suffix <- paste0('_',asset_names,'.tiff')
   Acqdates <- unique(rev(item_collection$acquisitionDate))

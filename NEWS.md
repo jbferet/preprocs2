@@ -1,3 +1,9 @@
+# preprocS2 v2.6.9
+
+## fix
+- update rstactheia: sign_item
+- update link for kml of S2 tiling system 
+
 # preprocS2 v2.6.8
 
 ## fix
