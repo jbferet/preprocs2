@@ -1,3 +1,8 @@
+# preprocS2 v2.6.10
+
+## fix
+- fix bug occuring in get_mainmask when using a vector mask
+
 # preprocS2 v2.6.9
 
 ## fix

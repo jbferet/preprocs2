@@ -16,15 +16,18 @@ get_mainmask <- function(mask_path, S2_dl, aoiplot){
       if (inherits(S2_dl, 'list'))
         S2_dl <- terra::rast(S2_dl)
       # check if same projection
+      if (!terra::crs(terra::vect(aoiplot)) == terra::crs(S2_dl))
+        aoiplot <- terra::project(x = terra::vect(aoiplot), y = S2_dl)
       if (terra::crs(mask) == terra::crs(S2_dl)){
+        if (inherits(x = mask, what = 'SpatVector'))
+          mask <- terra::rasterize(x = mask, y = S2_dl, background=0)
         mainmask <- terra::crop(x = mask, y = as(aoiplot, "Spatial"))
         mainmask <- terra::project(x = mainmask, y = S2_dl)
       } else if (!terra::crs(mask) == terra::crs(S2_dl)){
         mainmask <- terra::project(x = mask, y = S2_dl)
+        if (inherits(x = mainmask, what = 'SpatVector'))
+          mainmask <- terra::rasterize(x = mainmask, y = S2_dl, background=0)
         mainmask <- terra::crop(x = mainmask, y = as(aoiplot, "Spatial"))
-      }
-      if (inherits(x = mainmask, what = 'SpatVector')){
-        mainmask <- terra::rasterize(x = mainmask, y = S2_dl, background=0)
       }
       # adjust mask size if does not match with img
       if (! all(dim(mainmask)==dim(S2_dl[[1]])))
