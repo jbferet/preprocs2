@@ -60,7 +60,10 @@ get_collections <- function(list_aoi, s2_tiles = NULL, datetime, output_dir,
                                                                        datetime = datetime,
                                                                        stac_info = stac_info,
                                                                        cloudcover = cloudcover),
-                                                       future.seed = TRUE, SIMPLIFY = FALSE)
+                                                       future.seed = TRUE, 
+                                                       future.chunk.size = NULL,
+                                                       future.scheduling = 1,
+                                                       SIMPLIFY = FALSE)
       parallel::stopCluster(cl)
       plan(sequential)
     }

@@ -1,7 +1,11 @@
 # preprocS2 v2.6.10
 
 ## fix
-- fix bug occuring in get_mainmask when using a vector mask
+- fix bug occurring in get_mainmask when using a vector mask
+- fix bug occurring in get_s2_raster when raster already exists
+
+## change
+- change strategy for parallel computing, using future.chunk.size = NULL, future.scheduling = 1,
 
 # preprocS2 v2.6.9
 

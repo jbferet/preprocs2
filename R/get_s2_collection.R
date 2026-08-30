@@ -125,7 +125,7 @@ get_s2_collection <- function(plots, s2_tiles = NULL, datetime, output_dir,
                                                               bands_to_correct = bands_to_correct),
                                               future.seed = TRUE,
                                               future.chunk.size = NULL,
-                                              future.scheduling = structure(TRUE, ordering = "random"),
+                                              future.scheduling = 1,
                                               SIMPLIFY = FALSE)
     })
     parallel::stopCluster(cl)

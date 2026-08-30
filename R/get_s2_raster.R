@@ -90,6 +90,7 @@ get_s2_raster <- function(aoi_path = NULL, bbox = NULL, mask_path = NULL,
                                 radiometric_filter = options$radiometric_filter,
                                 fraction_vegetation = options$fraction_vegetation,
                                 overwrite = options$overwrite,
+                                cloudcover = options$cloudcover,
                                 nbCPU = options$nbCPU,
                                 original_clouds = options$original_clouds)
 
