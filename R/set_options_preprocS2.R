@@ -44,6 +44,41 @@ set_options_preprocS2 <- function(fun, options = NULL){
     if (is.null(options$nbCPU))
       options$nbCPU <- 1
   }
+  if (fun == 'get_s2_collection'){
+    if (is.null(options$cloudcover))
+      options$cloudcover <- 100
+    if (is.null(options$fraction_vegetation))
+      options$fraction_vegetation <- 5
+    if (is.null(options$resolution))
+      options$resolution <- 10
+    if (is.null(options$overwrite))
+      options$overwrite <- FALSE
+    if (is.null(options$nbCPU))
+      options$nbCPU <- 1
+    if (is.null(options$overwrite_collection))
+      options$overwrite_collection <- TRUE
+    if (is.null(options$offset))
+      options$offset <- 1000
+    if (is.null(options$offset_B2))
+      options$offset_B2 <- FALSE
+    if (is.null(options$corr_BRF))
+      options$corr_BRF <- FALSE
+    if (is.null(options$radiometric_filter))
+      options$radiometric_filter <- list('cloudMask' = 350,
+                                         'shadeMask' = 1500,
+                                         'NDVIMask' = 0.65)
+    if (is.null(options$rast_out))
+      options$rast_out <- TRUE
+    if (is.null(options$original_clouds))
+      options$original_clouds <- TRUE
+    if (is.null(options$writeoutput))
+      options$writeoutput <- TRUE
+    if (is.null(options$resampling))
+      options$resampling <- 'near'
+    if (is.null(options$bands_to_correct))
+      options$bands_to_correct <- c('B8A', 'B11', 'B12')
+  }
+
   if (fun == 'test_s2_collection'){
     if (is.null(options$cloudcover))
       options$cloudcover <- 100

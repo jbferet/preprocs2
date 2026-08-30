@@ -46,8 +46,8 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
                             asset_names = asset_names_list,
                             MoreArgs = list(collection = stac_info$collection,
                                             aoi = aoi,
-                                            crs_target = crs_target, 
-                                            # resampling = resampling, 
+                                            crs_target = crs_target,
+                                            # resampling = resampling,
                                             resolution = 20),
                             SIMPLIFY = FALSE)
   names(S2_items_update) <- item_collection$acquisitionDate
@@ -81,7 +81,7 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
     }
     # S2_items_final[[i]]  <- lapply(X = S2_items_raw[[i]],
     #                                FUN = terra::resample,
-    #                                template_Rast[[1]], 
+    #                                template_Rast[[1]],
     #                                method = resampling)
     # for (j in seq_along(S2_items_final[[i]])){
     #   S2_items_final[[i]][[j]]  <- terra::resample(x = S2_items_raw[[i]][[j]],
@@ -99,7 +99,7 @@ download_s2 <- function(aoi, raster_dir, collection_path, iChar, resolution,
       filename <- file.path(raster_dir, paste0(site_name,'_',iChar,'_', acq, '.tiff'))
 
     if (file.exists(filename) & overwrite == FALSE){
-      s2_items[[acq]] <- terra::rast(x = filename)
+      S2_items_final[[acq]] <- terra::rast(x = filename)
     } else {
       s2_items[[acq]] <- correct_s2_stack(s2_items = S2_items_raw[[i]],
                                           acq = acq, raster_dir = raster_dir,

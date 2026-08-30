@@ -107,7 +107,10 @@ download_s2_geom_acq <- function(aoi, geom_dir, collection_geom_acq_S2, nbCPU=1)
                                                                  resolution = 1000, buffer = 0,
                                                                  mask = FALSE, token = OAuthToken,
                                                                  p = p),
-                                                 future.seed = TRUE, SIMPLIFY = FALSE)
+                                                 future.seed = TRUE,
+                                                 future.chunk.size = NULL,
+                                                 future.scheduling = 1,
+                                                 SIMPLIFY = FALSE)
         })
         parallel::stopCluster(cl)
         plan(sequential)
