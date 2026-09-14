@@ -33,7 +33,8 @@ get_s2_tiling(
   argsin = NULL,
   writeoutput = TRUE,
   bypassDL = FALSE,
-  bands_to_correct = c("B8A", "B11", "B12")
+  bands_to_correct = c("B8A", "B11", "B12"),
+  output_items = FALSE
 )
 }
 \arguments{
@@ -94,6 +95,8 @@ get_s2_tiling(
 \item{bypassDL}{boolean. the download of S2 data is not performed}
 
 \item{bands_to_correct}{character. name of bands to correct from geometry}
+
+\item{output_items}{boolean. should SpatRasters be provided as outputs?}
 }
 \value{
 plots list of plots

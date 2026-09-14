@@ -29,6 +29,7 @@
 #' @param writeoutput boolean. should output file be saved?
 #' @param bypassDL boolean. the download of S2 data is not performed
 #' @param bands_to_correct character. name of bands to correct from geometry
+#' @param output_items boolean. should SpatRasters be provided as outputs?
 #'
 #' @return plots list of plots
 #' @importFrom parallel detectCores
@@ -45,16 +46,28 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                           additional_process = NULL, original_clouds = TRUE,
                           cellsize = 10000, resume = TRUE,
                           argsin = NULL, writeoutput = TRUE, bypassDL = FALSE,
-                          bands_to_correct = c('B8A', 'B11', 'B12')){
+                          bands_to_correct = c('B8A', 'B11', 'B12'),
+                          output_items = FALSE){
 
 
   nbCPU_max <- parallel::detectCores(all.tests = FALSE, logical = FALSE)
+  S2_items <- NULL
   if (nbCPU_max<nbCPU)
     nbCPU <- nbCPU_max
 
   # create proper datetime if only one date provided
-  if (inherits(x = datetime, what = c('character', 'Date')))
+  if (inherits(x = datetime, what = c('character', 'Date')) & can_convert_to_date(datetime))
     datetime <- list('from' = as.Date(datetime), 'to' = as.Date(datetime)+1)
+  if (inherits(x = datetime$from, what = 'character') & can_convert_to_date(datetime$from))
+    datetime$from <- as.Date(datetime$from)
+  if (inherits(x = datetime$to, what = 'character') & can_convert_to_date(datetime$to))
+    datetime$to <- as.Date(datetime$to)
+
+  if (!can_convert_to_date(datetime$from) | ! can_convert_to_date(datetime$to)){
+    message('please provide dates in proper format yyyy-mm-dd')
+    stop()
+  }
+
 
   # define grid of tiles
   path_grid <- NULL
@@ -126,6 +139,8 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
     stac_info <- get_stac_info(stac_info)
     s2_tiles <- S2_grid$s2_tiles
     rast_out <- FALSE
+    if (output_items)
+      rast_out <- TRUE
     S2_items <- get_s2_collection(plots = plots[missing],
                                   datetime = datetime,
                                   nbCPU = nbCPU,
@@ -149,7 +164,8 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                                   additional_process = additional_process,
                                   original_clouds = original_clouds,
                                   argsin = argsin, writeoutput = writeoutput,
-                                  bands_to_correct = bands_to_correct)
+                                  bands_to_correct = bands_to_correct,
+                                  output_items = output_items)
   }
   # produce a vrt if acquisition over a unique day
   if (datetime$from == (datetime$to-1)){
@@ -183,6 +199,7 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
 
   tilingInfo <- list('plots' = plots,
                      'dsn_grid' = path_grid$dsn_grid,
-                     'cellsize' = cellsize)
+                     'cellsize' = cellsize,
+                     'S2_items' <- S2_items)
   return(tilingInfo)
 }

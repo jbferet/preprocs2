@@ -43,7 +43,8 @@ get_s2_collection <- function(plots, s2_tiles = NULL, datetime, output_dir,
                               rast_out = TRUE, additional_process = NULL,
                               crs_target = NULL, original_clouds = TRUE,
                               argsin = NULL, writeoutput = TRUE, resampling = 'near',
-                              bands_to_correct = c('B8A', 'B11', 'B12')){
+                              bands_to_correct = c('B8A', 'B11', 'B12'),
+                              output_items = FALSE){
 
   # get collection for each plot
   if (length(plots)<nbCPU)
@@ -131,7 +132,7 @@ get_s2_collection <- function(plots, s2_tiles = NULL, datetime, output_dir,
     parallel::stopCluster(cl)
     plan(sequential)
   }
-  if (length(plots)>1)
+  if (!rast_out)
     S2_items <- NULL
   return(S2_items)
 }
