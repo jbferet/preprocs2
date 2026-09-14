@@ -1,3 +1,11 @@
+# preprocS2 v2.6.11
+
+## addition
+- added the possibility to get items as outputs
+
+## fix
+- stop process if not proper dates provided using function can_convert_to_date
+
 # preprocS2 v2.6.10
 
 ## fix
