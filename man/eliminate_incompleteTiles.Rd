@@ -4,12 +4,14 @@
 \alias{eliminate_incompleteTiles}
 \title{keeps only wanted tiles from a collection}
 \usage{
-eliminate_incompleteTiles(collection_plot, s2_tiles)
+eliminate_incompleteTiles(collection_plot, s2_tiles, stac_info)
 }
 \arguments{
 \item{collection_plot}{STAC item collection}
 
 \item{s2_tiles}{tiles to select}
+
+\item{stac_info}{list with stac endpoint}
 }
 \value{
 collection_plot updated STAC item collection

@@ -11,8 +11,10 @@ get_cloud_asset <- function(stac_info){
     asset_names <- 'SCL'
   } else if (stac_info$provider =='lasrc'){
     asset_names <- 'CLM'
-  } else if (stac_info$provider =='theia'){
+  } else if (stac_info$provider =='theia' & stac_info$collection =='sentinel2-l2a-theia'){
     asset_names <- 'CLM_R1'
+  } else if (stac_info$provider =='theia' & stac_info$collection =='sentinel2-l2a-sen2cor'){
+    asset_names <- 'SCL'
   } else if (stac_info$provider %in% c('mtd_esa')){
     asset_names <- 'SCL'
   } else {

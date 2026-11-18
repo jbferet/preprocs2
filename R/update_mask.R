@@ -60,7 +60,7 @@ update_mask <- function(aoi, collection_path, iChar, raster_dir, cloudmasks,
     elim <- NULL
     for (dateAcq in names(cloudmask)){
       # if using cloudmask allowing identifying vegetation pixels
-      if (asset_names == 'SCL'){
+      if ('SCL' %in% asset_names){
         total_pix <- length(which((terra::values(cloudmask[[dateAcq]]))>0))
         vegetation_pix <- length(which((terra::values(cloudmask[[dateAcq]]))==4))
         if (total_pix>0)

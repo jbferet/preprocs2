@@ -91,6 +91,8 @@ apply_radiometric_filter <- function(S2_item, acq, iChar, raster_dir,
       mask_update <- NULL
       validity <- FALSE
     }
+  } else {
+    mask_update <- terra::rast(bin_mask_filtered)
   }
   updatedMasks <- list('validity' = validity, 'mask_update' = mask_update)
   return(updatedMasks)

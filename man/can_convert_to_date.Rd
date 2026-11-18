@@ -9,6 +9,9 @@ can_convert_to_date(date_string)
 \arguments{
 \item{date_string}{character.}
 }
+\value{
+TRUE or FALSE
+}
 \description{
 checks if a string can convert to date
 }

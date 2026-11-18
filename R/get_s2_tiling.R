@@ -50,10 +50,16 @@ get_s2_tiling <- function(plots = NULL, aoi_path, datetime, output_dir,
                           output_items = FALSE){
 
 
+  # create output directory if it does not exist
+  dir.create(path = output_dir, showWarnings = F, recursive = T)
+
+  # adjust max number of CPU if user value too large
   nbCPU_max <- parallel::detectCores(all.tests = FALSE, logical = FALSE)
-  S2_items <- NULL
   if (nbCPU_max<nbCPU)
     nbCPU <- nbCPU_max
+
+  # initialize output variable
+  S2_items <- NULL
 
   # create proper datetime if only one date provided
   if (inherits(x = datetime, what = c('character', 'Date')) & can_convert_to_date(datetime))

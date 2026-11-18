@@ -29,7 +29,8 @@ get_s2_collection(
   argsin = NULL,
   writeoutput = TRUE,
   resampling = "near",
-  bands_to_correct = c("B8A", "B11", "B12")
+  bands_to_correct = c("B8A", "B11", "B12"),
+  output_items = FALSE
 )
 }
 \arguments{
@@ -82,6 +83,8 @@ get_s2_collection(
 \item{resampling}{character. resampling method for terra::resample}
 
 \item{bands_to_correct}{character. name of bands to correct from geometry}
+
+\item{output_items}{boolean. prepare for choice to provide items as outputs}
 }
 \value{
 list of collections per plot

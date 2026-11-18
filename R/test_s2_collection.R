@@ -84,17 +84,18 @@ test_s2_collection <- function(aoi_path, datetime, output_dir, site_name = NULL,
 
   # select tiles which are identified as wanted (== fully contains plot)
   if (!is.null(s2_tiles) & unique(!is.na(s2_tiles)))
-    collection_plot <- eliminate_incompleteTiles(collection_plot, s2_tiles = s2_tiles)
+    collection_plot <- eliminate_incompleteTiles(collection_plot, s2_tiles = s2_tiles,
+                                                 stac_info = stac_info)
 
   if (length(collection_plot$features)>0){
     item_collection = collection_plot
     # eliminates doublons in terms of date of acquisition
     s2id <- unlist(lapply(collection_plot$features,'[[','id'))
-    tileID <- get_tile(s2id)
+    tileID <- get_tile(s2id, stac_info = stac_info)
     if  (!is.null(s2_tiles) & unique(!is.na(s2_tiles)))
       s2id <- unlist(lapply(item_collection$features,'[[','id'))
 
-    tileID <- get_tile(s2id)
+    tileID <- get_tile(s2id, stac_info = stac_info)
     if (length(unique(tileID))>1){
       tileDist <- table(tileID)
       tileSelect <- names(tileDist[which(tileDist== max(tileDist))[1]])

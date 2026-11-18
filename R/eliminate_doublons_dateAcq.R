@@ -10,7 +10,7 @@
 eliminate_doublons_dateAcq <- function(item_collection, aoistac = NULL,
                                        stac_info = NULL){
   s2id <- unlist(lapply(item_collection$features,'[[','id'))
-  tileID <- get_tile(s2id)
+  tileID <- get_tile(s2id, stac_info = stac_info)
   if (length(unique(tileID))>1){
     tileDist <- table(tileID)
     tileSelect <- names(tileDist[which(tileDist== max(tileDist))[1]])

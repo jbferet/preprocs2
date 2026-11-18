@@ -25,6 +25,7 @@
 #' @param writeoutput boolean. should output file be saved?
 #' @param resampling character. resampling method for terra::resample
 #' @param bands_to_correct character. name of bands to correct from geometry
+#' @param output_items boolean. prepare for choice to provide items as outputs
 #'
 #' @return list of collections per plot
 #' @importFrom parallel makeCluster stopCluster
