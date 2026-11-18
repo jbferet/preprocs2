@@ -29,14 +29,15 @@ get_collection <- function(aoi, s2_tiles = NULL, datetime, filename,
     # avoid notes when building package
     `eo:cloud_cover` <- s_intersects <- geometry <- anyinteracts <- interval <- s_intersects <- NULL
     # download collection
+    collection <- stac_info$collection
     collection_plot <- stac_source %>%
-      ext_filter(collection == {{stac_info$collection}} && `eo:cloud_cover` <= {{cloudcover}}
+      ext_filter(collection == {{collection}} && `eo:cloud_cover` <= {{cloudcover}}
                  && s_intersects(geometry, {{aoistac}})
                  && anyinteracts(datetime, interval({{startday}}, {{endday}}))
       ) %>%
       post_request()
 
-    if (stac_info$provider %in% c('lasrc', 'theia', 'mtd_esa'))
+    if (stac_info$provider %in% c('lasrc', 'theia', 'mtd_esa') & length(collection_plot$features)>0)
       collection_plot <- collection_plot |>
       rstactheia::sign_theia()
 
@@ -53,11 +54,13 @@ get_collection <- function(aoi, s2_tiles = NULL, datetime, filename,
     if (!is.na(filename)){
       # select tiles which are identified as wanted (== fully contains plot)
       if (!is.null(s2_tiles) & unique(!is.na(s2_tiles)))
-        collection_plot <- eliminate_incompleteTiles(collection_plot, s2_tiles = s2_tiles)
+        collection_plot <- eliminate_incompleteTiles(collection_plot = collection_plot,
+                                                     s2_tiles = s2_tiles,
+                                                     stac_info = stac_info)
       if (length(collection_plot$features)>0){
         # eliminates doublons in terms of date of acquisition
         s2id <- unlist(lapply(collection_plot$features,'[[','id'))
-        tileID <- get_tile(s2id)
+        tileID <- get_tile(s2id, stac_info = stac_info)
         if  (!is.null(s2_tiles) & unique(!is.na(s2_tiles)))
           collection_plot <- eliminate_doublons_dateAcq(item_collection = collection_plot,
                                                         aoistac = aoistac,

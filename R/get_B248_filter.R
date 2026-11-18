@@ -50,9 +50,14 @@ get_B248_filter <- function(raster_dir, mask_path, item_collection, cloudmasks,
   # get baseline and correct for bias
   baseline <- get_s2_baseline(stac_info, item_collection)
   for (i in seq_len(length(baseline))){
-    if (as.numeric(baseline[[i]])>=4 & asset_cloud == 'SCL')
+    if (as.numeric(baseline[[i]])>=4 & asset_cloud == 'SCL'){
       S2_items[[i]] <- lapply(X = S2_items[[i]],
                               FUN = function(x, offset){x - offset}, offset)
+    } else if (asset_cloud == 'CLM_R1' & stac_info$provider == 'theia' & stac_info$collection == 'sentinel2-l2a-theia'){
+      S2_items[[i]] <- lapply(X = S2_items[[i]],
+                              FUN = function(x, offset){x - offset}, offset)
+    }
+
   }
 
   if (length(S2_items)>0){

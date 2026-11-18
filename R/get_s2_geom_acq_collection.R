@@ -28,7 +28,9 @@ get_s2_geom_acq_collection <- function(aoi, datetime,
                                                   filter = paste0("eo:cloud_cover < ",cloudcover),
                                                   token = OAuthToken)
     # filter tile
-    sel <- which(get_tile(collection_geom_acq_S2$sourceId) %in% aoi$Name)
+	stac_info <- list('provider' = 'esa', 'collection' = 'sentinel2-l2a-sen2cor')
+    sel <- which(get_tile(prodName = collection_geom_acq_S2$sourceId,
+                          stac_info = stac_info) %in% aoi$Name)
     collection_geom_acq_S2 <- collection_geom_acq_S2[sel,]
     saveRDS(object = collection_geom_acq_S2, file = FileName)
   } else {

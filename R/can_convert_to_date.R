@@ -2,6 +2,9 @@
 #'
 #' @param date_string character.
 
+#' @return TRUE or FALSE
+#' @export
+
 can_convert_to_date <- function(date_string) {
   tryCatch(
     {

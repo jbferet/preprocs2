@@ -39,6 +39,7 @@ get_collections <- function(list_aoi, s2_tiles = NULL, datetime, output_dir,
     for (ni in names(list_aoi))
       s2_tiles[[ni]] <- NA
   }
+
   if (dl_collection){
     if (nbCPU==1){
       filename_fullcoll <- mapply(FUN = get_collection, aoi = list_aoi,
@@ -51,6 +52,23 @@ get_collections <- function(list_aoi, s2_tiles = NULL, datetime, output_dir,
                                   SIMPLIFY = FALSE)
 
     } else if (nbCPU>1){
+      # initialize to provide ID if THEIA
+      if (stac_info$provider == 'theia'){
+        filename_coll_tmp <- NA
+        i <- 0
+        while(is.na(filename_coll_tmp)){
+          i <- i+1
+          filename_coll_tmp <- get_collection(aoi = list_aoi[[i]],
+                                              s2_tiles = s2_tiles[[i]],
+                                              filename = filename_fullcoll[[i]],
+                                              overwrite = overwrite,
+                                              datetime = datetime,
+                                              stac_info = stac_info,
+                                              cloudcover = cloudcover)
+        }
+
+      }
+
       cl <- parallel::makeCluster(nbCPU)
       with(plan("cluster", workers = cl), local = TRUE)
       filename_fullcoll <- future.apply::future_mapply(FUN = get_collection,
@@ -60,7 +78,7 @@ get_collections <- function(list_aoi, s2_tiles = NULL, datetime, output_dir,
                                                                        datetime = datetime,
                                                                        stac_info = stac_info,
                                                                        cloudcover = cloudcover),
-                                                       future.seed = TRUE, 
+                                                       future.seed = TRUE,
                                                        future.chunk.size = NULL,
                                                        future.scheduling = 1,
                                                        SIMPLIFY = FALSE)

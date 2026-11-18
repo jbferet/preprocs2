@@ -1,3 +1,8 @@
+# preprocS2 v2.7.1
+
+## addition
+- S2 data download from theia mtd stac implemented
+
 # preprocS2 v2.6.11
 
 ## addition

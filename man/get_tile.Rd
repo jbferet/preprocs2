@@ -4,10 +4,12 @@
 \alias{get_tile}
 \title{This function gets tile from S2 image}
 \usage{
-get_tile(prodName)
+get_tile(prodName, stac_info)
 }
 \arguments{
 \item{prodName}{character. original name for the S2 image}
+
+\item{stac_info}{which stac endpoint?}
 }
 \value{
 TileName character
